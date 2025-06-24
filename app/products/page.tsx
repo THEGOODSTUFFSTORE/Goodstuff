@@ -7,10 +7,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Product } from '@/lib/types';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import { useCart } from '@/lib/cartContext';
 
 export default function ProductsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,6 +90,11 @@ export default function ProductsPage() {
 
   const handleProductClick = (productId: string) => {
     router.push(`/products/${productId}`);
+  };
+
+  const handleAddToCart = (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart(product, 1);
   };
 
   // Get unique categories from products
@@ -210,10 +217,7 @@ export default function ProductsPage() {
                 </div>
                 <button 
                   className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('Added to cart:', product.name);
-                  }}
+                  onClick={(e) => handleAddToCart(product, e)}
                 >
                   Add to basket
                 </button>

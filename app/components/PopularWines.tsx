@@ -4,9 +4,11 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
+import { useCart } from '@/lib/cartContext';
 
 export default function PopularWines() {
   const router = useRouter();
+  const { addToCart } = useCart();
   const [wines, setWines] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +32,11 @@ export default function PopularWines() {
 
   const handleWineClick = (wineId: string) => {
     router.push(`/products/${wineId}`);
+  };
+
+  const handleAddToCart = (wine: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart(wine, 1);
   };
 
   if (loading) {
@@ -94,11 +101,7 @@ export default function PopularWines() {
               </div>
               <button 
                 className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Add to cart functionality here
-                  console.log('Added to cart:', wine.name);
-                }}
+                onClick={(e) => handleAddToCart(wine, e)}
               >
                 Add to basket
               </button>

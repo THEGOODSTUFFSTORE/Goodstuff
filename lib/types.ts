@@ -110,4 +110,27 @@ export interface ContentfulBlogPost {
     publishDate: string;
     tags: string[];
   };
+}
+
+// Cart-related types
+export interface CartItem {
+  id: string;
+  product: Product;
+  quantity: number;
+  addedAt: Date;
+}
+
+export interface Cart {
+  items: CartItem[];
+  totalItems: number;
+  totalPrice: number;
+}
+
+export interface CartContextType {
+  cart: Cart;
+  addToCart: (product: Product, quantity?: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  isLoading: boolean;
 } 

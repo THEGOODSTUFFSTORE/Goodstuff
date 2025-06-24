@@ -4,9 +4,11 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
+import { useCart } from '@/lib/cartContext';
 
 export default function TrendingDeals() {
   const router = useRouter();
+  const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +32,11 @@ export default function TrendingDeals() {
 
   const handleProductClick = (productId: string) => {
     router.push(`/products/${productId}`);
+  };
+
+  const handleAddToCart = (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart(product, 1);
   };
 
   if (loading) {
@@ -93,11 +100,7 @@ export default function TrendingDeals() {
               </div>
               <button 
                 className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Add to cart functionality here
-                  console.log('Added to cart:', product.name);
-                }}
+                onClick={(e) => handleAddToCart(product, e)}
               >
                 Add to basket
               </button>

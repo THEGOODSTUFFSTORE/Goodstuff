@@ -1,10 +1,12 @@
-import React from 'react';
-import { FaHeart, FaFacebookF, FaTwitter, FaWhatsapp, FaLink, FaCheckCircle, FaStar, FaShoppingCart, FaTruck, FaShieldAlt, FaUndoAlt, FaInstagram } from 'react-icons/fa';
+"use client";
+import React, { useState, useEffect } from 'react';
+import { FaHeart, FaFacebookF, FaTwitter, FaWhatsapp, FaLink, FaCheckCircle, FaStar, FaShoppingCart, FaTruck, FaShieldAlt, FaUndoAlt, FaInstagram, FaSpinner } from 'react-icons/fa';
 import { MdOutlineDeliveryDining, MdLocalShipping, MdSecurity } from "react-icons/md";
 import { BiHeart } from 'react-icons/bi';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { Product } from '@/lib/types';
+import { useCart } from '@/lib/cartContext';
 
 interface ProductDetailProps {
   params: {
@@ -12,14 +14,51 @@ interface ProductDetailProps {
   };
 }
 
-export default async function ProductDetail({ params }: ProductDetailProps) {
-  // Await params in Next.js 15
-  const { productId } = await params;
-  
-  // Fetch product data from API
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const response = await fetch(`${baseUrl}/api/products?id=${productId}`, { cache: 'no-store' });
-  const product = await response.json();
+export default function ProductDetail({ params }: ProductDetailProps) {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart, isLoading: cartLoading } = useCart();
+
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        const productId = (await params).productId;
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/products?id=${productId}`, { cache: 'no-store' });
+        const productData = await response.json();
+        setProduct(productData);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProduct();
+  }, [params]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product, quantity);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <FaSpinner className="w-8 h-8 text-red-600 animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">Loading product...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   // Fallback data if product not found
   if (!product) {
@@ -145,12 +184,42 @@ export default async function ProductDetail({ params }: ProductDetailProps) {
                   </div>
                 )}
 
+                {/* Quantity Selector */}
+                <div className="flex items-center space-x-4 bg-gray-50 rounded-xl p-4">
+                  <span className="text-gray-700 font-medium">Quantity:</span>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
+                    >
+                      <span className="text-lg font-bold">−</span>
+                    </button>
+                    <span className="text-lg font-semibold text-gray-900 min-w-[2rem] text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
+                    >
+                      <span className="text-lg font-bold">+</span>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Action Buttons */}
                 <div className="space-y-3">
                   <div className="flex space-x-3">
-                    <button className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl text-base transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
-                      <FaShoppingCart />
-                      <span>Add to Cart</span>
+                    <button 
+                      onClick={handleAddToCart}
+                      disabled={cartLoading}
+                      className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl text-base transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2"
+                    >
+                      {cartLoading ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <FaShoppingCart />
+                      )}
+                      <span>{cartLoading ? 'Adding...' : 'Add to Cart'}</span>
                     </button>
                     <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center">
                       <BiHeart className="w-5 h-5" />
