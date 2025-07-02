@@ -6,9 +6,9 @@ import Footer from '@/app/components/Footer';
 import { getProducts } from '@/lib/api';
 
 interface MixersSubcategoryPageProps {
-  params: {
+  params: Promise<{
     subcategory: string;
-  };
+  }>;
 }
 
 const subcategoryInfo: { [key: string]: any } = {
