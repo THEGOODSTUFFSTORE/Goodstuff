@@ -6,10 +6,10 @@ import Footer from '@/app/components/Footer';
 import { getProductsByCategory } from '@/lib/api';
 
 interface MixersTypePageProps {
-  params: {
+  params: Promise<{
     subcategory: string;
     type: string;
-  };
+  }>;
 }
 
 export default async function MixersTypePage({ params }: MixersTypePageProps) {
