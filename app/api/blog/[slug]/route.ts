@@ -11,12 +11,13 @@ function getBlogImageUrl(contentfulImage: any): string {
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const response = await client.getEntries<ContentfulBlogPost>({
       content_type: 'blogPost',
-      ['fields.slug']: params.slug,
+      ['fields.slug']: resolvedParams.slug,
       limit: 1,
     } as any);
     if (!response.items.length) {
