@@ -6,10 +6,10 @@ import Footer from '@/app/components/Footer';
 import { getProductsByCategory } from '@/lib/api';
 
 interface MarketTypePageProps {
-  params: {
+  params: Promise<{
     subcategory: string;
     type: string;
-  };
+  }>;
 }
 
 export default async function MarketTypePage({ params }: MarketTypePageProps) {

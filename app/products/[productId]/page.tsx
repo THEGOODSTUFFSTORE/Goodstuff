@@ -9,12 +9,13 @@ import { Product } from '@/lib/types';
 import { useCart } from '@/lib/cartContext';
 
 interface ProductDetailProps {
-  params: {
+  params: Promise<{
     productId: string;
-  };
+  }>;
 }
 
-export default function ProductDetail({ params }: ProductDetailProps) {
+export default async function ProductDetail({ params }: ProductDetailProps) {
+  const { productId } = await params;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -23,7 +24,6 @@ export default function ProductDetail({ params }: ProductDetailProps) {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const productId = (await params).productId;
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
         const response = await fetch(`${baseUrl}/api/products?id=${productId}`, { cache: 'no-store' });
         const productData = await response.json();
@@ -37,7 +37,7 @@ export default function ProductDetail({ params }: ProductDetailProps) {
     }
 
     fetchProduct();
-  }, [params]);
+  }, [productId]);
 
   const handleAddToCart = () => {
     if (product) {

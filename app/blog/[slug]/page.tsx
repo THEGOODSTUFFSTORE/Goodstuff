@@ -5,14 +5,16 @@ import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 
 interface BlogPostDetailProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function BlogPostDetail({ params }: BlogPostDetailProps) {
+  const { slug } = await params;
+  
   // Fetch blog post data from API
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/blog/${params.slug}`, { cache: 'no-store' });
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/blog/${slug}`, { cache: 'no-store' });
   const blogPost = await response.json();
 
   // Fallback data if blog post not found
