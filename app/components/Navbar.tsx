@@ -1,5 +1,6 @@
 "use client";
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useCart } from '@/lib/cartContext';
 
@@ -42,11 +43,13 @@ const Navbar = () => {
       key: 'wine' as DropdownCategory,
       href: '/wine',
       items: [
-        { name: 'Red Wine', href: '/wine/red-wine', icon: '🍷' },
-        { name: 'White Wine', href: '/wine/white-wine', icon: '🥂' },
-        { name: 'Rosé Wine', href: '/wine/rose-wine', icon: '🌹' },
-        { name: 'Sparkling Wine', href: '/wine/sparkling-wine', icon: '🍾' },
-        { name: 'Dessert Wine', href: '/wine/dessert-wine', icon: '🍯' },
+        { name: 'Red', href: '/wine/red', icon: '🍷' },
+        { name: 'White', href: '/wine/white', icon: '🥂' },
+        { name: 'Rosé', href: '/wine/rose', icon: '🌹' },
+        { name: 'Cabernet Sauvignon', href: '/wine/cabernet-sauvignon', icon: '🍇' },
+        { name: 'Sauvignon Blanc', href: '/wine/sauvignon-blanc', icon: '🍾' },
+        { name: 'Merlot', href: '/wine/merlot', icon: '🍷' },
+        { name: 'Champagne', href: '/wine/champagne', icon: '🥂' },
       ]
     },
     {
@@ -138,19 +141,29 @@ const Navbar = () => {
       {/* Main navbar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out ${
         isScrolled 
-          ? 'bg-white/80 backdrop-blur-xl shadow-xl border-b border-white/20' 
-          : 'bg-white/95 backdrop-blur-md shadow-lg'
-      }`}>
+          ? 'backdrop-blur-xl shadow-xl' 
+          : 'backdrop-blur-md shadow-lg'
+      }`}
+      style={{
+        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.98)',
+        borderBottom: isScrolled ? '1px solid rgba(107, 114, 128, 0.2)' : 'none'
+      }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             
-            {/* Logo with glow effect */}
+            {/* Clean graffiti-style logo with image */}
             <div className="flex-shrink-0 relative group">
-              <Link href="/" className="relative">
-                <span className="text-2xl font-black bg-gradient-to-r from-red-600 via-orange-500 to-pink-600 bg-clip-text text-transparent hover:from-pink-600 hover:via-red-500 hover:to-orange-600 transition-all duration-500">
+              <Link href="/" className="relative flex items-center space-x-3 px-4 py-2">
+                <Image 
+                  src="/logo.png" 
+                  alt="The Goodstuff Logo" 
+                  width={40}
+                  height={40}
+                  className="h-10 w-auto group-hover:scale-110 transition-transform duration-300"
+                />
+                <span className="text-2xl font-bold text-gray-900 hover:text-red-500 transition-colors duration-300">
                   The Goodstuff
                 </span>
-                <div className="absolute -inset-2 bg-gradient-to-r from-red-600/20 via-orange-500/20 to-pink-600/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500 -z-10" />
               </Link>
             </div>
 
@@ -165,17 +178,31 @@ const Navbar = () => {
                 >
                   <Link 
                     href={item.href} 
-                    className="relative px-4 py-2 text-gray-700 hover:text-red-600 font-medium transition-all duration-300 flex items-center group rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50"
+                    className="relative px-4 py-2 font-medium transition-all duration-300 flex items-center group rounded-xl"
+                    style={{ 
+                      color: '#1a1a1a'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#EF4444';
+                      e.currentTarget.style.backgroundColor = 'rgba(107, 114, 128, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#1a1a1a';
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
                   >
                     <span className="relative z-10">{item.name}</span>
                     <svg className={`ml-1 h-4 w-4 transform transition-all duration-300 ${
-                      activeDropdown === item.key ? 'rotate-180 text-red-500' : 'group-hover:rotate-180'
-                    }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      activeDropdown === item.key ? 'rotate-180' : 'group-hover:rotate-180'
+                    }`} 
+                    style={{ color: activeDropdown === item.key ? '#EF4444' : 'currentColor' }}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                     
                     {/* Hover background effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 ease-out" />
+                    <div className="absolute inset-0 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 ease-out" 
+                         style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }} />
                   </Link>
                   
                   {/* Modern Dropdown */}
@@ -184,14 +211,29 @@ const Navbar = () => {
                       ? 'opacity-100 visible translate-y-0' 
                       : 'opacity-0 invisible -translate-y-4'
                   }`}>
-                    <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+                    <div className="backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden"
+                         style={{
+                           backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                           border: '1px solid rgba(107, 114, 128, 0.2)'
+                         }}>
                       <div className="p-2">
                         {item.items.map((subItem, index) => (
                           <Link 
                             key={subItem.href} 
                             href={subItem.href} 
-                            className="flex items-center px-4 py-3 text-sm text-gray-700 hover:text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 rounded-xl transition-all duration-200 group"
-                            style={{ animationDelay: `${index * 50}ms` }}
+                            className="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group"
+                            style={{ 
+                              color: '#1a1a1a',
+                              animationDelay: `${index * 50}ms` 
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = '#EF4444';
+                              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = '#1a1a1a';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }}
                           >
                             <span className="mr-3 text-lg group-hover:scale-110 transition-transform duration-200">
                               {subItem.icon}
@@ -211,39 +253,62 @@ const Navbar = () => {
 
             {/* Right side icons */}
             <div className="flex items-center space-x-3">
-              {/* Search button with pulse effect */}
-              <button className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 group lg:hidden relative">
-                <svg className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <div className="absolute inset-0 bg-red-500/20 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 -z-10" />
-              </button>
 
               {/* Account with notification dot */}
-              <Link href="/account" className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 group relative">
+              <Link href="/account" className="p-2 rounded-xl transition-all duration-300 group relative"
+                    style={{ color: '#1a1a1a' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#EF4444';
+                      e.currentTarget.style.backgroundColor = 'rgba(107, 114, 128, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#1a1a1a';
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}>
                 <svg className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <div className="absolute inset-0 bg-red-500/20 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 -z-10" />
+                <div className="absolute inset-0 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 -z-10" 
+                     style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)' }} />
               </Link>
 
               {/* Cart with animated badge */}
-              <Link href="/basket" className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 group relative">
+              <Link href="/basket" className="p-2 rounded-xl transition-all duration-300 group relative"
+                    style={{ color: '#1a1a1a' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#EF4444';
+                      e.currentTarget.style.backgroundColor = 'rgba(107, 114, 128, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#1a1a1a';
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}>
                 <svg className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg animate-pulse">
+                  <span className="absolute -top-1 -right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg animate-pulse"
+                        style={{ background: 'linear-gradient(45deg, #10B981, #059669)' }}>
                     {cart.totalItems > 99 ? '99+' : cart.totalItems}
                   </span>
                 )}
-                <div className="absolute inset-0 bg-red-500/20 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 -z-10" />
+                <div className="absolute inset-0 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 -z-10" 
+                     style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)' }} />
               </Link>
 
               {/* Hamburger menu with morphing animation */}
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 group relative"
+                className="lg:hidden p-2 rounded-xl transition-all duration-300 group relative"
+                style={{ color: '#1a1a1a' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#EF4444';
+                  e.currentTarget.style.backgroundColor = 'rgba(107, 114, 128, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#1a1a1a';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 <div className="w-5 h-5 flex flex-col justify-center items-center space-y-1">
                   <span className={`block w-5 h-0.5 bg-current transform transition-all duration-300 ${
@@ -256,29 +321,38 @@ const Navbar = () => {
                     isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
                   }`} />
                 </div>
-                <div className="absolute inset-0 bg-red-500/20 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 -z-10" />
+                <div className="absolute inset-0 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300 -z-10" 
+                     style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)' }} />
               </button>
             </div>
           </div>
 
           {/* Mobile menu with slide animation */}
-          <div className={`lg:hidden transition-all duration-500 ease-out overflow-hidden ${
-            isMobileMenuOpen 
-              ? 'max-h-screen opacity-100 transform translate-y-0' 
-              : 'max-h-0 opacity-0 transform -translate-y-4'
-          }`}>
-            <div className="border-t border-gray-200/50 py-4 bg-white/50 backdrop-blur-sm rounded-b-2xl">
-              <div className="flex flex-col space-y-1">
+          {isMobileMenuOpen && (
+            <div className="lg:hidden absolute left-0 right-0 top-full bg-white shadow-xl border-t border-gray-200 z-50">
+              <div className="py-4 px-4 max-h-96 overflow-y-auto">
+                <div className="flex flex-col space-y-1">
                 {navigationItems.map((item, index) => (
                   <div key={item.key} className="px-2" style={{ animationDelay: `${index * 100}ms` }}>
                     <button 
                       onClick={() => toggleMobileDropdown(item.key)}
-                      className="flex justify-between items-center w-full text-left text-gray-700 hover:text-red-600 font-medium px-4 py-3 hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 rounded-xl transition-all duration-300 group"
+                      className="flex justify-between items-center w-full text-left font-medium px-4 py-3 rounded-xl transition-all duration-300 group"
+                      style={{ color: '#1a1a1a' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#EF4444';
+                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '#1a1a1a';
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
                     >
                       <span className="font-semibold">{item.name}</span>
-                      <svg className={`h-4 w-4 transform transition-all duration-300 group-hover:text-red-500 ${
+                      <svg className={`h-4 w-4 transform transition-all duration-300 ${
                         mobileDropdowns[item.key] ? 'rotate-180' : ''
-                      }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      }`} 
+                      style={{ color: mobileDropdowns[item.key] ? '#EF4444' : 'currentColor' }}
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
@@ -292,8 +366,19 @@ const Navbar = () => {
                           <Link 
                             key={subItem.href} 
                             href={subItem.href} 
-                            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group"
-                            style={{ animationDelay: `${subIndex * 50}ms` }}
+                            className="flex items-center px-4 py-2 text-sm rounded-lg transition-all duration-200 group"
+                            style={{ 
+                              color: '#6B7280',
+                              animationDelay: `${subIndex * 50}ms` 
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = '#EF4444';
+                              e.currentTarget.style.backgroundColor = 'rgba(107, 114, 128, 0.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = '#6B7280';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }}
                           >
                             <span className="mr-3 text-base group-hover:scale-110 transition-transform duration-200">
                               {subItem.icon}
@@ -305,9 +390,10 @@ const Navbar = () => {
                     </div>
                   </div>
                 ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </nav>
       
