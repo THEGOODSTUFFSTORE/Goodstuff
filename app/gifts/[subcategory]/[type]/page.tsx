@@ -15,7 +15,6 @@ interface GiftsTypePageProps {
 export default async function GiftsTypePage({ params }: GiftsTypePageProps) {
   const { subcategory, type } = await params;
   
-  // Fetch only gift products from Contentful
   const giftProducts = await getProductsByCategory('gifts');
   
   // Filter products by exact subcategory and type matching
