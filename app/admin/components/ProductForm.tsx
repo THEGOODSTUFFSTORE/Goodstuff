@@ -1,48 +1,119 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Save, Upload } from 'lucide-react';
+import { createProduct, updateProduct, uploadProductImage } from '@/lib/firebaseApi';
+import { Product } from '@/lib/types';
 
 interface ProductFormProps {
   isOpen: boolean;
   onClose: () => void;
-  product?: {
-    id: string;
-    name: string;
-    category: string;
-    price: number;
-    stock: number;
-    status: 'active' | 'inactive';
-    description?: string;
-  };
-  onSubmit: (productData: any) => void;
+  product?: Product;
+  onSubmit: (productData: Product) => void;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onSubmit }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: product?.name || '',
     category: product?.category || 'wine',
+    subcategory: product?.subcategory || '',
     price: product?.price || 0,
-    stock: product?.stock || 0,
-    status: product?.status || 'active',
     description: product?.description || '',
+    detailedDescription: product?.detailedDescription || '',
+    tastingNotes: product?.tastingNotes || '',
+    additionalNotes: product?.additionalNotes || '',
+    origin: product?.origin || '',
+    alcoholContent: product?.alcoholContent || '',
+    volume: product?.volume || '',
+    brand: product?.brand || '',
+    status: 'active',
+    sections: product?.sections || [],
     image: null as File | null,
   });
 
   const categories = [
     { value: 'wine', label: 'Wine' },
-    { value: 'spirits', label: 'Spirits' },
+    { value: 'spirit', label: 'Spirits' },
     { value: 'beer', label: 'Beer' },
     { value: 'mixers', label: 'Mixers' },
-    { value: 'snacks', label: 'Snacks' },
+    { value: 'snack', label: 'Snacks' },
     { value: 'gifts', label: 'Gifts' },
     { value: 'market', label: 'Market' },
+  ];
+
+  const subcategoriesData = {
+    wine: [
+      { id: 'redwine', name: 'Red Wine' },
+      { id: 'whitewine', name: 'White Wine' },
+      { id: 'rosewine', name: 'Rosé Wine' },
+      { id: 'sparklingwine', name: 'Sparkling Wine' },
+      { id: 'dessertwine', name: 'Dessert Wine' }
+    ],
+    spirit: [
+      { id: 'whiskey', name: 'Whiskey' },
+      { id: 'vodka', name: 'Vodka' },
+      { id: 'gin', name: 'Gin' },
+      { id: 'rum', name: 'Rum' },
+      { id: 'tequila', name: 'Tequila' },
+      { id: 'cognac', name: 'Cognac & Brandy' }
+    ],
+    beer: [
+      { id: 'lager', name: 'Lager' },
+      { id: 'ale', name: 'Ale' },
+      { id: 'wheat', name: 'Wheat Beer' },
+      { id: 'craft', name: 'Craft Beer' },
+      { id: 'imported', name: 'Imported Beer' }
+    ],
+    mixers: [
+      { id: 'tonic', name: 'Tonic Water' },
+      { id: 'soda', name: 'Soda Water' },
+      { id: 'juice', name: 'Juices' },
+      { id: 'bitters', name: 'Bitters & Syrups' },
+      { id: 'garnish', name: 'Garnishes' }
+    ],
+    snack: [
+      { id: 'nuts', name: 'Nuts & Seeds' },
+      { id: 'chips', name: 'Chips & Crisps' },
+      { id: 'chocolate', name: 'Chocolate & Sweets' },
+      { id: 'cheese', name: 'Cheese & Crackers' },
+      { id: 'jerky', name: 'Jerky & Dried Meats' },
+      { id: 'healthy', name: 'Healthy Snacks' }
+    ],
+    market: [
+      { id: 'fresh', name: 'Fresh Products' },
+      { id: 'pantry', name: 'Pantry Essentials' },
+      { id: 'gourmet', name: 'Gourmet Foods' },
+      { id: 'international', name: 'International Foods' },
+      { id: 'organic', name: 'Organic & Natural' },
+      { id: 'specialty', name: 'Specialty Items' }
+    ],
+    gifts: [
+      { id: 'sets', name: 'Gift Sets' },
+      { id: 'accessories', name: 'Bar Accessories' },
+      { id: 'corporate', name: 'Corporate Gifts' },
+      { id: 'occasion', name: 'Occasion Gifts' },
+      { id: 'luxury', name: 'Luxury Gifts' },
+      { id: 'personalized', name: 'Personalized Gifts' }
+    ]
+  };
+
+  const availableSubcategories = useMemo(() => {
+    return subcategoriesData[formData.category as keyof typeof subcategoriesData] || [];
+  }, [formData.category]);
+
+  const sections = [
+    { value: 'popular', label: 'Popular Products' },
+    { value: 'new_arrivals', label: 'New Arrivals' },
+    { value: 'trending_deals', label: 'Trending Deals' },
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'price' || name === 'stock' ? parseFloat(value) || 0 : value
+      [name]: name === 'price' ? parseFloat(value) || 0 : value,
+      // Reset subcategory when category changes
+      ...(name === 'category' ? { subcategory: '' } : {})
     }));
   };
 
@@ -55,10 +126,106 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      sections: checked 
+        ? [...(prev.sections || []), name]
+        : (prev.sections || []).filter(section => section !== name)
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    onClose();
+    setIsLoading(true);
+
+    try {
+      const productData = {
+        name: formData.name,
+        slug: formData.name.toLowerCase().replace(/\s+/g, '-'),
+        category: formData.category,
+        subcategory: formData.subcategory,
+        productImage: product?.productImage || '',
+        price: formData.price,
+        description: formData.description,
+        detailedDescription: formData.detailedDescription,
+        tastingNotes: formData.tastingNotes,
+        additionalNotes: formData.additionalNotes,
+        origin: formData.origin,
+        alcoholContent: formData.alcoholContent,
+        volume: formData.volume,
+        brand: formData.brand,
+        status: 'active',
+        sections: formData.sections,
+        updatedAt: new Date().toISOString(),
+      };
+
+      console.log('Saving product data:', productData);
+
+      // First save/update the product data without the new image
+      let savedProduct: Product;
+      if (product?.id) {
+        console.log('Updating existing product:', product.id);
+        await updateProduct(product.id, productData);
+        savedProduct = { ...productData, id: product.id };
+      } else {
+        console.log('Creating new product');
+        savedProduct = await createProduct(productData);
+      }
+
+      console.log('Product saved successfully:', savedProduct);
+
+      // Instantly reflect the change in UI
+      onSubmit(savedProduct);
+      onClose();
+
+      // Then handle image upload in the background if there's a new image
+      if (formData.image) {
+        console.log('Starting image upload for product:', savedProduct.id);
+        try {
+          const imageUrl = await uploadProductImage(formData.image, savedProduct.id);
+          console.log('Image uploaded successfully:', imageUrl);
+          
+          // Update the product with the new image URL
+          await updateProduct(savedProduct.id, { 
+            productImage: imageUrl,
+            updatedAt: new Date().toISOString()
+          });
+          console.log('Product updated with new image URL');
+          
+          // Reflect the image update
+          onSubmit({ ...savedProduct, productImage: imageUrl });
+        } catch (imageError) {
+          console.error('Error uploading image:', imageError);
+          // Don't throw here - the product is saved, just the image failed
+          alert('Product saved but image upload failed. You can try updating the image later.');
+        }
+      }
+    } catch (error: any) {
+      console.error('Error saving product:', {
+        error,
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        stack: error.stack
+      });
+      
+      let errorMessage = 'Error saving product. ';
+      if (error.code === 'permission-denied') {
+        errorMessage += 'You do not have permission to perform this action.';
+      } else if (error.code === 'unavailable') {
+        errorMessage += 'The service is currently unavailable. Please try again later.';
+      } else if (error.message) {
+        errorMessage += error.message;
+      } else {
+        errorMessage += 'Please try again.';
+      }
+      
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -96,28 +263,51 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
             />
           </div>
 
-          {/* Category */}
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-              Category *
-            </label>
-            <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            >
-              {categories.map(category => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
+          {/* Category and Subcategory */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                Category *
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                {categories.map(category => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700 mb-2">
+                Subcategory *
+              </label>
+              <select
+                id="subcategory"
+                name="subcategory"
+                value={formData.subcategory}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="">Select a subcategory</option>
+                {availableSubcategories.map(subcategory => (
+                  <option key={subcategory.id} value={subcategory.id}>
+                    {subcategory.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Price and Stock */}
+          {/* Price and Brand */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
@@ -141,55 +331,156 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
             </div>
 
             <div>
-              <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">
-                Stock Quantity *
+              <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-2">
+                Brand
               </label>
               <input
-                type="number"
-                id="stock"
-                name="stock"
-                value={formData.stock}
+                type="text"
+                id="brand"
+                name="brand"
+                value={formData.brand}
                 onChange={handleInputChange}
-                required
-                min="0"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="0"
+                placeholder="Enter brand name"
               />
             </div>
           </div>
 
-          {/* Status */}
+          {/* Origin and Volume */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="origin" className="block text-sm font-medium text-gray-700 mb-2">
+                Origin
+              </label>
+              <input
+                type="text"
+                id="origin"
+                name="origin"
+                value={formData.origin}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder="Enter origin"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="volume" className="block text-sm font-medium text-gray-700 mb-2">
+                Volume
+              </label>
+              <input
+                type="text"
+                id="volume"
+                name="volume"
+                value={formData.volume}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder="e.g., 750ml"
+              />
+            </div>
+          </div>
+
+          {/* Alcohol Content */}
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-              Status *
+            <label htmlFor="alcoholContent" className="block text-sm font-medium text-gray-700 mb-2">
+              Alcohol Content
             </label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
+            <input
+              type="text"
+              id="alcoholContent"
+              name="alcoholContent"
+              value={formData.alcoholContent}
               onChange={handleInputChange}
-              required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
+              placeholder="e.g., 14.5%"
+            />
           </div>
 
           {/* Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Description
+              Short Description
             </label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleInputChange}
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              placeholder="Enter short product description..."
+            />
+          </div>
+
+          {/* Detailed Description */}
+          <div>
+            <label htmlFor="detailedDescription" className="block text-sm font-medium text-gray-700 mb-2">
+              Detailed Description
+            </label>
+            <textarea
+              id="detailedDescription"
+              name="detailedDescription"
+              value={formData.detailedDescription}
+              onChange={handleInputChange}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="Enter product description..."
+              placeholder="Enter detailed product description..."
             />
+          </div>
+
+          {/* Tasting Notes */}
+          <div>
+            <label htmlFor="tastingNotes" className="block text-sm font-medium text-gray-700 mb-2">
+              Tasting Notes
+            </label>
+            <textarea
+              id="tastingNotes"
+              name="tastingNotes"
+              value={formData.tastingNotes}
+              onChange={handleInputChange}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              placeholder="Enter tasting notes..."
+            />
+          </div>
+
+          {/* Additional Notes */}
+          <div>
+            <label htmlFor="additionalNotes" className="block text-sm font-medium text-gray-700 mb-2">
+              Additional Notes
+            </label>
+            <textarea
+              id="additionalNotes"
+              name="additionalNotes"
+              value={formData.additionalNotes}
+              onChange={handleInputChange}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              placeholder="Enter additional notes..."
+            />
+          </div>
+
+          {/* Product Sections */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Display in Sections
+            </label>
+            <div className="space-y-2">
+              {sections.map((section) => (
+                <div key={section.value} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={section.value}
+                    name={section.value}
+                    checked={formData.sections?.includes(section.value) || false}
+                    onChange={handleCheckboxChange}
+                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor={section.value} className="ml-2 text-sm text-gray-700">
+                    {section.label}
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Image Upload */}
@@ -232,15 +523,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center space-x-2"
+              disabled={isLoading}
             >
               <Save className="h-4 w-4" />
-              <span>{product ? 'Update Product' : 'Add Product'}</span>
+              <span>{isLoading ? 'Saving...' : (product ? 'Update Product' : 'Add Product')}</span>
             </button>
           </div>
         </form>

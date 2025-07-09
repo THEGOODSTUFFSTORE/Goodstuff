@@ -6,6 +6,7 @@ import SearchSection from './components/SearchSection'
 import CategoryGrid from './components/Categories'
 import TrendingDeals from './components/TrendingDeals'
 import PopularWines from './components/PopularWines'
+import NewArrivals from './components/NewArrivals'
 import Footer from './components/Footer'
 
 export const metadata: Metadata = {
@@ -13,13 +14,13 @@ export const metadata: Metadata = {
   description: 'Home page',
 }
 
-
 function page() {
   return (
     <div>
       <Navbar />
       <Hero />
       <SearchSection />
+      <NewArrivals />
       <TrendingDeals />
       <PopularWines />
       <Footer />

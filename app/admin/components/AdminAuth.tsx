@@ -1,119 +1,138 @@
 "use client";
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 
-interface AdminAuthProps {
-  onLogin: (credentials: { username: string; password: string }) => void;
-}
-
-const AdminAuth: React.FC<AdminAuthProps> = ({ onLogin }) => {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
-  });
-  const [showPassword, setShowPassword] = useState(false);
+const AdminAuth = () => {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      onLogin(credentials);
-      setIsLoading(false);
-    }, 1000);
-  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCredentials(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    try {
+      // First try to sign in with Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('Firebase auth successful');
+      
+      // Get the ID token
+      const idToken = await userCredential.user.getIdToken();
+      console.log('Got ID token');
+      
+      // Send the ID token to backend
+      const response = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create session');
+      }
+
+      console.log('Session created successfully');
+      // Redirect to admin page after successful login
+      router.push('/admin');
+    } catch (error: any) {
+      console.error('Login error:', error);
+      // Handle Firebase Auth errors
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/invalid-email':
+            setError('Invalid email address format.');
+            break;
+          case 'auth/user-disabled':
+            setError('This account has been disabled.');
+            break;
+          case 'auth/user-not-found':
+            setError('No account found with this email.');
+            break;
+          case 'auth/wrong-password':
+            setError('Incorrect password.');
+            break;
+          default:
+            setError(error.message || 'Failed to login. Please try again.');
+        }
+      } else {
+        // Handle session creation errors
+        setError(error.message || 'Failed to create session. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-red-100">
-            <Lock className="h-6 w-6 text-red-600" />
-          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Admin Login
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to access the admin dashboard
+            Please sign in with your admin credentials
           </p>
         </div>
-        
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="sr-only">
-                Username
+              <label htmlFor="email" className="sr-only">
+                Email address
               </label>
               <input
-                id="username"
-                name="username"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                value={credentials.username}
-                onChange={handleInputChange}
+                placeholder="Email address"
               />
             </div>
-            <div className="relative">
+            <div>
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type="password"
+                autoComplete="current-password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
-                value={credentials.password}
-                onChange={handleInputChange}
               />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <Eye className="h-5 w-5 text-gray-400" />
-                )}
-              </button>
             </div>
           </div>
+
+          {error && (
+            <div className="text-red-600 text-sm text-center">
+              {error}
+            </div>
+          )}
 
           <div>
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
             >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Signing in...
-                </div>
-              ) : (
-                'Sign in'
-              )}
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-xs text-gray-500">
-              Demo credentials: admin / password123
-            </p>
           </div>
         </form>
       </div>

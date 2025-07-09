@@ -20,7 +20,7 @@ const Hero: React.FC<HeroProps> = ({
   subtitle = "SINGLE MALT SCOTCH WHISKY",
   buttonText = "GIFT HIM TODAY",
   onButtonClick = () => {},
-  heroImage = "", // Replace with your actual image path
+  heroImage = "glen.png", // Replace with your actual image path
   heroVideo,
   backgroundVideo,
   backgroundGradient = "from-gray-900 via-black to-gray-800",

@@ -21,6 +21,7 @@ export default function ProductsList() {
         const response = await fetch('/api/products');
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
+        console.log('Fetched products data:', data);
         setProducts(data);
         
         // Check for URL parameters
@@ -160,11 +161,15 @@ export default function ProductsList() {
             >
               <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
                 <Image
-                  src={product.productImage}
+                  src={product.productImage || '/wine.webp'}
                   alt={product.name}
                   width={150}
                   height={150}
-                  objectFit="contain"
+                  style={{ objectFit: 'contain' }}
+                  onError={(e: any) => {
+                    console.error('Image load error:', e);
+                    e.target.src = '/wine.webp';
+                  }}
                 />
               </div>
               <div className="p-4">

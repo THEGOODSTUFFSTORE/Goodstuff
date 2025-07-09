@@ -81,13 +81,19 @@ export default function TrendingDeals() {
             onClick={() => handleProductClick(product.id)}
           >
             <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
-              <Image
-                src={product.productImage}
-                alt={product.name}
-                width={150}
-                height={150}
-                objectFit="contain"
-              />
+              {product.productImage ? (
+                <Image
+                  src={product.productImage}
+                  alt={product.name}
+                  fill
+                  style={{ objectFit: 'contain' }}
+                  className="p-2"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full w-full">
+                  <span className="text-gray-400">No image</span>
+                </div>
+              )}
             </div>
             <div className="p-4">
               <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
@@ -95,7 +101,7 @@ export default function TrendingDeals() {
               </h3>
               <div className="flex items-baseline mt-2">
                 <span className="text-xl font-bold text-red-600">
-                  {product.price}/-
+                  Ksh {product.price.toLocaleString()}
                 </span>
               </div>
               <button 

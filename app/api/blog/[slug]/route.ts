@@ -1,43 +1,40 @@
 import { NextResponse } from 'next/server';
-import client from '@/lib/contentful';
-import { ContentfulBlogPost } from '@/lib/types';
-
-function getBlogImageUrl(contentfulImage: any): string {
-  if (!contentfulImage?.fields?.file?.url) {
-    return '/wine.webp';
-  }
-  return `https:${contentfulImage.fields.file.url}`;
-}
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { BlogPost } from '@/lib/types';
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: { slug: string } }
 ) {
   try {
-    const resolvedParams = await params;
-    const response = await client.getEntries<ContentfulBlogPost>({
-      content_type: 'blogPost',
-      ['fields.slug']: resolvedParams.slug,
-      limit: 1,
-    } as any);
-    if (!response.items.length) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    const blogsRef = collection(db, 'blogs');
+    const q = query(
+      blogsRef,
+      where('slug', '==', params.slug),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return NextResponse.json(
+        { error: 'Blog post not found' },
+        { status: 404 }
+      );
     }
-    const item = response.items[0];
+
     const post = {
-      id: item.sys.id,
-      title: item.fields.title,
-      slug: item.fields.slug,
-      excerpt: item.fields.excerpt,
-      content: item.fields.content,
-      featuredImage: getBlogImageUrl(item.fields.featuredImage),
-      author: item.fields.author,
-      publishDate: item.fields.publishDate,
-      tags: item.fields.tags,
-    };
-    return NextResponse.json(post);
+      id: querySnapshot.docs[0].id,
+      ...querySnapshot.docs[0].data()
+    } as BlogPost;
+
+    return NextResponse.json({ post });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch blog post' }, { status: 500 });
+    console.error('Error fetching blog post:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch blog post' },
+      { status: 500 }
+    );
   }
 } 
  

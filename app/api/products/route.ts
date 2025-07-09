@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('id');
-    const type = searchParams.get('type'); // trending, popular, wine, non-wine
+    const type = searchParams.get('type'); // trending, popular, new_arrivals, wine, non-wine
     
     // If ID is provided, fetch single product
     if (productId) {
@@ -41,20 +41,19 @@ export async function GET(request: NextRequest) {
           !item.subcategory.toLowerCase().includes('wine')
       );
     } else if (type === 'trending') {
-      // For trending, you could implement logic like:
-      // - Exclude wines (since they have their own section)
-      // - Maybe filter by recent additions, high ratings, etc.
+      // Filter products marked as trending
       filteredProducts = products.filter(
-        (item: any) =>
-          !item.category.toLowerCase().includes('wine') &&
-          !item.subcategory.toLowerCase().includes('wine')
+        (item: any) => item.sections?.includes('trending_deals')
       ).slice(0, 6);
     } else if (type === 'popular') {
-      // For popular wines specifically
+      // Filter products marked as popular
       filteredProducts = products.filter(
-        (item: any) =>
-          item.category.toLowerCase().includes('wine') ||
-          item.subcategory.toLowerCase().includes('wine')
+        (item: any) => item.sections?.includes('popular')
+      ).slice(0, 6);
+    } else if (type === 'new_arrivals') {
+      // Filter products marked as new arrivals
+      filteredProducts = products.filter(
+        (item: any) => item.sections?.includes('new_arrivals')
       ).slice(0, 6);
     }
     

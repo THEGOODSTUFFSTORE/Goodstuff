@@ -6,46 +6,45 @@ import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
 import { useCart } from '@/lib/cartContext';
 
-export default function PopularWines() {
+export default function NewArrivals() {
   const router = useRouter();
   const { addToCart } = useCart();
-  const [wines, setWines] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchWines = async () => {
+    const fetchProducts = async () => {
       try {
-        // Use API route with popular type parameter  
-        const response = await fetch('/api/products?type=popular');
+        const response = await fetch('/api/products?type=new_arrivals');
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
-        console.log('Fetched wine data:', data);
-        setWines(data); // API already returns filtered and sliced wine products
+        console.log('Fetched new arrivals:', data);
+        setProducts(data);
       } catch (error) {
-        console.error('Error fetching wines:', error);
-        setWines([]);
+        console.error('Error fetching new arrivals:', error);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchWines();
+    fetchProducts();
   }, []);
 
-  const handleWineClick = (wineId: string) => {
-    router.push(`/products/${wineId}`);
+  const handleProductClick = (productId: string) => {
+    router.push(`/products/${productId}`);
   };
 
-  const handleAddToCart = (wine: Product, e: React.MouseEvent) => {
+  const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart(wine, 1);
+    addToCart(product, 1);
   };
 
   if (loading) {
     return (
       <section className="container mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-light text-gray-800">Popular Wines</h2>
-          <a href="/products?category=wine" className="text-orange-600 font-medium hover:underline flex items-center">
+          <h2 className="text-3xl font-light text-gray-800">New Arrivals</h2>
+          <a href="/products" className="text-orange-600 font-medium hover:underline flex items-center">
             VIEW ALL »
           </a>
         </div>
@@ -70,22 +69,22 @@ export default function PopularWines() {
   return (
     <section className="container mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-light text-gray-800">Popular Wines</h2>
-        <a href="/products?category=wine" className="text-orange-600 font-medium hover:underline flex items-center">
+        <h2 className="text-3xl font-light text-gray-800">New Arrivals</h2>
+        <a href="/products" className="text-orange-600 font-medium hover:underline flex items-center">
           VIEW ALL »
         </a>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-        {wines.map((wine) => (
+        {products.map((product) => (
           <div
-            key={wine.id}
+            key={product.id}
             className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition duration-300 hover:scale-105"
-            onClick={() => handleWineClick(wine.id)}
+            onClick={() => handleProductClick(product.id)}
           >
             <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
               <Image
-                src={wine.productImage || '/wine.webp'}
-                alt={wine.name}
+                src={product.productImage || '/wine.webp'}
+                alt={product.name}
                 width={150}
                 height={150}
                 style={{ objectFit: 'contain' }}
@@ -97,16 +96,16 @@ export default function PopularWines() {
             </div>
             <div className="p-4">
               <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
-                {wine.name}
+                {product.name}
               </h3>
               <div className="flex items-baseline mt-2">
                 <span className="text-xl font-bold text-red-600">
-                  {wine.price}/-
+                  {product.price}/-
                 </span>
               </div>
               <button 
                 className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
-                onClick={(e) => handleAddToCart(wine, e)}
+                onClick={(e) => handleAddToCart(product, e)}
               >
                 Add to basket
               </button>

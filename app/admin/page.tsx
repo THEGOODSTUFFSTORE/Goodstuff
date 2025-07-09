@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   Package, 
@@ -22,6 +22,10 @@ import {
 } from 'lucide-react';
 import ProductForm from './components/ProductForm';
 import AdminAuth from './components/AdminAuth';
+import { getProducts, deleteProduct } from '@/lib/firebaseApi';
+import { Product } from '@/lib/types';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
 
 interface AdminStats {
   totalProducts: number;
@@ -32,101 +36,103 @@ interface AdminStats {
   monthlyGrowth: number;
 }
 
-interface AdminProduct {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  status: 'active' | 'inactive';
-  lastUpdated: string;
-}
-
-interface AdminWine {
-  id: string;
-  name: string;
-  type: string;
-  vintage: string;
-  price: string;
-  stock: number;
-  isPopular: boolean;
-}
-
-interface AdminBlogPost {
-  id: string;
-  title: string;
-  author: string;
-  publishDate: string;
-  status: 'published' | 'draft';
-  views: number;
-}
-
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - replace with actual API calls
+  // Mock data for stats - in production, this would come from Firebase
   const stats: AdminStats = {
-    totalProducts: 1247,
-    totalWines: 342,
+    totalProducts: products.length,
+    totalWines: products.filter(p => p.category === 'wine').length,
     totalBlogPosts: 89,
     totalOrders: 156,
     totalRevenue: 45678,
     monthlyGrowth: 12.5
   };
 
-  const products: AdminProduct[] = [
-    { id: '1', name: 'Premium Red Wine', category: 'Wine', price: 45.99, stock: 50, status: 'active', lastUpdated: '2024-01-15' },
-    { id: '2', name: 'Craft Beer Pack', category: 'Beer', price: 29.99, stock: 25, status: 'active', lastUpdated: '2024-01-14' },
-    { id: '3', name: 'Whisky Collection', category: 'Spirits', price: 89.99, stock: 15, status: 'inactive', lastUpdated: '2024-01-13' },
-  ];
+  // Fetch products on mount and when products are updated
+  useEffect(() => {
+    const loadProducts = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedProducts = await getProducts();
+        setProducts(fetchedProducts);
+      } catch (error) {
+        console.error('Error loading products:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const wines: AdminWine[] = [
-    { id: '1', name: 'Château Margaux 2015', type: 'Red', vintage: '2015', price: '$299.99', stock: 10, isPopular: true },
-    { id: '2', name: 'Dom Pérignon 2012', type: 'Sparkling', vintage: '2012', price: '$199.99', stock: 20, isPopular: true },
-    { id: '3', name: 'Sauvignon Blanc 2023', type: 'White', vintage: '2023', price: '$24.99', stock: 45, isPopular: false },
-  ];
+    loadProducts();
+  }, []);
 
-  const blogPosts: AdminBlogPost[] = [
-    { id: '1', title: 'Wine Tasting Guide 2024', author: 'John Smith', publishDate: '2024-01-15', status: 'published', views: 1247 },
-    { id: '2', title: 'Craft Beer Revolution', author: 'Sarah Johnson', publishDate: '2024-01-14', status: 'published', views: 892 },
-    { id: '3', title: 'Whisky Appreciation', author: 'Mike Wilson', publishDate: '2024-01-13', status: 'draft', views: 0 },
-  ];
+  // Check authentication status
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsAuthenticated(!!user);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    setIsProductFormOpen(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setIsProductFormOpen(true);
+  };
+
+  const handleProductSubmit = async (productData: Product) => {
+    // Refresh products list after submit
+    const updatedProducts = await getProducts();
+    setProducts(updatedProducts);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (confirm('Are you sure you want to delete this product?')) {
+      try {
+        await deleteProduct(productId);
+        const updatedProducts = await getProducts();
+        setProducts(updatedProducts);
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Error deleting product. Please try again.');
+      }
+    }
+  };
+
+  const filteredProducts = products.filter(product => 
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
     { id: 'products', name: 'Products', icon: Package },
-    { id: 'wines', name: 'Wines', icon: Wine },
     { id: 'blog', name: 'Blog Posts', icon: FileText },
     { id: 'customers', name: 'Customers', icon: Users },
     { id: 'settings', name: 'Settings', icon: Settings },
   ];
-
-  const handleLogin = (credentials: { username: string; password: string }) => {
-    // Simple authentication - in production, this would be an API call
-    if (credentials.username === 'admin' && credentials.password === 'password123') {
-      setIsAuthenticated(true);
-      localStorage.setItem('adminAuthenticated', 'true');
-    } else {
-      alert('Invalid credentials. Use admin / password123');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('adminAuthenticated');
-  };
-
-  // Check if already authenticated on component mount
-  React.useEffect(() => {
-    const authStatus = localStorage.getItem('adminAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -185,55 +191,22 @@ const AdminDashboard = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
         <div className="space-y-4">
-          <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Plus className="h-4 w-4 text-blue-600" />
+          {products.slice(0, 5).map((product, index) => (
+            <div key={product.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Plus className="h-4 w-4 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">Product updated</p>
+                <p className="text-sm text-gray-600">{product.name}</p>
+              </div>
+              <span className="text-sm text-gray-500">Recently</span>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">New product added</p>
-              <p className="text-sm text-gray-600">Premium Red Wine was added to inventory</p>
-            </div>
-            <span className="text-sm text-gray-500">2 hours ago</span>
-          </div>
-          <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Sales increase</p>
-              <p className="text-sm text-gray-600">Monthly sales increased by {stats.monthlyGrowth}%</p>
-            </div>
-            <span className="text-sm text-gray-500">1 day ago</span>
-          </div>
+          ))}
         </div>
       </div>
     </div>
   );
-
-  const handleAddProduct = () => {
-    setEditingProduct(null);
-    setIsProductFormOpen(true);
-  };
-
-  const handleEditProduct = (product: any) => {
-    setEditingProduct(product);
-    setIsProductFormOpen(true);
-  };
-
-  const handleProductSubmit = (productData: any) => {
-    console.log('Product data:', productData);
-    // Here you would typically make an API call to save the product
-    // For now, we'll just log the data
-    alert('Product saved successfully! (Check console for data)');
-  };
-
-  const handleDeleteProduct = (productId: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      console.log('Deleting product:', productId);
-      // Here you would typically make an API call to delete the product
-      alert('Product deleted successfully!');
-    }
-  };
 
   const renderProducts = () => (
     <div className="space-y-6">
@@ -279,54 +252,72 @@ const AdminDashboard = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {product.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.price}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.stock}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      product.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {product.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleEditProduct(product)}
-                        className="text-green-600 hover:text-green-900"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteProduct(product.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center">
+                    Loading products...
                   </td>
                 </tr>
-              ))}
+              ) : filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center">
+                    No products found
+                  </td>
+                </tr>
+              ) : (
+                filteredProducts.map((product) => (
+                  <tr key={product.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 flex-shrink-0">
+                          <img
+                            className="h-10 w-10 rounded-full object-cover"
+                            src={product.productImage || '/wine.webp'}
+                            alt={product.name}
+                          />
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                          <div className="text-sm text-gray-500">{product.brand}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {product.category}
+                      </span>
+                      {product.subcategory && (
+                        <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                          {product.subcategory}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      ${product.price.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button 
+                          onClick={() => handleEditProduct(product)}
+                          className="text-green-600 hover:text-green-900"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -336,78 +327,9 @@ const AdminDashboard = () => {
       <ProductForm
         isOpen={isProductFormOpen}
         onClose={() => setIsProductFormOpen(false)}
-        product={editingProduct}
+        product={editingProduct || undefined}
         onSubmit={handleProductSubmit}
       />
-    </div>
-  );
-
-  const renderWines = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Wines Management</h2>
-        <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2">
-          <Plus className="h-4 w-4" />
-          <span>Add Wine</span>
-        </button>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wine</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vintage</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Popular</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {wines.map((wine) => (
-                <tr key={wine.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{wine.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                      {wine.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{wine.vintage}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{wine.price}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{wine.stock}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      wine.isPopular 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {wine.isPopular ? 'Yes' : 'No'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button className="text-green-600 hover:text-green-900">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button className="text-red-600 hover:text-red-900">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 
@@ -421,55 +343,8 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {blogPosts.map((post) => (
-                <tr key={post.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{post.title}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{post.author}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{post.publishDate}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      post.status === 'published' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {post.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{post.views}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button className="text-green-600 hover:text-green-900">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button className="text-red-600 hover:text-red-900">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <p className="text-gray-600">Blog management features coming soon...</p>
       </div>
     </div>
   );
@@ -508,8 +383,6 @@ const AdminDashboard = () => {
         return renderDashboard();
       case 'products':
         return renderProducts();
-      case 'wines':
-        return renderWines();
       case 'blog':
         return renderBlog();
       case 'customers':
@@ -521,74 +394,56 @@ const AdminDashboard = () => {
     }
   };
 
-  // Update the header to include logout button
-  const renderHeader = () => (
-    <div className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+  if (!isAuthenticated) {
+    return <AdminAuth />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 z-30">
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200">
+            <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
           </div>
-          <div className="flex items-center space-x-4">
-            <button className="text-gray-600 hover:text-gray-900">
-              <Settings className="h-5 w-5" />
-            </button>
+
+          <nav className="flex-1 px-4 py-4 space-y-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center space-x-2 w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-red-50 text-red-700'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{tab.name}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="p-4 border-t border-gray-200">
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center space-x-2 w-full px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <LogOut className="h-5 w-5" />
               <span>Logout</span>
             </button>
-            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-medium">
-              A
-            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
 
-  // If not authenticated, show login form
-  if (!isAuthenticated) {
-    return <AdminAuth onLogin={handleLogin} />;
-  }
-
-  // If authenticated, show dashboard
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {renderHeader()}
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="lg:w-64">
-            <nav className="space-y-2">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-red-100 text-red-700'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{tab.name}</span>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {renderContent()}
-          </div>
-        </div>
+      {/* Main Content */}
+      <div className="pl-64">
+        <main className="p-8">
+          {renderContent()}
+        </main>
       </div>
     </div>
   );
