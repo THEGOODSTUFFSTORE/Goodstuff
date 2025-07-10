@@ -9,14 +9,16 @@ import {
   query, 
   where,
   orderBy,
-  limit 
+  limit,
+  Timestamp
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from './firebase';
-import { Product } from './types';
+import { Product, Order, OrderItem } from './types';
 
-// Collection reference
+// Collection references
 const PRODUCTS_COLLECTION = 'products';
+const ORDERS_COLLECTION = 'orders';
 
 // Helper function to convert Firestore data to Product type
 const convertFirestoreData = (doc: any): Product => {
@@ -37,6 +39,26 @@ const convertFirestoreData = (doc: any): Product => {
     alcoholContent: data.alcoholContent,
     volume: data.volume,
     brand: data.brand,
+  };
+};
+
+// Helper function to convert Firestore data to Order type
+const convertOrderData = (doc: any): Order => {
+  const data = doc.data();
+  return {
+    id: doc.id,
+    userId: data.userId,
+    userEmail: data.userEmail,
+    items: data.items,
+    totalItems: data.totalItems,
+    totalAmount: data.totalAmount,
+    status: data.status,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+    shippingAddress: data.shippingAddress,
+    paymentMethod: data.paymentMethod,
+    paymentStatus: data.paymentStatus,
+    trackingNumber: data.trackingNumber,
   };
 };
 
@@ -169,5 +191,98 @@ export const deleteProduct = async (id: string): Promise<void> => {
   } catch (error) {
     console.error('Error deleting product:', error);
     throw error;
+  }
+};
+
+// Create a new order
+export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> => {
+  try {
+    const docRef = await addDoc(collection(db, ORDERS_COLLECTION), {
+      ...orderData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    
+    const newDoc = await getDoc(docRef);
+    return convertOrderData(newDoc);
+  } catch (error) {
+    console.error('Error creating order:', error);
+    throw error;
+  }
+};
+
+// Get all orders
+export const getOrders = async (): Promise<Order[]> => {
+  try {
+    const querySnapshot = await getDocs(
+      query(collection(db, ORDERS_COLLECTION), orderBy('createdAt', 'desc'))
+    );
+    return querySnapshot.docs.map(convertOrderData);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return [];
+  }
+};
+
+// Get orders by user ID
+export const getOrdersByUser = async (userId: string): Promise<Order[]> => {
+  try {
+    const querySnapshot = await getDocs(
+      query(
+        collection(db, ORDERS_COLLECTION),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      )
+    );
+    return querySnapshot.docs.map(convertOrderData);
+  } catch (error) {
+    console.error(`Error fetching orders for user ${userId}:`, error);
+    return [];
+  }
+};
+
+// Get a single order by ID
+export const getOrderById = async (id: string): Promise<Order | null> => {
+  try {
+    const docRef = doc(db, ORDERS_COLLECTION, id);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return convertOrderData(docSnap);
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    return null;
+  }
+};
+
+// Update an order
+export const updateOrder = async (id: string, orderData: Partial<Order>): Promise<void> => {
+  try {
+    const docRef = doc(db, ORDERS_COLLECTION, id);
+    await updateDoc(docRef, {
+      ...orderData,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Error updating order:', error);
+    throw error;
+  }
+};
+
+// Get order statistics
+export const getOrderStats = async (): Promise<{ totalOrders: number; totalRevenue: number }> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, ORDERS_COLLECTION));
+    const orders = querySnapshot.docs.map(convertOrderData);
+    
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+    
+    return { totalOrders, totalRevenue };
+  } catch (error) {
+    console.error('Error fetching order statistics:', error);
+    return { totalOrders: 0, totalRevenue: 0 };
   }
 }; 

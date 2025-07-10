@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import ProductForm from './components/ProductForm';
 import AdminAuth from './components/AdminAuth';
-import { getProducts, deleteProduct } from '@/lib/firebaseApi';
+import { getProducts, deleteProduct, getOrderStats } from '@/lib/firebaseApi';
 import { Product } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -44,32 +44,44 @@ const AdminDashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Mock data for stats - in production, this would come from Firebase
-  const stats: AdminStats = {
-    totalProducts: products.length,
-    totalWines: products.filter(p => p.category === 'wine').length,
+  const [stats, setStats] = useState<AdminStats>({
+    totalProducts: 0,
+    totalWines: 0,
     totalBlogPosts: 89,
-    totalOrders: 156,
-    totalRevenue: 45678,
+    totalOrders: 0,
+    totalRevenue: 0,
     monthlyGrowth: 12.5
-  };
+  });
 
-  // Fetch products on mount and when products are updated
+  // Fetch products and order stats on mount and when products are updated
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadData = async () => {
       setIsLoading(true);
       try {
+        // Fetch products
         const fetchedProducts = await getProducts();
         setProducts(fetchedProducts);
+
+        // Fetch order stats
+        const orderStats = await getOrderStats();
+
+        // Update stats
+        setStats({
+          totalProducts: fetchedProducts.length,
+          totalWines: fetchedProducts.filter(p => p.category === 'wine').length,
+          totalBlogPosts: 89,
+          totalOrders: orderStats.totalOrders,
+          totalRevenue: orderStats.totalRevenue,
+          monthlyGrowth: 12.5
+        });
       } catch (error) {
-        console.error('Error loading products:', error);
+        console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadProducts();
+    loadData();
   }, []);
 
   // Check authentication status

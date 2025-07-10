@@ -56,6 +56,40 @@ export interface Cart {
   totalPrice: number;
 }
 
+// Order-related types
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  productImage: string;
+  quantity: number;
+  priceAtOrder: number;
+  category: string;
+  subcategory: string;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  userEmail: string;
+  items: OrderItem[];
+  totalItems: number;
+  totalAmount: number;
+  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
+  shippingAddress?: {
+    name: string;
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  paymentMethod?: string;
+  paymentStatus?: 'pending' | 'paid' | 'failed';
+  trackingNumber?: string;
+}
+
 export interface CartContextType {
   cart: Cart;
   addToCart: (product: Product, quantity?: number) => void;
