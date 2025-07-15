@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from './firebase';
-import { Product, Order, OrderItem } from './types';
+import { Product, Order, OrderItem, Customer } from './types';
 
 // Collection references
 const PRODUCTS_COLLECTION = 'products';
@@ -31,6 +31,7 @@ const convertFirestoreData = (doc: any): Product => {
     subcategory: data.subcategory,
     productImage: data.productImage,
     price: data.price,
+    stockQuantity: data.stockQuantity || 0,
     description: data.description,
     detailedDescription: data.detailedDescription,
     tastingNotes: data.tastingNotes,
@@ -59,6 +60,24 @@ const convertOrderData = (doc: any): Order => {
     paymentMethod: data.paymentMethod,
     paymentStatus: data.paymentStatus,
     trackingNumber: data.trackingNumber,
+  };
+};
+
+// Helper function to convert Firestore data to Customer type
+const convertCustomerData = (user: any, orders: Order[]): Customer => {
+  const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+  const lastOrder = orders.length > 0 ? orders[0].createdAt : null;
+
+  return {
+    id: user.uid,
+    name: user.displayName || 'N/A',
+    email: user.email || 'N/A',
+    phone: user.phoneNumber || 'N/A',
+    joinDate: user.metadata.creationTime,
+    totalOrders: orders.length,
+    totalSpent: totalSpent,
+    lastOrder: lastOrder,
+    status: user.disabled ? 'inactive' : 'active'
   };
 };
 
@@ -284,5 +303,54 @@ export const getOrderStats = async (): Promise<{ totalOrders: number; totalReven
   } catch (error) {
     console.error('Error fetching order statistics:', error);
     return { totalOrders: 0, totalRevenue: 0 };
+  }
+}; 
+
+// Get all customers with their order data
+export const getCustomers = async (): Promise<Customer[]> => {
+  try {
+    // Get all users from Firebase Auth
+    // This part of the code was removed as per the edit hint.
+    // The original code used firebase-admin.listUsers() which is server-side.
+    // For client-side, we would typically fetch users from Firebase Auth directly
+    // or use a different method if available.
+    // For now, we'll return an empty array or throw an error if not implemented.
+    console.warn('getCustomers function is not fully implemented for client-side use.');
+    return [];
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    return [];
+  }
+};
+
+// Get customer by ID with their order data
+export const getCustomerById = async (userId: string): Promise<Customer | null> => {
+  try {
+    // Get user from Firebase Auth
+    // This part of the code was removed as per the edit hint.
+    // The original code used firebase-admin.getUser() which is server-side.
+    // For client-side, we would typically fetch users from Firebase Auth directly
+    // or use a different method if available.
+    // For now, we'll return null or throw an error if not implemented.
+    console.warn('getCustomerById function is not fully implemented for client-side use.');
+    return null;
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    return null;
+  }
+};
+
+// Update customer status (active/inactive)
+export const updateCustomerStatus = async (userId: string, disabled: boolean): Promise<void> => {
+  try {
+    // This part of the code was removed as per the edit hint.
+    // The original code used firebase-admin.updateUser() which is server-side.
+    // For client-side, we would typically update users directly in Firebase Auth
+    // or use a different method if available.
+    // For now, we'll return or throw an error if not implemented.
+    console.warn('updateCustomerStatus function is not fully implemented for client-side use.');
+  } catch (error) {
+    console.error('Error updating customer status:', error);
+    throw error;
   }
 }; 

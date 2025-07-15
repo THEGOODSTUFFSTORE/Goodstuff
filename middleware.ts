@@ -1,35 +1,59 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-// Paths that require authentication
-const protectedPaths = ['/admin'];
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Check if the path is protected
-  const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
-
-  if (isProtectedPath) {
-    // Get the Firebase auth session cookie
-    const session = request.cookies.get('session');
-
-    // If there's no session, redirect to login
-    if (!session) {
-      const url = new URL('/admin/login', request.url);
-      url.searchParams.set('from', pathname);
-      return NextResponse.redirect(url);
-    }
+export async function middleware(request: NextRequest) {
+  // Skip middleware for login pages
+  if (request.nextUrl.pathname === '/admin/login') {
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  const session = request.cookies.get('session');
+
+  // Return to login if there's no session
+  if (!session) {
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+    if (request.nextUrl.pathname.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // For protected routes, validate session through an API endpoint
+  try {
+    const response = await fetch(new URL('/api/auth/session/validate', request.url), {
+      headers: {
+        Cookie: `session=${session.value}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Invalid session');
+    }
+
+    const data = await response.json();
+    const isAdmin = data.isAdmin === true;
+
+    // Check admin routes
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      if (!isAdmin) {
+        return NextResponse.redirect(new URL('/admin/login', request.url));
+      }
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 }
 
-// Configure the paths that middleware should be run on
 export const config = {
   matcher: [
-    // Match all request paths except for /admin/login
-    '/((?!admin/login)admin.*)'
+    '/admin/:path*',
+    '/dashboard/:path*',
   ],
 }; 

@@ -4,11 +4,11 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
-import { useCart } from '@/lib/cartContext';
+import { useCartStore } from '@/lib/store';
 
 export default function PopularWines() {
   const router = useRouter();
-  const { addToCart } = useCart();
+  const { addItem: addToCart } = useCartStore();
   const [wines, setWines] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 

@@ -2,16 +2,37 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.isAdmin == true;
+    }
+
     // Products collection rules
     match /products/{productId} {
       allow read: if true;  // Anyone can read products
-      allow write: if request.auth != null;  // Only authenticated users can write
+      allow write: if isAdmin();  // Only admins can write
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Admin settings collection
+    match /adminSettings/{document=**} {
+      allow read, write: if isAdmin();
     }
 
     // Blogs collection rules
     match /blogs/{blogId} {
       allow read: if true;  // Anyone can read blog posts
-      allow write: if request.auth != null;  // Only authenticated users can write
+      allow write: if isAdmin();  // Only admins can write
+    }
+
+    // Orders collection rules
+    match /orders/{orderId} {
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow write: if isAdmin();
     }
 
     // Default rule - deny everything else

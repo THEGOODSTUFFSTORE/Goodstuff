@@ -5,12 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Product } from '@/lib/types';
-import { useCart } from '@/lib/cartContext';
+import { useCartStore } from '@/lib/store';
 
 export default function ProductsList() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addToCart } = useCart();
+  const { addItem: addToCart } = useCartStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -183,7 +183,7 @@ export default function ProductsList() {
                 </h3>
                 <div className="flex items-baseline mt-2">
                   <span className="text-xl font-bold text-red-600">
-                    {product.price}/-
+                    Ksh {product.price.toLocaleString()}/-
                   </span>
                 </div>
                 <button 

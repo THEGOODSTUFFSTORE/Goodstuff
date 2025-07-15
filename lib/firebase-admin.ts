@@ -1,15 +1,21 @@
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+// This is a server-side only module
+import * as admin from 'firebase-admin';
+import serviceAccount from '../firebase-service-account.json.json';
 
-export const initAdmin = () => {
-  const apps = getApps();
-  
-  if (!apps.length) {
-    initializeApp({
-      credential: cert({
-        projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n')
-      })
+// Ensure we only initialize the admin SDK once
+if (!admin.apps.length) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount as admin.ServiceAccount)
     });
+    console.log('Firebase Admin initialized successfully');
+  } catch (error) {
+    console.error('Firebase Admin initialization error:', error);
   }
-}; 
+}
+
+export const adminAuth = admin.auth();
+export const adminDb = admin.firestore();
+
+// Export the admin instance for advanced usage if needed
+export { admin }; 

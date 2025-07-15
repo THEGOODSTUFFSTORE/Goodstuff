@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme inline {
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -47,71 +47,71 @@
 @layer base {
   :root {
     --radius: 0.625rem;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.141 0.005 285.823);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.141 0.005 285.823);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.141 0.005 285.823);
-    --primary: oklch(0.21 0.006 285.885);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.967 0.001 286.375);
-    --secondary-foreground: oklch(0.21 0.006 285.885);
-    --muted: oklch(0.967 0.001 286.375);
-    --muted-foreground: oklch(0.552 0.016 285.938);
-    --accent: oklch(0.967 0.001 286.375);
-    --accent-foreground: oklch(0.21 0.006 285.885);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.92 0.004 286.32);
-    --input: oklch(0.92 0.004 286.32);
-    --ring: oklch(0.705 0.015 286.067);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.141 0.005 285.823);
-    --sidebar-primary: oklch(0.21 0.006 285.885);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.967 0.001 286.375);
-    --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-    --sidebar-border: oklch(0.92 0.004 286.32);
-    --sidebar-ring: oklch(0.705 0.015 286.067);
+    --background: #ffffff;
+    --foreground: #A76545;
+    --card: #ffffff;
+    --card-foreground: #A76545;
+    --popover: #ffffff;
+    --popover-foreground: #A76545;
+    --primary: #A76545;
+    --primary-foreground: #ffffff;
+    --secondary: #FFA55D;
+    --secondary-foreground: #ffffff;
+    --muted: #FFDF88;
+    --muted-foreground: #A76545;
+    --accent: #ACC572;
+    --accent-foreground: #ffffff;
+    --destructive: #A76545;
+    --border: #FFDF88;
+    --input: #FFDF88;
+    --ring: #FFA55D;
+    --chart-1: #A76545;
+    --chart-2: #FFA55D;
+    --chart-3: #FFDF88;
+    --chart-4: #ACC572;
+    --chart-5: #A76545;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #A76545;
+    --sidebar-primary: #A76545;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #ACC572;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: #FFDF88;
+    --sidebar-ring: #FFA55D;
   }
 
   .dark {
-    --background: oklch(0.141 0.005 285.823);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.21 0.006 285.885);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.21 0.006 285.885);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.92 0.004 286.32);
-    --primary-foreground: oklch(0.21 0.006 285.885);
-    --secondary: oklch(0.274 0.006 286.033);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.274 0.006 286.033);
-    --muted-foreground: oklch(0.705 0.015 286.067);
-    --accent: oklch(0.274 0.006 286.033);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.552 0.016 285.938);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.21 0.006 285.885);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.274 0.006 286.033);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.552 0.016 285.938);
+    --background: #A76545;
+    --foreground: #ffffff;
+    --card: #FFA55D;
+    --card-foreground: #ffffff;
+    --popover: #FFA55D;
+    --popover-foreground: #ffffff;
+    --primary: #FFDF88;
+    --primary-foreground: #A76545;
+    --secondary: #ACC572;
+    --secondary-foreground: #ffffff;
+    --muted: #A76545;
+    --muted-foreground: #FFDF88;
+    --accent: #FFDF88;
+    --accent-foreground: #A76545;
+    --destructive: #FFA55D;
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.15);
+    --ring: #FFDF88;
+    --chart-1: #A76545;
+    --chart-2: #FFA55D;
+    --chart-3: #FFDF88;
+    --chart-4: #ACC572;
+    --chart-5: #A76545;
+    --sidebar: #A76545;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: #FFDF88;
+    --sidebar-primary-foreground: #A76545;
+    --sidebar-accent: #ACC572;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-ring: #FFDF88;
   }
 }
 
@@ -124,82 +124,3 @@
   }
 }
 
-/* Custom animations for Hero video section */
-@layer utilities {
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes fadeInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  @keyframes spinSlow {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  .animate-fade-in-right {
-    animation: fadeInRight 0.8s ease-out forwards;
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .animate-spin-slow {
-    animation: spinSlow 8s linear infinite;
-  }
-
-  /* Animation delays */
-  .delay-300 {
-    animation-delay: 0.3s;
-  }
-
-  .delay-500 {
-    animation-delay: 0.5s;
-  }
-
-  .delay-700 {
-    animation-delay: 0.7s;
-  }
-
-  .delay-1000 {
-    animation-delay: 1s;
-  }
-
-  .delay-1500 {
-    animation-delay: 1.5s;
-  }
-}

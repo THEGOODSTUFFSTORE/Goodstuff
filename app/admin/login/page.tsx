@@ -10,10 +10,26 @@ export default function AdminLoginPage() {
   const from = searchParams.get('from') || '/admin';
 
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Check session validity
+        const response = await fetch('/api/auth/session/validate');
+        if (!response.ok) {
+          return;
+        }
+        
+        const data = await response.json();
+        if (data.isAdmin) {
+          router.push(from);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+    };
+
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        // If user is authenticated, redirect to the intended page
-        router.push(from);
+        checkAuth();
       }
     });
 

@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth as adminAuth } from 'firebase-admin';
 import { cookies } from 'next/headers';
-import { initAdmin } from '@/lib/firebase-admin';
-
-// Initialize Firebase Admin if it hasn't been initialized
-initAdmin();
+import { adminAuth } from '@/lib/firebase-admin';
 
 const COOKIE_NAME = 'session';
 
@@ -24,12 +20,18 @@ export async function POST(request: NextRequest) {
 
     try {
       // Verify the ID token first
-      const decodedToken = await adminAuth().verifyIdToken(idToken);
+      const decodedToken = await adminAuth.verifyIdToken(idToken);
       console.log('Token verified successfully for user:', decodedToken.uid);
+      
+      // Get the user's custom claims
+      const user = await adminAuth.getUser(decodedToken.uid);
+      const customClaims = user.customClaims || {};
       
       // Create a session cookie
       const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-      const sessionCookie = await adminAuth().createSessionCookie(idToken, { expiresIn });
+      const sessionCookie = await adminAuth.createSessionCookie(idToken, { 
+        expiresIn,
+      });
 
       if (!sessionCookie) {
         console.error('Failed to create session cookie');
@@ -40,7 +42,10 @@ export async function POST(request: NextRequest) {
       }
 
       // Create response with cookie
-      const response = NextResponse.json({ status: 'success' }, { status: 200 });
+      const response = NextResponse.json({ 
+        status: 'success',
+        isAdmin: customClaims.admin === true 
+      }, { status: 200 });
       
       // Set cookie in the response
       response.cookies.set(COOKIE_NAME, sessionCookie, {

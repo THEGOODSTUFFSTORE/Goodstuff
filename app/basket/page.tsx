@@ -1,158 +1,163 @@
 "use client";
-import React from 'react';
-import { FaTrash, FaPlus, FaMinus, FaShoppingBag, FaArrowLeft } from 'react-icons/fa';
-import { MdLocalShipping, MdSecurity } from 'react-icons/md';
-import Link from 'next/link';
-import Image from 'next/image';
-import Navbar from '@/app/components/Navbar';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCartStore } from '@/lib/store';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { toast } from 'react-toastify';
+import ShippingAddressForm from '@/app/components/ShippingAddressForm';
 import Footer from '@/app/components/Footer';
-import { useCart } from '@/lib/cartContext';
 
 export default function BasketPage() {
-  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { items, totalItems, totalAmount, removeItem, updateQuantity, clearCart } = useCartStore();
+  const router = useRouter();
+  const { auth } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showShippingForm, setShowShippingForm] = useState(false);
 
-  if (cart.items.length === 0) {
+  if (items.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Navbar />
-        
-        <div className="container mx-auto px-4 py-8 flex-grow">
-          <div className="max-w-2xl mx-auto text-center bg-white rounded-2xl shadow-xl p-12">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-              <FaShoppingBag className="w-10 h-10 text-gray-400" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">Your Basket is Empty</h1>
-            <p className="text-gray-600 text-lg mb-8">
-              Looks like you haven't added anything to your basket yet. Start shopping to fill it up!
-            </p>
-            <Link 
-              href="/products"
-              className="inline-flex items-center space-x-2 bg-red-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-red-700 transition-all duration-300 transform hover:scale-105"
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Your basket is empty</h1>
+            <p className="text-gray-600 mb-8">Add some items to your basket to continue shopping.</p>
+            <button
+              onClick={() => router.push('/products')}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-xl"
             >
-              <FaShoppingBag />
-              <span>Start Shopping</span>
-            </Link>
+              Continue Shopping
+            </button>
           </div>
-        </div>
-        
+        </main>
         <Footer />
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
-      
-      <div className="container mx-auto px-4 py-8 flex-grow">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Link 
-              href="/products"
-              className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
-            >
-              <FaArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Shopping Basket</h1>
-              <p className="text-gray-600">{cart.totalItems} item{cart.totalItems !== 1 ? 's' : ''} in your basket</p>
-            </div>
-          </div>
-          
-          {cart.items.length > 0 && (
-            <button
-              onClick={clearCart}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-xl transition-all duration-300 font-medium"
-            >
-              Clear Basket
-            </button>
-          )}
-        </div>
+  const handleCheckout = async (shippingAddress: any) => {
+    try {
+      setIsLoading(true);
 
+      // Check if user is logged in
+      if (!auth.currentUser) {
+        router.push('/login?redirect=/basket');
+        return;
+      }
+
+      // Prepare order items
+      const orderItems = items.map(item => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        productImage: item.product.productImage,
+        quantity: item.quantity,
+        priceAtOrder: item.product.price,
+        category: item.product.category,
+        subcategory: item.product.subcategory
+      }));
+
+      // Send payment request to our API
+      const response = await fetch('/api/payments/pesapal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: orderItems,
+          totalAmount,
+          shippingAddress
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to initiate payment');
+      }
+
+      const { redirectUrl } = await response.json();
+
+      // Clear the cart
+      clearCart();
+
+      // Redirect to Pesapal payment page
+      window.location.href = redirectUrl;
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      toast.error('Failed to process checkout. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
-            {cart.items.map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl shadow-lg p-6">
-                <div className="flex items-center space-x-4">
-                  {/* Product Image */}
-                  <div className="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center">
-                    <Image
-                      src={item.product.productImage}
-                      alt={item.product.name}
-                      width={80}
-                      height={80}
-                      className="object-contain rounded-lg"
-                    />
-                  </div>
-
-                  {/* Product Details */}
+          <div className="lg:col-span-2">
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Shopping Basket</h1>
+            <div className="space-y-4">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-6"
+                >
+                  <img
+                    src={item.product.productImage}
+                    alt={item.product.name}
+                    className="w-24 h-24 object-cover rounded-xl"
+                  />
                   <div className="flex-grow">
-                    <Link href={`/products/${item.product.id}`}>
-                      <h3 className="text-lg font-semibold text-gray-900 hover:text-red-600 transition-colors">
-                        {item.product.name}
-                      </h3>
-                    </Link>
-                    <p className="text-gray-600 text-sm">{item.product.category}</p>
-                    {item.product.brand && (
-                      <p className="text-red-600 text-sm font-medium">{item.product.brand}</p>
-                    )}
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {item.product.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {item.product.category} - {item.product.subcategory}
+                    </p>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="flex items-center border rounded-lg">
+                        <button
+                          onClick={() => updateQuantity(item.product.id, Math.max(0, item.quantity - 1))}
+                          className="px-3 py-1 text-gray-600 hover:text-gray-800"
+                        >
+                          -
+                        </button>
+                        <span className="px-3 py-1 border-x">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          className="px-3 py-1 text-gray-600 hover:text-gray-800"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => removeItem(item.product.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
-
-                  {/* Quantity Controls */}
-                  <div className="flex items-center space-x-3">
-                    <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
-                    >
-                      <FaMinus className="w-3 h-3" />
-                    </button>
-                    <span className="text-lg font-semibold text-gray-900 min-w-[2rem] text-center">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
-                    >
-                      <FaPlus className="w-3 h-3" />
-                    </button>
-                  </div>
-
-                  {/* Price */}
                   <div className="text-right">
                     <p className="text-lg font-bold text-gray-900">
                       Ksh {(item.product.price * item.quantity).toLocaleString()}
                     </p>
-                    {item.quantity > 1 && (
-                      <p className="text-sm text-gray-600">
-                        Ksh {item.product.price.toLocaleString()} each
-                      </p>
-                    )}
+                    <p className="text-sm text-gray-600">
+                      Ksh {item.product.price.toLocaleString()} each
+                    </p>
                   </div>
-
-                  {/* Remove Button */}
-                  <button
-                    onClick={() => removeFromCart(item.product.id)}
-                    className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
-                  >
-                    <FaTrash className="w-4 h-4" />
-                  </button>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          {/* Order Summary */}
+          {/* Summary Card */}
           <div className="space-y-6">
-            {/* Summary Card */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h3>
               
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal ({cart.totalItems} items)</span>
-                  <span className="font-semibold">Ksh {cart.totalPrice.toLocaleString()}</span>
+                  <span className="text-gray-600">Subtotal ({totalItems} items)</span>
+                  <span className="font-semibold">Ksh {totalAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Delivery</span>
@@ -161,42 +166,33 @@ export default function BasketPage() {
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span className="text-red-600">Ksh {cart.totalPrice.toLocaleString()}</span>
+                    <span className="text-red-600">Ksh {totalAmount.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
 
-              <button className="w-full mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
-                Proceed to Checkout
-              </button>
+              {!showShippingForm ? (
+                <button 
+                  onClick={() => setShowShippingForm(true)}
+                  disabled={isLoading || items.length === 0}
+                  className={`w-full mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+                >
+                  Proceed to Checkout
+                </button>
+              ) : (
+                <ShippingAddressForm
+                  onSubmit={handleCheckout}
+                  isLoading={isLoading}
+                  initialAddress={{
+                    email: auth.currentUser?.email || '',
+                    country: 'Kenya'
+                  }}
+                />
+              )}
             </div>
-
-            {/* Trust Badges */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h4 className="font-semibold text-gray-900 mb-4">Why shop with us?</h4>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <MdLocalShipping className="w-5 h-5 text-green-600" />
-                  <span className="text-gray-700 text-sm">Free delivery on orders over Ksh 2,000</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <MdSecurity className="w-5 h-5 text-blue-600" />
-                  <span className="text-gray-700 text-sm">Secure payment guaranteed</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Continue Shopping */}
-            <Link 
-              href="/products"
-              className="block w-full text-center border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
-            >
-              Continue Shopping
-            </Link>
           </div>
         </div>
-      </div>
-      
+      </main>
       <Footer />
     </div>
   );

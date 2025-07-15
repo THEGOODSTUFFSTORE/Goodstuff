@@ -5,7 +5,7 @@ import { FaHeart, FaFacebookF, FaTwitter, FaWhatsapp, FaLink, FaCheckCircle, FaS
 import { MdOutlineDeliveryDining, MdLocalShipping, MdSecurity } from "react-icons/md";
 import { BiHeart } from 'react-icons/bi';
 import { Product } from '@/lib/types';
-import { useCart } from '@/lib/cartContext';
+import { useCartStore } from '@/lib/store';
 import Image from 'next/image';
 
 interface ProductDetailsProps {
@@ -14,10 +14,16 @@ interface ProductDetailsProps {
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1);
-  const { addToCart, isLoading: cartLoading } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    setIsLoading(true);
+    try {
+      addItem(product, quantity);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -74,24 +80,12 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                   <p className="text-red-600 font-semibold text-base uppercase tracking-wide">{product.brand}</p>
                 )}
                 <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{product.name}</h1>
-                <div className="flex items-center space-x-2">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar key={i} className="w-4 h-4" />
-                    ))}
-                  </div>
-                  <span className="text-gray-600 text-sm">(24 reviews)</span>
-                </div>
               </div>
 
               {/* Price Section */}
               <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-5">
                 <div className="flex items-baseline space-x-3 flex-wrap">
                   <span className="text-3xl font-bold text-red-600">Ksh {product.price.toLocaleString()}</span>
-                  <span className="text-gray-500 line-through text-lg">Ksh {Math.round(product.price * 1.2).toLocaleString()}</span>
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-                    Save 17%
-                  </span>
                 </div>
               </div>
 
@@ -126,6 +120,30 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 </div>
               )}
 
+              {/* Detailed Description */}
+              {product.detailedDescription && (
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Detailed Description</h3>
+                  <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">{product.detailedDescription}</p>
+                </div>
+              )}
+
+              {/* Tasting Notes */}
+              {product.tastingNotes && (
+                <div className="bg-red-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Tasting Notes</h3>
+                  <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">{product.tastingNotes}</p>
+                </div>
+              )}
+
+              {/* Additional Notes */}
+              {product.additionalNotes && (
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Additional Information</h3>
+                  <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">{product.additionalNotes}</p>
+                </div>
+              )}
+
               {/* Quantity Selector */}
               <div className="flex items-center space-x-4 bg-gray-50 rounded-xl p-4">
                 <span className="text-gray-700 font-medium">Quantity:</span>
@@ -153,11 +171,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 <div className="flex space-x-3">
                   <button 
                     onClick={handleAddToCart}
-                    disabled={cartLoading}
+                    disabled={isLoading}
                     className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl text-base transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2"
                   >
                     <FaShoppingCart />
-                    <span>{cartLoading ? 'Adding...' : 'Add to Cart'}</span>
+                    <span>{isLoading ? 'Adding...' : 'Add to Cart'}</span>
                   </button>
                   <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center">
                     <BiHeart className="w-5 h-5" />
