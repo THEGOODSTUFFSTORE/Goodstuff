@@ -6,15 +6,9 @@ import { PesapalPaymentRequest, Order } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
-    // Get the session cookie
-    const session = request.cookies.get('session')?.value;
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     // Get the request body
     const body = await request.json();
-    const { items, totalAmount, shippingAddress } = body;
+    const { items, totalAmount, shippingAddress, userId, userEmail } = body;
 
     if (!items || !totalAmount || !shippingAddress) {
       return NextResponse.json(
@@ -28,8 +22,8 @@ export async function POST(request: NextRequest) {
 
     // Create the order in Firebase first
     const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
-      userId: auth.currentUser?.uid || '',
-      userEmail: auth.currentUser?.email || '',
+      userId: userId || 'guest',
+      userEmail: userEmail || shippingAddress.email,
       items,
       totalItems: items.reduce((acc: number, item: any) => acc + item.quantity, 0),
       totalAmount,
@@ -50,7 +44,7 @@ export async function POST(request: NextRequest) {
       notification_id: order.id,
       tracking_id: trackingId,
       billing_address: {
-        email_address: shippingAddress.email || auth.currentUser?.email || '',
+        email_address: shippingAddress.email || userEmail || '',
         phone_number: shippingAddress.phone,
         first_name: shippingAddress.name?.split(' ')[0] || '',
         last_name: shippingAddress.name?.split(' ').slice(1).join(' ') || '',
