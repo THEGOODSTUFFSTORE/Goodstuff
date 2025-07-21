@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { Metadata } from 'next';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -112,6 +113,9 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <meta name="msapplication-tap-highlight" content="no" />
+        {/* Preload critical resources */}
+        <link rel="preload" href="/hero.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/logo.png" as="image" type="image/png" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased`}>
         <StoreProvider>
@@ -129,6 +133,23 @@ export default function RootLayout({
             theme="light"
           />
         </StoreProvider>
+        
+        {/* Service Worker Registration */}
+        <Script id="sw-registration" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js', {
+                  scope: '/'
+                }).then(function(registration) {
+                  console.log('SW registered: ', registration);
+                }).catch(function(registrationError) {
+                  console.log('SW registration failed: ', registrationError);
+                });
+              });
+            }
+          `}
+        </Script>
       </body>
     </html>
   );

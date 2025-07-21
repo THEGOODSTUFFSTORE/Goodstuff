@@ -1,12 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
 import { useCartStore } from '@/lib/store';
+import React from 'react';
 
-export default function PopularWines() {
+const PopularWines = React.memo(() => {
   const router = useRouter();
   const { addItem: addToCart } = useCartStore();
   const [wines, setWines] = useState<Product[]>([]);
@@ -40,31 +41,66 @@ export default function PopularWines() {
     addToCart(wine, 1);
   };
 
+  // Memoize the wine list to prevent unnecessary re-renders
+  const wineList = useMemo(() => {
+    return wines.map((wine) => (
+      <div
+        key={wine.id}
+        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition duration-300 hover:scale-105"
+        onClick={() => handleWineClick(wine.id)}
+      >
+        <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
+          <Image
+            src={wine.productImage || '/wine.webp'}
+            alt={wine.name}
+            width={150}
+            height={150}
+            style={{ objectFit: 'contain' }}
+            priority={false}
+            loading="lazy"
+            onError={(e: any) => {
+              console.error('Image load error:', e);
+              e.target.src = '/wine.webp';
+            }}
+          />
+        </div>
+        <div className="p-4">
+          <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
+            {wine.name}
+          </h3>
+          <div className="flex items-baseline mt-2">
+            <span className="text-xl font-bold text-red-600">
+              KES {wine.price.toLocaleString()}/-
+            </span>
+          </div>
+          <button 
+            className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
+            onClick={(e) => handleAddToCart(wine, e)}
+          >
+            Add to basket
+          </button>
+        </div>
+      </div>
+    ));
+  }, [wines]);
+
   if (loading) {
     return (
       <section className="container mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-light text-gray-800">Popular Wines</h2>
-          <a href="/products?category=wine" className="text-orange-600 font-medium hover:underline flex items-center">
-            VIEW ALL »
-          </a>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {[...Array(6)].map((_, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-              <div className="h-48 bg-gray-200"></div>
-              <div className="p-4">
-                <div className="h-3 bg-gray-200 rounded mb-1"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-6 bg-gray-200 rounded mb-4"></div>
-                <div className="h-10 bg-gray-200 rounded"></div>
-              </div>
-            </div>
+            <div key={index} className="bg-gray-200 rounded-lg h-64 animate-pulse"></div>
           ))}
         </div>
       </section>
     );
+  }
+
+  if (wines.length === 0) {
+    return null; // Don't render if no wines available
   }
 
   return (
@@ -76,44 +112,12 @@ export default function PopularWines() {
         </a>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-        {wines.map((wine) => (
-          <div
-            key={wine.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition duration-300 hover:scale-105"
-            onClick={() => handleWineClick(wine.id)}
-          >
-            <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
-              <Image
-                src={wine.productImage || '/wine.webp'}
-                alt={wine.name}
-                width={150}
-                height={150}
-                style={{ objectFit: 'contain' }}
-                onError={(e: any) => {
-                  console.error('Image load error:', e);
-                  e.target.src = '/wine.webp';
-                }}
-              />
-            </div>
-            <div className="p-4">
-              <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
-                {wine.name}
-              </h3>
-              <div className="flex items-baseline mt-2">
-                <span className="text-xl font-bold text-red-600">
-                  KES {wine.price.toLocaleString()}/-
-                </span>
-              </div>
-              <button 
-                className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
-                onClick={(e) => handleAddToCart(wine, e)}
-              >
-                Add to basket
-              </button>
-            </div>
-          </div>
-        ))}
+        {wineList}
       </div>
     </section>
   );
-} 
+});
+
+PopularWines.displayName = 'PopularWines';
+
+export default PopularWines; 

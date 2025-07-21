@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProducts, getProductById } from '@/lib/api';
+import { getProducts, getProductById, getProductsBySection, getProductsByCategory } from '@/lib/api';
 
 // GET /api/products - Fetch all products
 export async function GET(request: NextRequest) {
@@ -7,6 +7,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('id');
     const type = searchParams.get('type'); // trending, popular, new_arrivals, wine, non-wine
+    const category = searchParams.get('category');
+    const pageSize = parseInt(searchParams.get('pageSize') || '50');
     
     // If ID is provided, fetch single product
     if (productId) {
@@ -22,49 +24,58 @@ export async function GET(request: NextRequest) {
       
       return NextResponse.json(product);
     }
-    
-    // Otherwise, fetch all products
-    const products = await getProducts();
-    console.log(`Fetched ${products.length} products from database`);
-    
-    // Apply filtering based on type parameter
-    let filteredProducts = products;
-    
-    if (type === 'wine') {
-      filteredProducts = products.filter(
-        (item: any) =>
-          item.category.toLowerCase().includes('wine') ||
-          item.subcategory.toLowerCase().includes('wine')
-      );
-      console.log(`Filtered ${filteredProducts.length} wine products`);
-    } else if (type === 'non-wine') {
-      filteredProducts = products.filter(
-        (item: any) =>
-          !item.category.toLowerCase().includes('wine') &&
-          !item.subcategory.toLowerCase().includes('wine')
-      );
-      console.log(`Filtered ${filteredProducts.length} non-wine products`);
-    } else if (type === 'trending') {
-      // Filter products marked as trending
-      filteredProducts = products.filter(
-        (item: any) => item.sections?.includes('trending_deals')
-      ).slice(0, 6);
-      console.log(`Filtered ${filteredProducts.length} trending products`);
+
+    // Handle section-based queries efficiently
+    if (type === 'trending') {
+      const products = await getProductsBySection('trending_deals', 6);
+      console.log(`Fetched ${products.length} trending products`);
+      return NextResponse.json(products);
     } else if (type === 'popular') {
-      // Filter products marked as popular
-      filteredProducts = products.filter(
-        (item: any) => item.sections?.includes('popular')
-      ).slice(0, 6);
-      console.log(`Filtered ${filteredProducts.length} popular products`);
+      const products = await getProductsBySection('popular', 6);
+      console.log(`Fetched ${products.length} popular products`);
+      return NextResponse.json(products);
     } else if (type === 'new_arrivals') {
-      // Filter products marked as new arrivals
-      filteredProducts = products.filter(
-        (item: any) => item.sections?.includes('new_arrivals')
-      ).slice(0, 6);
-      console.log(`Filtered ${filteredProducts.length} new arrival products`);
+      const products = await getProductsBySection('new_arrivals', 6);
+      console.log(`Fetched ${products.length} new arrival products`);
+      return NextResponse.json(products);
+    }
+
+    // Handle category-based queries
+    if (category && category !== 'all') {
+      const products = await getProductsByCategory(category, pageSize);
+      console.log(`Fetched ${products.length} products for category: ${category}`);
+      return NextResponse.json(products);
     }
     
-    return NextResponse.json(filteredProducts);
+    // For wine/non-wine filtering, we still need to fetch and filter
+    if (type === 'wine' || type === 'non-wine') {
+      const products = await getProducts(pageSize);
+      let filteredProducts;
+      
+      if (type === 'wine') {
+        filteredProducts = products.filter(
+          (item: any) =>
+            item.category.toLowerCase().includes('wine') ||
+            item.subcategory?.toLowerCase().includes('wine')
+        );
+        console.log(`Filtered ${filteredProducts.length} wine products`);
+      } else {
+        filteredProducts = products.filter(
+          (item: any) =>
+            !item.category.toLowerCase().includes('wine') &&
+            !item.subcategory?.toLowerCase().includes('wine')
+        );
+        console.log(`Filtered ${filteredProducts.length} non-wine products`);
+      }
+      
+      return NextResponse.json(filteredProducts);
+    }
+    
+    // Default: fetch all products with pagination
+    const products = await getProducts(pageSize);
+    console.log(`Fetched ${products.length} products from database`);
+    
+    return NextResponse.json(products);
   } catch (error: any) {
     console.error('API Error:', {
       message: error.message,
