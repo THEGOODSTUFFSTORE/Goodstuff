@@ -40,4 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-firebase-service-account.json.jsonfirebase-service-account.json.json
+# Firebase service account credentials
+firebase-service-account.json.json
