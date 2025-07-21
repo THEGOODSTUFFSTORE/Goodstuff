@@ -69,9 +69,6 @@ export default async function GinPage() {
                     width={150}
                     height={150}
                     style={{ objectFit: 'contain' }}
-                    onError={(e: any) => {
-                      e.currentTarget.src = '/wine.webp';
-                    }}
                   />
                 </div>
                 <div className="p-4">

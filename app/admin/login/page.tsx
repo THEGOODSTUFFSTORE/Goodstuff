@@ -1,10 +1,10 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AdminAuth from '../components/AdminAuth';
 import { auth } from '@/lib/firebase';
 
-export default function AdminLoginPage() {
+function AdminLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from') || '/admin';
@@ -37,4 +37,12 @@ export default function AdminLoginPage() {
   }, [router, from]);
 
   return <AdminAuth />;
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AdminLoginContent />
+    </Suspense>
+  );
 } 

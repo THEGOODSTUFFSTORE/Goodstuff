@@ -29,6 +29,7 @@ const convertFirestoreData = (doc: any): Product => {
     slug: data.slug,
     category: data.category,
     subcategory: data.subcategory,
+    type: data.type,
     productImage: data.productImage,
     price: data.price,
     stockQuantity: data.stockQuantity || 0,

@@ -5,10 +5,11 @@ import { adminDb } from '@/lib/firebase-admin';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  context: { params: Promise<{ orderId: string }> }
 ) {
   try {
     // First verify we have the order ID
+    const params = await context.params;
     const { orderId } = params;
     if (!orderId) {
       return NextResponse.json(
