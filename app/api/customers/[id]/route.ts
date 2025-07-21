@@ -3,7 +3,7 @@ import { adminAuth } from '@/lib/firebase-admin';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin session
@@ -19,6 +19,7 @@ export async function PATCH(
     }
 
     const { disabled } = await request.json();
+    const params = await context.params;
     const userId = params.id;
 
     // Update user status
