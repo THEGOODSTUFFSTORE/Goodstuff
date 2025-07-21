@@ -35,7 +35,7 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
       
-      <div className="bg-gradient-to-r from-red-500 to-red-700 text-white py-16">
+      <div className="bg-[#A76545] text-white py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center mb-6">
             <Link href={`/wine/${subcategory}`} className="flex items-center text-white/80 hover:text-white transition-colors mr-4">
@@ -59,15 +59,15 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
           <nav className="text-sm">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-red-600 transition-colors">Home</Link>
+                <Link href="/" className="text-gray-500 hover:text-[#A76545] transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="flex items-center">
-                <Link href="/wine" className="text-gray-500 hover:text-red-600 transition-colors">Wine</Link>
+                <Link href="/wine" className="text-gray-500 hover:text-[#A76545] transition-colors">Wine</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="flex items-center">
-                <Link href={`/wine/${subcategory}`} className="text-gray-500 hover:text-red-600 transition-colors">
+                <Link href={`/wine/${subcategory}`} className="text-gray-500 hover:text-[#A76545] transition-colors">
                   {subcategory}
                 </Link>
                 <span className="mx-2 text-gray-400">/</span>
@@ -92,9 +92,9 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
                     />
                   </div>
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{product.name}</h3>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-[#A76545] transition-colors">{product.name}</h3>
                     <p className="text-gray-600 text-sm mb-3">{product.description}</p>
-                    <div className="text-2xl font-bold text-red-600">Ksh {product.price.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-[#A76545]">Ksh {product.price.toLocaleString()}</div>
                   </div>
                 </div>
               </Link>
@@ -105,7 +105,7 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
             <h3 className="text-2xl font-bold text-gray-900 mb-4">No {wineTypeName} Available</h3>
             <p className="text-gray-600 mb-8">We don't have any {wineTypeName.toLowerCase()} wines in stock right now.</p>
             <Link href={`/wine/${subcategory}`}>
-              <button className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+              <button className="bg-[#A76545] hover:bg-[#8B543A] text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                 Browse Other Types
               </button>
             </Link>

@@ -100,7 +100,7 @@ export default function NewArrivals() {
               </h3>
               <div className="flex items-baseline mt-2">
                 <span className="text-xl font-bold text-red-600">
-                  {product.price}/-
+                  KES {product.price.toLocaleString()}/-
                 </span>
               </div>
               <button 

@@ -7,44 +7,53 @@ import { getProducts } from '@/lib/api';
 
 const wineSubcategories = [
   {
-    id: 'redwine',
-    name: 'Red Wine',
+    id: 'red',
+    name: 'Red',
     description: 'Bold and rich red wines from around the world',
-    color: 'from-red-600 to-red-800',
-    image: '/wine.webp',
-    types: ['Cabernet Sauvignon', 'Merlot', 'Pinot Noir', 'Shiraz', 'Malbec']
+    image: '/Red-wine.jpg',
+    types: ['Cabernet Sauvignon', 'Merlot', 'Pinot Noir', 'Shiraz']
   },
   {
-    id: 'whitewine',
-    name: 'White Wine', 
+    id: 'white',
+    name: 'White', 
     description: 'Crisp and refreshing white wines',
-    color: 'from-yellow-400 to-yellow-600',
-    image: '/wine2.webp',
-    types: ['Chardonnay', 'Sauvignon Blanc', 'Pinot Grigio', 'Riesling', 'Gewürztraminer']
+    image: '/white-wine2.webp',
+    types: ['Sauvignon Blanc', 'Chardonnay', 'Pinot Grigio', 'Riesling']
   },
   {
-    id: 'rosewine',
-    name: 'Rosé Wine',
+    id: 'rose',
+    name: 'Rosé',
     description: 'Elegant pink wines perfect for any occasion',
-    color: 'from-pink-400 to-pink-600',
-    image: '/wine3.webp',
+    image: '/rose-wine.jpg',
     types: ['Provence Rosé', 'Spanish Rosado', 'Italian Rosato', 'Grenache Rosé']
   },
   {
-    id: 'sparklingwine',
-    name: 'Sparkling Wine',
-    description: 'Celebrate with bubbles and effervescence',
-    color: 'from-purple-500 to-purple-700',
-    image: '/wine4.webp',
-    types: ['Champagne', 'Prosecco', 'Cava', 'Crémant', 'Sekt']
+    id: 'cabernet-sauvignon',
+    name: 'Cabernet Sauvignon',
+    description: 'Full-bodied red wine with rich dark fruit flavors',
+    image: '/savio.jpg',
+    types: ['French Cabernet', 'California Cabernet', 'Chilean Cabernet', 'Australian Cabernet']
   },
   {
-    id: 'dessertfwine',
-    name: 'Dessert Wine',
-    description: 'Sweet wines perfect for dessert pairings',
-    color: 'from-amber-500 to-amber-700',
-    image: '/wine.webp',
-    types: ['Port', 'Sherry', 'Ice Wine', 'Late Harvest', 'Moscato']
+    id: 'sauvignon-blanc',
+    name: 'Sauvignon Blanc',
+    description: 'Crisp white wine with citrus and herbal notes',
+    image: '/blanc.jpg',
+    types: ['New Zealand Sauvignon', 'Loire Valley Sauvignon', 'California Sauvignon', 'Chilean Sauvignon']
+  },
+  {
+    id: 'merlot',
+    name: 'Merlot',
+    description: 'Smooth and medium-bodied red wine',
+    image: '/merlot.jpg',
+    types: ['French Merlot', 'California Merlot', 'Chilean Merlot', 'Italian Merlot']
+  },
+  {
+    id: 'champagne',
+    name: 'Champagne',
+    description: 'Premium sparkling wine from the Champagne region',
+    image: '/champagne.jpg',
+    types: ['Brut', 'Extra Brut', 'Rosé Champagne', 'Vintage Champagne']
   }
 ];
 
@@ -60,18 +69,18 @@ export default async function WinePage() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-red-600 to-red-800 text-white py-20">
+      <div className="bg-[#A76545] text-white py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <FaWineGlassAlt className="w-16 h-16 mx-auto mb-6 text-white/80" />
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
               Wine Collection
             </h1>
-            <p className="text-xl sm:text-2xl text-red-100 max-w-3xl mx-auto">
+            <p className="text-xl sm:text-2xl text-white/90 max-w-3xl mx-auto">
               Discover our curated selection of premium wines from renowned vineyards around the world
             </p>
-            <div className="mt-8 text-lg text-red-200">
-              {wineProducts.length} wines available • Free delivery in Nairobi
+            <div className="mt-8 text-lg text-white/80">
+              {wineProducts.length} wines available • Free delivery  for orders above Ksh. 5000
             </div>
           </div>
         </div>
@@ -83,7 +92,7 @@ export default async function WinePage() {
           <nav className="text-sm">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-red-600 transition-colors">Home</Link>
+                <Link href="/" className="text-gray-500 hover:text-[#A76545] transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="text-gray-700 font-medium">Wine</li>
@@ -106,11 +115,11 @@ export default async function WinePage() {
             <Link key={subcategory.id} href={`/wine/${subcategory.id}`}>
               <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
                 {/* Image Header */}
-                <div className={`bg-gradient-to-br ${subcategory.color} h-48 relative overflow-hidden`}>
+                <div className="h-48 relative overflow-hidden bg-gray-100">
                   <img 
                     src={subcategory.image}
                     alt={subcategory.name}
-                    className="w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-opacity duration-300"
+                    className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <h3 className="text-3xl font-bold text-white text-center">{subcategory.name}</h3>
@@ -124,21 +133,6 @@ export default async function WinePage() {
                 <div className="p-6">
                   <p className="text-gray-600 mb-4">{subcategory.description}</p>
                   
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Popular Types:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {subcategory.types.slice(0, 3).map((type, index) => (
-                        <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs">
-                          {type}
-                        </span>
-                      ))}
-                      {subcategory.types.length > 3 && (
-                        <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
-                          +{subcategory.types.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
 
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Explore Collection</span>
@@ -158,7 +152,7 @@ export default async function WinePage() {
               Can't find what you're looking for? Browse our complete wine collection
             </p>
             <Link href="/products?category=wine">
-              <button className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors">
+              <button className="bg-[#A76545] hover:bg-[#8B543A] text-white font-semibold py-3 px-8 rounded-xl transition-colors">
                 View All {wineProducts.length} Wines
               </button>
             </Link>

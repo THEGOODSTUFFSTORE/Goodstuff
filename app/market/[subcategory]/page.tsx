@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { FaStore, FaArrowLeft } from 'react-icons/fa';
@@ -12,35 +14,30 @@ interface MarketSubcategoryPageProps {
 }
 
 const subcategoryInfo: { [key: string]: any } = {
-  fresh: {
-    name: 'Fresh Products',
-    description: 'Fresh and locally sourced market items',
-    color: 'from-green-500 to-green-700'
+  merchandise: {
+    name: 'Merchandise',
+    description: 'Exclusive branded merchandise and accessories',
+    color: 'from-blue-500 to-blue-700'
   },
-  pantry: {
-    name: 'Pantry Essentials',
-    description: 'Essential pantry items and cooking ingredients',
-    color: 'from-brown-500 to-brown-700'
+  'nicotine-pouches': {
+    name: 'Nicotine Pouches',
+    description: 'Premium nicotine pouches in various flavors and strengths',
+    color: 'from-gray-500 to-gray-700'
   },
-  gourmet: {
-    name: 'Gourmet Foods',
-    description: 'Premium gourmet foods and delicacies',
+  vapes: {
+    name: 'Vapes',
+    description: 'High-quality vaping devices and accessories',
     color: 'from-purple-600 to-purple-800'
   },
-  international: {
-    name: 'International Foods',
-    description: 'Authentic international cuisine ingredients',
+  lighters: {
+    name: 'Lighters',
+    description: 'Premium lighters and fire accessories',
     color: 'from-red-500 to-red-700'
   },
-  organic: {
-    name: 'Organic & Natural',
-    description: 'Certified organic and natural products',
-    color: 'from-green-600 to-green-800'
-  },
-  specialty: {
-    name: 'Specialty Items',
-    description: 'Unique and hard-to-find specialty products',
-    color: 'from-indigo-500 to-indigo-700'
+  cigars: {
+    name: 'Cigars',
+    description: 'Fine cigars and smoking accessories',
+    color: 'from-amber-600 to-amber-800'
   }
 };
 
@@ -150,25 +147,23 @@ export default async function MarketSubcategoryPage({ params }: MarketSubcategor
                       </div>
                     </div>
                     <div className="p-6">
-                      <div className="mb-2">
-                        <span className="text-sm text-gray-500 font-medium">{product.subcategory}</span>
-                      </div>
                       <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
                         {product.name}
                       </h3>
-                      {product.description && (
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                          {product.description}
-                        </p>
-                      )}
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-green-600">
                           Ksh {product.price.toLocaleString()}
                         </span>
-                        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                          View Details
-                        </button>
                       </div>
+                      <button 
+                        className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // Add to cart functionality will be handled by the cart store
+                        }}
+                      >
+                        Add to basket
+                      </button>
                     </div>
                   </div>
                 </Link>

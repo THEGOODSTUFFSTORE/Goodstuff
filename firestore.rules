@@ -9,7 +9,7 @@ service cloud.firestore {
     // Products collection rules
     match /products/{productId} {
       allow read: if true;  // Anyone can read products
-      allow write: if isAdmin();  // Only admins can write
+      allow write: if request.auth != null;  // Only authenticated users can write
     }
 
     // Users collection rules
@@ -26,13 +26,30 @@ service cloud.firestore {
     // Blogs collection rules
     match /blogs/{blogId} {
       allow read: if true;  // Anyone can read blog posts
-      allow write: if isAdmin();  // Only admins can write
+      allow write: if request.auth != null;  // Only authenticated users can write
     }
 
     // Orders collection rules
     match /orders/{orderId} {
-      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
-      allow write: if isAdmin();
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.userId || // User can read their own orders
+        request.auth.token.admin == true // Admins can read all orders
+      );
+      
+      // Allow order creation for both authenticated users and guests
+      allow create: if (
+        // For guest orders
+        request.resource.data.userId == 'guest' ||
+        // For authenticated users
+        (request.auth != null && request.resource.data.userId == request.auth.uid)
+      );
+      
+      // Allow order updates during payment processing
+      allow update: if (
+        // Allow server-side updates for payment processing
+        true
+      );
+      allow delete: if isAdmin();
     }
 
     // Default rule - deny everything else

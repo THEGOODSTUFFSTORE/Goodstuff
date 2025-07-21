@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Save, Bell, Store, ShoppingCart, Shield, Users } from 'lucide-react';
+import { Save, Bell, ShoppingCart, Shield, Users } from 'lucide-react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
@@ -14,21 +14,16 @@ const AdminSettings = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState('');
-  const [activeSection, setActiveSection] = useState('store');
+  const [activeSection, setActiveSection] = useState('orders');
   const [resetEmail, setResetEmail] = useState('');
   const [resetStatus, setResetStatus] = useState({ error: '', success: '' });
   const [isAdmin, setIsAdmin] = useState(false);
+  // User Management state
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [settings, setSettings] = useState({
-    store: {
-      storeName: 'Goodstuff',
-      storeEmail: 'contact@goodstuff.com',
-      phoneNumber: '',
-      address: '',
-      currency: 'USD',
-      taxRate: 0,
-      lowStockThreshold: 5,
-      enableOutOfStockPurchase: false,
-    },
     orders: {
       minimumOrderAmount: 0,
       shippingFee: 0,
@@ -104,7 +99,6 @@ const AdminSettings = () => {
   }, [router]);
 
   const sections: SettingsSection[] = [
-    { id: 'store', title: 'Store Settings', icon: Store },
     { id: 'orders', title: 'Order Settings', icon: ShoppingCart },
     { id: 'notifications', title: 'Notifications', icon: Bell },
     { id: 'users', title: 'User Management', icon: Users },
@@ -158,72 +152,43 @@ const AdminSettings = () => {
     }
   };
 
-  const renderStoreSettings = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Store Name</label>
-          <input
-            type="text"
-            value={settings.store.storeName}
-            onChange={(e) => handleInputChange('store', 'storeName', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Store Email</label>
-          <input
-            type="email"
-            value={settings.store.storeEmail}
-            onChange={(e) => handleInputChange('store', 'storeEmail', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
-          <select
-            value={settings.store.currency}
-            onChange={(e) => handleInputChange('store', 'currency', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          >
-            <option value="USD">USD ($)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="GBP">GBP (£)</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Tax Rate (%)</label>
-          <input
-            type="number"
-            value={settings.store.taxRate}
-            onChange={(e) => handleInputChange('store', 'taxRate', parseFloat(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Low Stock Threshold</label>
-          <input
-            type="number"
-            value={settings.store.lowStockThreshold}
-            onChange={(e) => handleInputChange('store', 'lowStockThreshold', parseInt(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          />
-        </div>
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="enableOutOfStockPurchase"
-            checked={settings.store.enableOutOfStockPurchase}
-            onChange={(e) => handleInputChange('store', 'enableOutOfStockPurchase', e.target.checked)}
-            className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-          />
-          <label htmlFor="enableOutOfStockPurchase" className="ml-2 block text-sm text-gray-700">
-            Allow Out of Stock Purchase
-          </label>
-        </div>
-      </div>
-    </div>
-  );
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const auth = getAuth();
+      const token = await auth.currentUser?.getIdToken();
+      
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch('/api/auth/admin/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ email: newAdminEmail }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create admin user');
+      }
+
+      setSuccess(data.message || 'Admin user created successfully!');
+      setNewAdminEmail('');
+    } catch (error: any) {
+      setError(error.message || 'Failed to create admin user');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const renderOrderSettings = () => (
     <div className="space-y-6">
@@ -234,7 +199,7 @@ const AdminSettings = () => {
             type="number"
             value={settings.orders.minimumOrderAmount}
             onChange={(e) => handleInputChange('orders', 'minimumOrderAmount', parseFloat(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
           />
         </div>
         <div>
@@ -243,7 +208,7 @@ const AdminSettings = () => {
             type="number"
             value={settings.orders.shippingFee}
             onChange={(e) => handleInputChange('orders', 'shippingFee', parseFloat(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
           />
         </div>
         <div>
@@ -252,7 +217,7 @@ const AdminSettings = () => {
             type="number"
             value={settings.orders.freeShippingThreshold}
             onChange={(e) => handleInputChange('orders', 'freeShippingThreshold', parseFloat(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
           />
         </div>
         <div>
@@ -261,7 +226,7 @@ const AdminSettings = () => {
             type="text"
             value={settings.orders.orderPrefix}
             onChange={(e) => handleInputChange('orders', 'orderPrefix', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
           />
         </div>
         <div className="flex items-center">
@@ -347,54 +312,13 @@ const AdminSettings = () => {
     </div>
   );
 
-  const renderUserSettings = () => {
-    const [newAdminEmail, setNewAdminEmail] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-
-    const handleCreateAdmin = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setIsSubmitting(true);
-      setError('');
-      setSuccess('');
-
-      try {
-        const auth = getAuth();
-        const token = await auth.currentUser?.getIdToken();
-        
-        if (!token) {
-          throw new Error('Not authenticated');
-        }
-
-        const response = await fetch('/api/auth/admin/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ email: newAdminEmail }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to create admin user');
-        }
-
-        setSuccess('Admin user created successfully!');
-        setNewAdminEmail('');
-      } catch (error: any) {
-        setError(error.message || 'Failed to create admin user');
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
-    return (
+  const renderUserSettings = () => (
       <div className="space-y-6">
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Create Admin User</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Create Admin User</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Grant admin privileges to a user. If the email doesn't exist, a new user account will be created with a temporary password.
+          </p>
           <form onSubmit={handleCreateAdmin} className="space-y-4">
             <div>
               <label htmlFor="adminEmail" className="block text-sm font-medium text-gray-700">
@@ -405,7 +329,7 @@ const AdminSettings = () => {
                 id="adminEmail"
                 value={newAdminEmail}
                 onChange={(e) => setNewAdminEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
                 placeholder="Enter email address"
                 required
               />
@@ -461,7 +385,7 @@ const AdminSettings = () => {
               type="number"
               value={settings.users.passwordMinLength}
               onChange={(e) => handleInputChange('users', 'passwordMinLength', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
               min="6"
             />
           </div>
@@ -471,14 +395,13 @@ const AdminSettings = () => {
               type="number"
               value={settings.users.sessionTimeout}
               onChange={(e) => handleInputChange('users', 'sessionTimeout', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
               min="1"
             />
           </div>
         </div>
       </div>
-    );
-  };
+  );
 
   const renderSecuritySettings = () => {
     return (
@@ -527,7 +450,7 @@ const AdminSettings = () => {
               value={settings.security.ipWhitelist}
               onChange={(e) => handleInputChange('security', 'ipWhitelist', e.target.value)}
               placeholder="Comma-separated IPs"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
             />
           </div>
           <div>
@@ -535,7 +458,7 @@ const AdminSettings = () => {
             <select
               value={settings.security.backupFrequency}
               onChange={(e) => handleInputChange('security', 'backupFrequency', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -557,7 +480,7 @@ const AdminSettings = () => {
                 id="resetEmail"
                 value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
                 placeholder="Enter admin email address"
                 required
               />
@@ -586,8 +509,6 @@ const AdminSettings = () => {
 
   const renderActiveSection = () => {
     switch (activeSection) {
-      case 'store':
-        return renderStoreSettings();
       case 'orders':
         return renderOrderSettings();
       case 'notifications':
@@ -597,7 +518,7 @@ const AdminSettings = () => {
       case 'security':
         return renderSecuritySettings();
       default:
-        return renderStoreSettings();
+        return renderOrderSettings();
     }
   };
 

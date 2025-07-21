@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase-admin';
+import { adminAuth } from '@/lib/firebase-admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the session and check if the user is already an admin
-    const decodedToken = await auth.verifySessionCookie(session);
+    const decodedToken = await adminAuth.verifySessionCookie(session);
     if (!decodedToken.admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -21,17 +21,49 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    // Get the user by email
-    const user = await auth.getUserByEmail(email);
+    let user;
+    let userCreated = false;
+    
+    try {
+      // Try to get existing user by email
+      user = await adminAuth.getUserByEmail(email);
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        // User doesn't exist, create them
+        try {
+          user = await adminAuth.createUser({
+            email: email,
+            emailVerified: false,
+            password: Math.random().toString(36).slice(-12) + 'A1!', // Temporary password
+          });
+          userCreated = true;
+        } catch (createError: any) {
+          return NextResponse.json(
+            { error: `Failed to create user: ${createError.message}` },
+            { status: 500 }
+          );
+        }
+      } else {
+        // Some other error occurred
+        return NextResponse.json(
+          { error: `Failed to find user: ${error.message}` },
+          { status: 500 }
+        );
+      }
+    }
     
     // Set admin claim
-    await auth.setCustomUserClaims(user.uid, {
+    await adminAuth.setCustomUserClaims(user.uid, {
       admin: true
     });
 
     return NextResponse.json({ 
-      message: 'Admin privileges granted successfully',
-      uid: user.uid 
+      message: userCreated 
+        ? 'Admin user created and privileges granted successfully. User will need to reset their password.'
+        : 'Admin privileges granted successfully',
+      uid: user.uid,
+      email: user.email,
+      created: userCreated
     });
   } catch (error: any) {
     console.error('Error creating admin:', error);

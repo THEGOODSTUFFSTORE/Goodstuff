@@ -63,6 +63,8 @@ const CustomerDashboard = () => {
         completed: 0,
         processing: 0,
         pending: 0,
+        shipped: 0,
+        delivered: 0,
         cancelled: 0
       });
       
@@ -138,7 +140,7 @@ const CustomerDashboard = () => {
             <div>
               <p className="text-sm text-gray-500">Total Spent</p>
               <p className="text-2xl font-semibold text-gray-900">
-                ${orderStats.total.toFixed(2)}
+                KES {orderStats.total.toFixed(2)}
               </p>
             </div>
             <div className="bg-red-50 p-3 rounded-lg">
@@ -225,7 +227,7 @@ const CustomerDashboard = () => {
                         {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {order.items.length} items · ${order.totalAmount.toFixed(2)}
+                        {order.items.length} items · KES {order.totalAmount.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -245,7 +247,7 @@ const CustomerDashboard = () => {
                           {item.productName}
                         </p>
                         <p className="text-sm text-gray-500">
-                          Qty: {item.quantity} · ${item.priceAtOrder.toFixed(2)}
+                          Qty: {item.quantity} · KES {item.priceAtOrder.toFixed(2)}
                         </p>
                       </div>
                     </div>

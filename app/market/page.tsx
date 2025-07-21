@@ -7,52 +7,44 @@ import { getProductsByCategory } from '@/lib/api';
 
 const marketSubcategories = [
   {
-    id: 'fresh',
-    name: 'Fresh Products',
-    description: 'Fresh and locally sourced market items',
-    color: 'from-green-500 to-green-700',
-    image: '/wine.webp',
-    types: ['Fresh Herbs', 'Organic Produce', 'Local Honey', 'Artisan Bread']
+    id: 'merchandise',
+    name: 'Merchandise',
+    description: 'Exclusive branded merchandise and accessories',
+    color: 'from-blue-500 to-blue-700',
+    image: '/merch.jpg',
+    types: ['T-Shirts', 'Caps', 'Accessories', 'Collectibles']
   },
   {
-    id: 'pantry',
-    name: 'Pantry Essentials', 
-    description: 'Essential pantry items and cooking ingredients',
-    color: 'from-brown-500 to-brown-700',
-    image: '/wine2.webp',
-    types: ['Spices', 'Oils & Vinegars', 'Grains', 'Canned Goods']
+    id: 'nicotine-pouches',
+    name: 'Nicotine pouches',
+    description: 'Premium nicotine pouches in various flavors and strengths',
+    color: 'from-gray-500 to-gray-700',
+    image: '/pouche.jpeg',
+    types: ['Mint', 'Citrus', 'Berry', 'Original']
   },
   {
-    id: 'gourmet',
-    name: 'Gourmet Foods',
-    description: 'Premium gourmet foods and delicacies',
+    id: 'vapes',
+    name: 'Vapes',
+    description: 'High-quality vaping devices and accessories',
     color: 'from-purple-600 to-purple-800',
-    image: '/wine3.webp',
-    types: ['Truffle Products', 'Aged Cheeses', 'Charcuterie', 'Fine Chocolates']
+    image: '/vapes.webp',
+    types: ['Disposable', 'Pod Systems', 'E-liquids', 'Accessories']
   },
   {
-    id: 'international',
-    name: 'International Foods',
-    description: 'Authentic international cuisine ingredients',
+    id: 'lighters',
+    name: 'Lighters',
+    description: 'Premium lighters and fire accessories',
     color: 'from-red-500 to-red-700',
-    image: '/wine4.webp',
-    types: ['Asian', 'Mediterranean', 'Latin American', 'European']
+    image: '/lighters.webp',
+    types: ['Torch Lighters', 'Classic Lighters', 'Premium Brands', 'Accessories']
   },
   {
-    id: 'organic',
-    name: 'Organic & Natural',
-    description: 'Certified organic and natural products',
-    color: 'from-green-600 to-green-800',
-    image: '/wine.webp',
-    types: ['Organic Produce', 'Natural Supplements', 'Raw Foods', 'Superfoods']
-  },
-  {
-    id: 'specialty',
-    name: 'Specialty Items',
-    description: 'Unique and hard-to-find specialty products',
-    color: 'from-indigo-500 to-indigo-700',
-    image: '/wine2.webp',
-    types: ['Rare Ingredients', 'Artisan Products', 'Limited Editions', 'Seasonal Items']
+    id: 'cigars',
+    name: 'Cigars',
+    description: 'Fine cigars and smoking accessories',
+    color: 'from-amber-600 to-amber-800',
+    image: '/cigar.jpg',
+    types: ['Premium Cigars', 'Cigarillos', 'Humidors', 'Cutters']
   }
 ];
 
@@ -70,13 +62,13 @@ export default async function MarketPage() {
           <div className="text-center">
             <FaStore className="w-16 h-16 mx-auto mb-6 text-white/80" />
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
-              Gourmet Market
+              The Goodstuff 
             </h1>
             <p className="text-xl sm:text-2xl text-green-100 max-w-3xl mx-auto">
-              Discover premium market items, gourmet foods, and specialty ingredients
+            Discover exclusive market finds, gourmet treats, and unique lifestyle essentials—handpicked just for you!
             </p>
             <div className="mt-8 text-lg text-green-200">
-              {marketProducts.length} products available • Fresh delivery guaranteed
+              {marketProducts.length} products available
             </div>
           </div>
         </div>
@@ -100,9 +92,9 @@ export default async function MarketPage() {
       {/* Market Subcategories */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Explore Market Categories</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Explore variety of our Products</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            From fresh produce to gourmet specialties, discover quality market items for your culinary adventures
+          Discover a curated selection of gourmet foods, premium cigars, specialty ingredients, and unique market items. Explore our diverse market subcategories to find the perfect addition to your collection or pantry.
           </p>
         </div>
 
@@ -129,21 +121,7 @@ export default async function MarketPage() {
                 <div className="p-6">
                   <p className="text-gray-600 mb-4">{subcategory.description}</p>
                   
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Popular Types:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {subcategory.types.slice(0, 3).map((type, index) => (
-                        <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs">
-                          {type}
-                        </span>
-                      ))}
-                      {subcategory.types.length > 3 && (
-                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
-                          +{subcategory.types.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                 
 
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Explore Collection</span>

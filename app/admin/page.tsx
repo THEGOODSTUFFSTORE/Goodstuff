@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   Package, 
-  Wine, 
   FileText, 
   Users, 
   Settings, 
@@ -34,14 +33,13 @@ import ProductForm from './components/ProductForm';
 import AdminAuth from './components/AdminAuth';
 import AdminSettings from './components/AdminSettings';
 import { getProducts, deleteProduct, getOrderStats } from '@/lib/firebaseApi';
-import { Product, Customer } from '@/lib/types';
+import { Product, Customer, Order } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { LucideIcon } from 'lucide-react';
 
 interface AdminStats {
   totalProducts: number;
-  totalWines: number;
   totalOrders: number;
   totalRevenue: number;
   monthlyGrowth: number;
@@ -63,7 +61,6 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<AdminStats>({
     totalProducts: 0,
-    totalWines: 0,
     totalOrders: 0,
     totalRevenue: 0,
     monthlyGrowth: 12.5
@@ -71,12 +68,17 @@ const AdminDashboard = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
   const [isCustomersLoading, setIsCustomersLoading] = useState(true);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [orderSearchTerm, setOrderSearchTerm] = useState('');
+  const [isOrdersLoading, setIsOrdersLoading] = useState(true);
+  const [selectedOrderStatus, setSelectedOrderStatus] = useState<string>('all');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   const tabs: Tab[] = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
     { id: 'products', name: 'Products', icon: Package },
+    { id: 'orders', name: 'Orders', icon: ShoppingCart },
     { id: 'customers', name: 'Customers', icon: Users },
     { id: 'settings', name: 'Settings', icon: Settings },
   ];
@@ -96,7 +98,6 @@ const AdminDashboard = () => {
         // Update stats
         setStats({
           totalProducts: fetchedProducts.length,
-          totalWines: fetchedProducts.filter(p => p.category === 'wine').length,
           totalOrders: orderStats.totalOrders,
           totalRevenue: orderStats.totalRevenue,
           monthlyGrowth: 12.5
@@ -131,6 +132,29 @@ const AdminDashboard = () => {
 
     if (activeTab === 'customers') {
       loadCustomers();
+    }
+  }, [activeTab]);
+
+  // Fetch orders
+  useEffect(() => {
+    const loadOrders = async () => {
+      setIsOrdersLoading(true);
+      try {
+        const response = await fetch('/api/orders');
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders');
+        }
+        const fetchedOrders = await response.json();
+        setOrders(fetchedOrders);
+      } catch (error) {
+        console.error('Error loading orders:', error);
+      } finally {
+        setIsOrdersLoading(false);
+      }
+    };
+
+    if (activeTab === 'orders') {
+      loadOrders();
     }
   }, [activeTab]);
 
@@ -238,6 +262,35 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleUpdateOrderStatus = async (orderId: string, status: string, trackingNumber?: string) => {
+    try {
+      const response = await fetch(`/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status, trackingNumber }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update order status');
+      }
+
+      // Refresh orders list
+      if (activeTab === 'orders') {
+        const response = await fetch('/api/orders');
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders');
+        }
+        const fetchedOrders = await response.json();
+        setOrders(fetchedOrders);
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert('Error updating order status. Please try again.');
+    }
+  };
+
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -247,7 +300,7 @@ const AdminDashboard = () => {
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 transition-all duration-200 hover:shadow-md">
           <div className="flex items-center justify-between">
             <div>
@@ -256,18 +309,6 @@ const AdminDashboard = () => {
             </div>
             <div className="p-2 md:p-3 bg-gray-50 rounded-xl">
               <Package className="h-5 w-5 md:h-6 md:w-6 text-gray-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 transition-all duration-200 hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Total Wines</p>
-              <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{stats.totalWines}</p>
-            </div>
-            <div className="p-2 md:p-3 bg-gray-50 rounded-xl">
-              <Wine className="h-5 w-5 md:h-6 md:w-6 text-gray-600" />
             </div>
           </div>
         </div>
@@ -288,7 +329,7 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-              <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">${stats.totalRevenue.toLocaleString()}</p>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">KES {stats.totalRevenue.toLocaleString()}</p>
             </div>
             <div className="p-2 md:p-3 bg-gray-50 rounded-xl">
               <DollarSign className="h-5 w-5 md:h-6 md:w-6 text-gray-600" />
@@ -367,7 +408,7 @@ const AdminDashboard = () => {
           <input
             type="text"
             placeholder="Search products..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base transition-all duration-200"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -469,7 +510,7 @@ const AdminDashboard = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${product.price.toFixed(2)}
+                        KES {product.price.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -568,7 +609,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-900">
-                      ${product.price.toFixed(2)}
+                      KES {product.price.toFixed(2)}
                     </span>
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                       product.stockQuantity > 10
@@ -626,7 +667,7 @@ const AdminDashboard = () => {
             <input
               type="text"
               placeholder="Search customers..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base transition-all duration-200"
               value={customerSearchTerm}
               onChange={(e) => setCustomerSearchTerm(e.target.value)}
             />
@@ -693,7 +734,7 @@ const AdminDashboard = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">${customer.totalSpent.toLocaleString()}</div>
+                        <div className="text-sm font-medium text-gray-900">KES {customer.totalSpent.toLocaleString()}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span 
@@ -723,6 +764,227 @@ const AdminDashboard = () => {
     );
   };
 
+  const renderOrders = () => {
+    const filteredOrders = orders.filter(order => {
+      const matchesSearch = order.id.toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
+        order.userEmail.toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
+        (order.shippingAddress?.name && order.shippingAddress.name.toLowerCase().includes(orderSearchTerm.toLowerCase()));
+      
+      const matchesStatus = selectedOrderStatus === 'all' || order.status === selectedOrderStatus;
+      
+      return matchesSearch && matchesStatus;
+    });
+
+    const getStatusColor = (status: string) => {
+      switch (status) {
+        case 'pending':
+          return 'bg-yellow-100 text-yellow-800';
+        case 'processing':
+          return 'bg-blue-100 text-blue-800';
+        case 'shipped':
+          return 'bg-purple-100 text-purple-800';
+        case 'delivered':
+          return 'bg-green-100 text-green-800';
+        case 'completed':
+          return 'bg-green-100 text-green-800';
+        case 'cancelled':
+          return 'bg-red-100 text-red-800';
+        default:
+          return 'bg-gray-100 text-gray-800';
+      }
+    };
+
+    const OrderStatusDropdown = ({ order }: { order: Order }) => {
+      const [isOpen, setIsOpen] = useState(false);
+      const [trackingNumber, setTrackingNumber] = useState(order.trackingNumber || '');
+
+      const statuses = [
+        { value: 'pending', label: 'Pending' },
+        { value: 'processing', label: 'Processing' },
+        { value: 'shipped', label: 'Shipped' },
+        { value: 'delivered', label: 'Delivered' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'cancelled', label: 'Cancelled' },
+      ];
+
+      const handleStatusUpdate = (newStatus: string) => {
+        if (newStatus === 'shipped' && !trackingNumber.trim()) {
+          const tracking = prompt('Please enter tracking number:');
+          if (tracking) {
+            setTrackingNumber(tracking);
+            handleUpdateOrderStatus(order.id, newStatus, tracking);
+          }
+        } else {
+          handleUpdateOrderStatus(order.id, newStatus, trackingNumber);
+        }
+        setIsOpen(false);
+      };
+
+      return (
+        <div className="relative">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)} hover:opacity-80`}
+          >
+            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            <svg className="ml-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {isOpen && (
+            <div className="absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+              {statuses.map((status) => (
+                <button
+                  key={status.value}
+                  onClick={() => handleStatusUpdate(status.value)}
+                  className={`block w-full text-left px-3 py-2 text-xs hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg ${
+                    order.status === status.value ? 'bg-gray-100 font-medium' : ''
+                  }`}
+                >
+                  {status.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Orders</h2>
+            <p className="text-sm text-gray-500 mt-1">Manage customer orders and track fulfillment</p>
+          </div>
+          <div className="flex space-x-3">
+            <button className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-200">
+              <Download className="h-4 w-4" />
+              <span>Export</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search orders..."
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base transition-all duration-200"
+              value={orderSearchTerm}
+              onChange={(e) => setOrderSearchTerm(e.target.value)}
+            />
+          </div>
+          <select
+            value={selectedOrderStatus}
+            onChange={(e) => setSelectedOrderStatus(e.target.value)}
+            className="px-4 py-3 bg-white border border-gray-200 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base transition-all duration-200"
+          >
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        {/* Orders Table */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {isOrdersLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center">
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                        <span className="ml-2">Loading orders...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
+                      No orders found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">#{order.id}</div>
+                          {order.trackingNumber && (
+                            <div className="text-sm text-gray-500">Tracking: {order.trackingNumber}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {order.shippingAddress?.name || 'Guest'}
+                          </div>
+                          <div className="text-sm text-gray-500">{order.userEmail}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{order.totalItems} items</div>
+                        <div className="text-sm text-gray-500">
+                          {order.items.slice(0, 2).map(item => item.productName).join(', ')}
+                          {order.items.length > 2 && ` +${order.items.length - 2} more`}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          KES {order.totalAmount.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {order.paymentStatus === 'paid' ? 'Paid' : 'Pending Payment'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <OrderStatusDropdown order={order} />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {new Date(order.createdAt).toLocaleTimeString()}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <Eye className="h-5 w-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderSettings = () => (
     <AdminSettings />
   );
@@ -733,6 +995,8 @@ const AdminDashboard = () => {
         return renderDashboard();
       case 'products':
         return renderProducts();
+      case 'orders':
+        return renderOrders();
       case 'customers':
         return renderCustomers();
       case 'settings':

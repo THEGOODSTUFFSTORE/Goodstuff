@@ -5,6 +5,15 @@ import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { getProductsByCategory } from '@/lib/api';
 
+// Define the market subcategories and their types for type checking
+const marketTypes = {
+  'merchandise': ['t-shirts', 'caps', 'accessories', 'collectibles'],
+  'nicotine-pouches': ['mint', 'citrus', 'berry', 'original'],
+  'vapes': ['disposable', 'pod-systems', 'e-liquids', 'accessories'],
+  'lighters': ['torch-lighters', 'classic-lighters', 'premium-brands', 'accessories'],
+  'cigars': ['premium-cigars', 'cigarillos', 'humidors', 'cutters']
+} as const;
+
 interface MarketTypePageProps {
   params: Promise<{
     subcategory: string;
@@ -18,18 +27,26 @@ export default async function MarketTypePage({ params }: MarketTypePageProps) {
   // Fetch only market products from Contentful
   const marketProducts = await getProductsByCategory('market');
   
-  // Filter products by exact subcategory and type matching
+  // Filter products by subcategory and type
   const typeProducts = marketProducts.filter(product => {
-    const normalizedSubcategory = product.subcategory?.toLowerCase().replace(/\s+/g, '-');
-    const normalizedType = type.toLowerCase();
+    // Normalize the product subcategory and type for comparison
+    const normalizedProductSubcategory = product.subcategory?.toLowerCase().replace(/\s+/g, '-');
+    const normalizedProductType = product.type?.toLowerCase().replace(/\s+/g, '-');
     
-    // Match by subcategory if it matches the type parameter
-    return normalizedSubcategory === normalizedType ||
-           product.subcategory?.toLowerCase().includes(type.replace(/-/g, ' '));
+    // Check if the product matches both subcategory and type
+    return normalizedProductSubcategory === subcategory && 
+           normalizedProductType === type;
   });
 
-  // Simple market type display name
-  const marketTypeName = type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  // Get the display name for the type
+  const marketTypeName = type.split('-').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+
+  // Get the display name for the subcategory
+  const subcategoryDisplayName = subcategory.split('-').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -40,14 +57,14 @@ export default async function MarketTypePage({ params }: MarketTypePageProps) {
           <div className="flex items-center mb-6">
             <Link href={`/market/${subcategory}`} className="flex items-center text-white/80 hover:text-white transition-colors mr-4">
               <FaArrowLeft className="w-5 h-5 mr-2" />
-              Back to {subcategory}
+              Back to {subcategoryDisplayName}
             </Link>
           </div>
           <div className="flex items-center">
             <FaStore className="w-12 h-12 mr-6" />
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold mb-4">{marketTypeName}</h1>
-              <p className="text-xl text-white/90">Premium {type.replace(/-/g, ' ')} products</p>
+              <p className="text-xl text-white/90">{subcategoryDisplayName} - {marketTypeName}</p>
               <div className="mt-4 text-lg text-white/80">{typeProducts.length} products available</div>
             </div>
           </div>
@@ -68,7 +85,7 @@ export default async function MarketTypePage({ params }: MarketTypePageProps) {
               </li>
               <li className="flex items-center">
                 <Link href={`/market/${subcategory}`} className="text-gray-500 hover:text-green-600 transition-colors">
-                  {subcategory}
+                  {subcategoryDisplayName}
                 </Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>

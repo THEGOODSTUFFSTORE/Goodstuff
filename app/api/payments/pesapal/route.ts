@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pesapalApi } from '@/lib/pesapal';
-import { auth } from '@/lib/firebase';
-import { createOrder, updateOrder } from '@/lib/firebaseApi';
+import { createOrderServer, updateOrderServer } from '@/lib/server/firebaseAdmin';
 import { PesapalPaymentRequest, Order } from '@/lib/types';
+import { sendOrderNotifications } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     // Create a unique tracking ID
     const trackingId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
-    // Create the order in Firebase first
+    // Create the order in Firebase first using Admin SDK
     const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
       userId: userId || 'guest',
       userEmail: userEmail || shippingAddress.email,
@@ -33,15 +33,47 @@ export async function POST(request: NextRequest) {
       paymentStatus: 'pending'
     };
 
-    const order = await createOrder(orderData);
+    console.log('Creating order with data:', orderData);
+    const order = await createOrderServer(orderData);
+    console.log('Order created successfully:', order);
+
+    // Send order confirmation emails (async, don't wait for completion)
+    sendOrderNotifications(order, 'created').catch(error => {
+      console.error('Failed to send order emails:', error);
+    });
 
     // Prepare the Pesapal payment request
+    const ipnId = process.env.PESAPAL_IPN_ID;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://7f2b8a32eb2b.ngrok-free.app';
+    
+    console.log('IPN ID found:', ipnId);
+    
+    if (!ipnId) {
+      console.error('PESAPAL_IPN_ID environment variable is not set. Payment will fail.');
+      console.log('To fix this:');
+      console.log('1. Register IPN URL: POST to /api/payments/pesapal/register-ipn');
+      console.log('2. Add PESAPAL_IPN_ID to your .env.local file');
+      return NextResponse.json(
+        { error: 'Payment service not properly configured. Please contact support.' },
+        { status: 500 }
+      );
+    }
+
+    if (!process.env.PESAPAL_CONSUMER_KEY || !process.env.PESAPAL_CONSUMER_SECRET) {
+      console.error('Pesapal credentials not configured');
+      return NextResponse.json(
+        { error: 'Payment service not properly configured. Please contact support.' },
+        { status: 500 }
+      );
+    }
+
     const paymentRequest: PesapalPaymentRequest = {
       amount: totalAmount,
       currency: 'KES',
       description: `Order ${order.id}`,
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/pesapal/callback`,
-      notification_id: order.id,
+      callback_url: `${baseUrl}/api/payments/pesapal/callback`,
+      notification_id: ipnId, // This should be the IPN ID, not the order ID
+      merchant_reference: order.id,
       tracking_id: trackingId,
       billing_address: {
         email_address: shippingAddress.email || userEmail || '',
@@ -50,20 +82,55 @@ export async function POST(request: NextRequest) {
         last_name: shippingAddress.name?.split(' ').slice(1).join(' ') || '',
         country_code: 'KE'
       }
+      // Remove ipn_id as it should not be a separate field
     };
 
-    // Submit the order to Pesapal
+    console.log('Submitting order to Pesapal:', paymentRequest);
+    
     const pesapalResponse = await pesapalApi.submitOrder(paymentRequest);
+    console.log('Pesapal response:', pesapalResponse);
 
-    // Update the order with Pesapal tracking ID
-    await updateOrder(order.id, {
-      pesapalOrderTrackingId: pesapalResponse.order_tracking_id
-    });
+    // Check for Pesapal error response
+    if (pesapalResponse.error) {
+      console.error('Pesapal error:', pesapalResponse.error);
+      
+      // Provide more specific error messages
+      let errorMessage = pesapalResponse.error.message;
+      if (pesapalResponse.error.code === 'invalid_api_request_parameters' && 
+          pesapalResponse.error.message.includes('Invalid IPN URL ID')) {
+        errorMessage = 'Payment service configuration error. The IPN URL needs to be re-registered. Please contact support.';
+        console.error('IPN ID is invalid or expired. Need to re-register IPN URL.');
+        console.log('Current IPN ID:', ipnId);
+        console.log('Expected IPN URL:', `${baseUrl}/api/payments/pesapal/ipn`);
+      }
+      
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({
-      orderId: order.id,
-      redirectUrl: pesapalResponse.redirect_url
-    });
+    // Only update if we have a tracking ID
+    if (pesapalResponse.order_tracking_id) {
+      const updateData = {
+        pesapalOrderTrackingId: pesapalResponse.order_tracking_id
+      };
+      console.log('Updating order:', order.id, 'with data:', updateData);
+      await updateOrderServer(order.id, updateData);
+      console.log('Order updated successfully');
+
+      return NextResponse.json({
+        orderId: order.id,
+        redirectUrl: pesapalResponse.redirect_url
+      });
+    } else {
+      // Handle unexpected response format
+      console.error('Unexpected Pesapal response format:', pesapalResponse);
+      return NextResponse.json(
+        { error: 'Unexpected response from payment provider' },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error('Error processing payment:', error);
     return NextResponse.json(

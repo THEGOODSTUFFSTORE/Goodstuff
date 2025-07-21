@@ -6,15 +6,15 @@ import Footer from '@/app/components/Footer';
 import { FaSpinner } from 'react-icons/fa';
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     productId: string;
-  };
+  }>;
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   try {
-    // Ensure params is resolved before accessing productId
-    const { productId } = params;
+    // Await params before accessing productId (Next.js 15 requirement)
+    const { productId } = await params;
     
     if (!productId) {
       throw new Error('Product ID is required');

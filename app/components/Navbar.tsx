@@ -58,7 +58,7 @@ const Navbar = () => {
     {
       name: 'Spirits',
       key: 'spirits' as DropdownCategory,
-      href: '/spirits',
+      href: '/spirit',
     },
     {
       name: 'Beer',
@@ -90,11 +90,11 @@ const Navbar = () => {
       key: 'market' as DropdownCategory,
       href: '/market',
       items: [
-        { name: 'Merchandise', href: '/market/essentials' },
-        { name: 'Nicotine pouches', href: '/market/household' },
-        { name: 'Vapes', href: '/market/personal-care' },
-        { name: 'Lighters', href: '/market/cleaning' },
-        { name: 'Cigars', href: '/market/food-items' }
+        { name: 'Merchandise', href: '/market/merchandise' },
+        { name: 'Nicotine pouches', href: '/market/nicotine-pouches' },
+        { name: 'Vapes', href: '/market/vapes' },
+        { name: 'Lighters', href: '/market/lighters' },
+        { name: 'Cigars', href: '/market/cigars' }
       ]
     },
   ];
@@ -297,37 +297,50 @@ const Navbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navigationItems.map((item) => (
               <div key={item.key}>
-                <button
-                  onClick={() => toggleMobileDropdown(item.key)}
-                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                >
-                  {item.name}
-                  {item.items && (
-                    <svg
-                      className={`ml-2 h-5 w-5 inline-block transform transition-transform ${mobileDropdowns[item.key] ? 'rotate-180' : ''}`}
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                {item.items ? (
+                  // If item has subitems, use button for dropdown
+                  <>
+                    <button
+                      onClick={() => toggleMobileDropdown(item.key)}
+                      className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center justify-between"
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
-                </button>
-                {item.items && mobileDropdowns[item.key] && (
-                  <div className="pl-4">
-                    {item.items.map((subItem) => (
-                      <Link
-                        key={subItem.href}
-                        href={subItem.href}
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      <span>{item.name}</span>
+                      <svg
+                        className={`h-5 w-5 transform transition-transform ${mobileDropdowns[item.key] ? 'rotate-180' : ''}`}
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
                       >
-                        {subItem.name}
-                      </Link>
-                    ))}
-                  </div>
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    {mobileDropdowns[item.key] && (
+                      <div className="pl-4">
+                        {item.items.map((subItem) => (
+                          <Link
+                            key={subItem.href}
+                            href={subItem.href}
+                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {subItem.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // If item has no subitems, use Link component
+                  <Link
+                    href={item.href}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
                 )}
               </div>
             ))}

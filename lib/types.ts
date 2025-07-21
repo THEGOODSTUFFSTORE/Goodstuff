@@ -4,6 +4,7 @@ export interface Product {
   slug: string;
   category: string;
   subcategory: string;
+  type: string;  // Product type within subcategory
   productImage: string;
   price: number;
   stockQuantity: number;  // Track available stock quantity
@@ -63,7 +64,7 @@ export interface Order {
   items: OrderItem[];
   totalItems: number;
   totalAmount: number;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
   createdAt: string;
   updatedAt: string;
   shippingAddress?: {
@@ -103,30 +104,45 @@ export interface Customer {
 }
 
 // Pesapal related types
+export interface PesapalBillingAddress {
+  email_address: string;
+  phone_number?: string;
+  country_code?: string;
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
+  line_1?: string;
+  line_2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  zip_code?: string;
+}
+
 export interface PesapalPaymentRequest {
   amount: number;
   currency: string;
   description: string;
   callback_url: string;
+  ipn_url?: string;
+  ipn_id?: string;
   notification_id: string;
-  billing_address: {
-    email_address: string;
-    phone_number?: string;
-    country_code?: string;
-    first_name?: string;
-    last_name?: string;
-  };
-  tracking_id: string;
+  merchant_reference: string;
+  tracking_id?: string;
+  redirect_mode?: string;
+  billing_address: PesapalBillingAddress;
 }
 
 export interface PesapalPaymentResponse {
-  order_tracking_id: string;
-  merchant_reference: string;
-  redirect_url: string;
+  order_tracking_id?: string;
+  merchant_reference?: string;
+  redirect_url?: string;
   error?: {
+    error_type: string;
     code: string;
     message: string;
   };
+  status?: string;
 }
 
 export interface PesapalPaymentStatus {

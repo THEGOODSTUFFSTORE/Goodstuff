@@ -17,8 +17,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
     name: product?.name || '',
     category: product?.category || 'wine',
     subcategory: product?.subcategory || '',
-    price: product?.price || 0,
-    stockQuantity: product?.stockQuantity || 0,
+    type: product?.type || '',
+    price: product?.price || '',
+    stockQuantity: product?.stockQuantity || '',
     description: product?.description || '',
     detailedDescription: product?.detailedDescription || '',
     tastingNotes: product?.tastingNotes || '',
@@ -36,65 +37,29 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
     { value: 'wine', label: 'Wine' },
     { value: 'spirit', label: 'Spirits' },
     { value: 'beer', label: 'Beer' },
-    { value: 'mixers', label: 'Mixers' },
-    { value: 'snack', label: 'Snacks' },
-    { value: 'gifts', label: 'Gifts' },
+    { value: 'gin', label: 'Gin' },
+    { value: 'bourbon', label: 'Bourbon' },
+    { value: 'vodka', label: 'Vodka' },
+    { value: 'cream-liquers', label: 'Cream Liquers' },
     { value: 'market', label: 'Market' },
   ];
 
   const subcategoriesData = {
     wine: [
-      { id: 'redwine', name: 'Red Wine' },
-      { id: 'whitewine', name: 'White Wine' },
-      { id: 'rosewine', name: 'Rosé Wine' },
-      { id: 'sparklingwine', name: 'Sparkling Wine' },
-      { id: 'dessertwine', name: 'Dessert Wine' }
-    ],
-    spirit: [
-      { id: 'whiskey', name: 'Whiskey' },
-      { id: 'vodka', name: 'Vodka' },
-      { id: 'gin', name: 'Gin' },
-      { id: 'rum', name: 'Rum' },
-      { id: 'tequila', name: 'Tequila' },
-      { id: 'cognac', name: 'Cognac & Brandy' }
-    ],
-    beer: [
-      { id: 'lager', name: 'Lager' },
-      { id: 'ale', name: 'Ale' },
-      { id: 'wheat', name: 'Wheat Beer' },
-      { id: 'craft', name: 'Craft Beer' },
-      { id: 'imported', name: 'Imported Beer' }
-    ],
-    mixers: [
-      { id: 'tonic', name: 'Tonic Water' },
-      { id: 'soda', name: 'Soda Water' },
-      { id: 'juice', name: 'Juices' },
-      { id: 'bitters', name: 'Bitters & Syrups' },
-      { id: 'garnish', name: 'Garnishes' }
-    ],
-    snack: [
-      { id: 'nuts', name: 'Nuts & Seeds' },
-      { id: 'chips', name: 'Chips & Crisps' },
-      { id: 'chocolate', name: 'Chocolate & Sweets' },
-      { id: 'cheese', name: 'Cheese & Crackers' },
-      { id: 'jerky', name: 'Jerky & Dried Meats' },
-      { id: 'healthy', name: 'Healthy Snacks' }
+      { id: 'red', name: 'Red' },
+      { id: 'white', name: 'White' },
+      { id: 'rose', name: 'Rosé' },
+      { id: 'cabernet-sauvignon', name: 'Cabernet Sauvignon' },
+      { id: 'sauvignon-blanc', name: 'Sauvignon Blanc' },
+      { id: 'merlot', name: 'Merlot' },
+      { id: 'champagne', name: 'Champagne' }
     ],
     market: [
-      { id: 'fresh', name: 'Fresh Products' },
-      { id: 'pantry', name: 'Pantry Essentials' },
-      { id: 'gourmet', name: 'Gourmet Foods' },
-      { id: 'international', name: 'International Foods' },
-      { id: 'organic', name: 'Organic & Natural' },
-      { id: 'specialty', name: 'Specialty Items' }
-    ],
-    gifts: [
-      { id: 'sets', name: 'Gift Sets' },
-      { id: 'accessories', name: 'Bar Accessories' },
-      { id: 'corporate', name: 'Corporate Gifts' },
-      { id: 'occasion', name: 'Occasion Gifts' },
-      { id: 'luxury', name: 'Luxury Gifts' },
-      { id: 'personalized', name: 'Personalized Gifts' }
+      { id: 'merchandise', name: 'Merchandise' },
+      { id: 'nicotine-pouches', name: 'Nicotine pouches' },
+      { id: 'vapes', name: 'Vapes' },
+      { id: 'lighters', name: 'Lighters' },
+      { id: 'cigars', name: 'Cigars' }
     ]
   };
 
@@ -112,7 +77,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'price' || name === 'stockQuantity' ? parseFloat(value) || 0 : value,
+      [name]: value,
       // Reset subcategory when category changes
       ...(name === 'category' ? { subcategory: '' } : {})
     }));
@@ -147,9 +112,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
         slug: formData.name.toLowerCase().replace(/\s+/g, '-'),
         category: formData.category,
         subcategory: formData.subcategory,
+        type: formData.type,
         productImage: product?.productImage || '',
-        price: formData.price,
-        stockQuantity: formData.stockQuantity,
+        price: parseFloat(formData.price as string) || 0,
+        stockQuantity: parseInt(formData.stockQuantity as string) || 0,
         description: formData.description,
         detailedDescription: formData.detailedDescription,
         tastingNotes: formData.tastingNotes,
@@ -248,10 +214,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Product Name */}
+          {/* Name field */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              Product Name *
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Product Name
             </label>
             <input
               type="text"
@@ -259,9 +225,70 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               name="name"
               value={formData.name}
               onChange={handleInputChange}
+              className="mt-1 block w-full px-4 py-3 rounded-sm border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 text-black text-base"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="Enter product name"
+            />
+          </div>
+
+          {/* Category field */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+              Category
+            </label>
+            <select
+              id="category"
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-4 py-3 rounded-sm border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 text-black text-base"
+              required
+            >
+              {categories.map(category => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Subcategory field - only show if category has subcategories */}
+          {availableSubcategories.length > 0 && (
+            <div>
+              <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700">
+                Subcategory
+              </label>
+              <select
+                id="subcategory"
+                name="subcategory"
+                value={formData.subcategory}
+                onChange={handleInputChange}
+                className="mt-1 block w-full px-4 py-3 rounded-sm border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 text-black text-base"
+                required
+              >
+                <option value="">Select a subcategory</option>
+                {availableSubcategories.map(subcategory => (
+                  <option key={subcategory.id} value={subcategory.id}>
+                    {subcategory.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Type field */}
+          <div>
+            <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+              Type
+            </label>
+            <input
+              type="text"
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-4 py-3 rounded-sm border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 text-black text-base"
+              placeholder="Enter product type (e.g., Premium, Standard, etc.)"
+              required
             />
           </div>
 
@@ -278,52 +305,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               onChange={handleInputChange}
               required
               min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
+              placeholder="Enter stock quantity"
             />
-          </div>
-
-          {/* Category and Subcategory */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                Category *
-              </label>
-              <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
-                {categories.map(category => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700 mb-2">
-                Subcategory *
-              </label>
-              <select
-                id="subcategory"
-                name="subcategory"
-                value={formData.subcategory}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
-                <option value="">Select a subcategory</option>
-                {availableSubcategories.map(subcategory => (
-                  <option key={subcategory.id} value={subcategory.id}>
-                    {subcategory.name}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
           {/* Price and Brand */}
@@ -332,21 +316,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
                 Price *
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                <input
-                  type="number"
-                  id="price"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  required
-                  min="0"
-                  step="0.01"
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  placeholder="0.00"
-                />
-              </div>
+                            <input
+                type="number"
+                id="price"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                required
+                min="0"
+                step="0.01"
+                className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
+                placeholder="Enter price in KES"
+              />
             </div>
 
             <div>
@@ -359,7 +340,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
                 name="brand"
                 value={formData.brand}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
                 placeholder="Enter brand name"
               />
             </div>
@@ -377,7 +358,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
                 name="origin"
                 value={formData.origin}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
                 placeholder="Enter origin"
               />
             </div>
@@ -392,7 +373,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
                 name="volume"
                 value={formData.volume}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
                 placeholder="e.g., 750ml"
               />
             </div>
@@ -409,7 +390,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               name="alcoholContent"
               value={formData.alcoholContent}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
               placeholder="e.g., 14.5%"
             />
           </div>
@@ -425,7 +406,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               value={formData.description}
               onChange={handleInputChange}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
               placeholder="Enter short product description..."
             />
           </div>
@@ -441,7 +422,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               value={formData.detailedDescription}
               onChange={handleInputChange}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
               placeholder="Enter detailed product description..."
             />
           </div>
@@ -457,7 +438,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               value={formData.tastingNotes}
               onChange={handleInputChange}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
               placeholder="Enter tasting notes..."
             />
           </div>
@@ -473,7 +454,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               value={formData.additionalNotes}
               onChange={handleInputChange}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
               placeholder="Enter additional notes..."
             />
           </div>

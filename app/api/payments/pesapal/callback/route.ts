@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pesapalApi } from '@/lib/pesapal';
-import { updateOrder } from '@/lib/firebaseApi';
+import { updateOrderServer } from '@/lib/server/firebaseAdmin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
     // Get the transaction status from Pesapal
     const paymentStatus = await pesapalApi.getTransactionStatus(orderTrackingId);
 
-    // Update the order status in Firebase
-    await updateOrder(orderId, {
+    // Update the order status in Firebase using Admin SDK
+    await updateOrderServer(orderId, {
       pesapalPaymentStatus: paymentStatus,
       paymentStatus: paymentStatus.payment_status === 'COMPLETED' ? 'paid' : 
                     paymentStatus.payment_status === 'FAILED' ? 'failed' : 'pending',

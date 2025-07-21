@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { FaGift, FaArrowLeft } from 'react-icons/fa';
@@ -150,25 +152,23 @@ export default async function GiftsSubcategoryPage({ params }: GiftsSubcategoryP
                       </div>
                     </div>
                     <div className="p-6">
-                      <div className="mb-2">
-                        <span className="text-sm text-gray-500 font-medium">{product.subcategory}</span>
-                      </div>
                       <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
                         {product.name}
                       </h3>
-                      {product.description && (
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                          {product.description}
-                        </p>
-                      )}
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-purple-600">
                           Ksh {product.price.toLocaleString()}
                         </span>
-                        <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                          View Details
-                        </button>
                       </div>
+                      <button 
+                        className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // Add to cart functionality will be handled by the cart store
+                        }}
+                      >
+                        Add to basket
+                      </button>
                     </div>
                   </div>
                 </Link>

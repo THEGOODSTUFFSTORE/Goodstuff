@@ -101,7 +101,7 @@ export default function PopularWines() {
               </h3>
               <div className="flex items-baseline mt-2">
                 <span className="text-xl font-bold text-red-600">
-                  {wine.price}/-
+                  KES {wine.price.toLocaleString()}/-
                 </span>
               </div>
               <button 
