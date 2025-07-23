@@ -104,44 +104,45 @@ const ProductsList = React.memo(() => {
 
   // Memoize product grid to prevent unnecessary re-renders
   const productGrid = useMemo(() => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
       {filteredProducts.map((product) => (
         <div
           key={product.id}
-          className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition duration-300 hover:scale-105"
+          className="bg-white rounded-lg shadow-md hover:shadow-xl overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 group"
           onClick={() => handleProductClick(product.id)}
         >
-          <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
+          <div className="relative h-48 md:h-56 w-full flex items-center justify-center bg-gray-50 overflow-hidden">
             <Image
               src={product.productImage || '/wine.webp'}
               alt={product.name}
-              width={150}
-              height={150}
+              width={200}
+              height={200}
               style={{ objectFit: 'contain' }}
               priority={false}
               loading="lazy"
+              className="transition-transform duration-300 group-hover:scale-110"
               onError={(e: any) => {
                 console.error('Image load error:', e);
                 e.target.src = '/wine.webp';
               }}
             />
           </div>
-          <div className="p-4">
-            <div className="mb-2">
-              <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+          <div className="p-4 md:p-6">
+            <div className="mb-3">
+              <span className="inline-block bg-red-100 text-red-700 text-xs font-medium px-3 py-1 rounded-full">
                 {product.category}
               </span>
             </div>
-            <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
+            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 h-12 md:h-14 overflow-hidden leading-tight">
               {product.name}
             </h3>
-            <div className="flex items-baseline mt-2">
-              <span className="text-xl font-bold text-red-600">
+            <div className="flex items-baseline mb-4">
+              <span className="text-xl md:text-2xl font-bold text-red-600">
                 Ksh {product.price.toLocaleString()}/-
               </span>
             </div>
             <button 
-              className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
+              className="w-full bg-green-600 text-white py-2.5 md:py-3 rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:translate-y-[-1px]"
               onClick={(e) => handleAddToCart(product, e)}
             >
               Add to basket
@@ -154,15 +155,15 @@ const ProductsList = React.memo(() => {
 
   // Loading skeleton
   const loadingSkeleton = useMemo(() => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
       {[...Array(12)].map((_, index) => (
         <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-          <div className="h-48 bg-gray-200"></div>
-          <div className="p-4">
-            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-            <div className="h-6 bg-gray-200 rounded mb-4"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="h-48 md:h-56 bg-gray-200"></div>
+          <div className="p-4 md:p-6">
+            <div className="h-4 bg-gray-200 rounded mb-3"></div>
+            <div className="h-4 bg-gray-200 rounded mb-3 w-4/5"></div>
+            <div className="h-6 bg-gray-200 rounded mb-4 w-3/5"></div>
+            <div className="h-10 md:h-12 bg-gray-200 rounded"></div>
           </div>
         </div>
       ))}
@@ -170,49 +171,86 @@ const ProductsList = React.memo(() => {
   ), []);
 
   return (
-    <div className="container mx-auto px-4 py-8 flex-grow">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Our Products</h1>
-        <div className="flex items-center space-x-4">
-          <label htmlFor="category" className="text-sm font-medium text-gray-700">
-            Filter by category:
-          </label>
-          <select
-            id="category"
-            value={selectedCategory}
-            onChange={(e) => handleCategoryChange(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-              </option>
-            ))}
-          </select>
+    <main className="flex-grow bg-gray-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 lg:py-12">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 md:mb-12 space-y-4 md:space-y-0">
+          <div>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+              Our Products
+            </h2>
+            <p className="text-gray-600 text-sm md:text-base">
+              {loading ? 'Loading products...' : `${filteredProducts.length} products available`}
+            </p>
+          </div>
+          
+          {/* Filter Section */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <label htmlFor="category" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+              Filter by category:
+            </label>
+            <select
+              id="category"
+              value={selectedCategory}
+              onChange={(e) => handleCategoryChange(e.target.value)}
+              className="w-full sm:w-auto min-w-[200px] border border-gray-300 rounded-lg px-4 py-2.5 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+            >
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Products Section */}
+        <div className="relative">
+          {loading ? (
+            loadingSkeleton
+          ) : (
+            <>
+              {filteredProducts.length > 0 ? (
+                <>
+                  {productGrid}
+                  
+                  {/* Results Count */}
+                  <div className="mt-8 md:mt-12 text-center">
+                    <p className="text-gray-600 text-sm md:text-base">
+                      Showing {filteredProducts.length} of {products.length} products
+                    </p>
+                  </div>
+                </>
+              ) : (
+                /* No Products Found */
+                <div className="text-center py-16 md:py-24">
+                  <div className="max-w-md mx-auto">
+                    <div className="mb-6">
+                      <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0H4m16 0l-2-2m0 0l-2-2m2 2l2-2M4 13l2-2m-2 2l2 2m-2-2l-2-2" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-4">
+                      No products found
+                    </h3>
+                    <p className="text-gray-600 mb-8 text-sm md:text-base">
+                      We couldn't find any products matching your criteria. Try adjusting your filters or browse all products.
+                    </p>
+                    <button 
+                      onClick={() => handleCategoryChange('all')}
+                      className="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:translate-y-[-1px]"
+                    >
+                      View All Products
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
-
-      {loading ? loadingSkeleton : (
-        <>
-          {filteredProducts.length > 0 ? (
-            productGrid
-          ) : (
-            <div className="text-center py-16">
-              <h3 className="text-2xl font-semibold text-gray-900 mb-4">No products found</h3>
-              <p className="text-gray-600 mb-8">
-                We couldn't find any products matching your criteria.
-              </p>
-              <button 
-                onClick={() => handleCategoryChange('all')}
-                className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
-              >
-                View All Products
-              </button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
+    </main>
   );
 });
 

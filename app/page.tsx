@@ -7,7 +7,6 @@ import Navbar from './components/Navbar'
 // Dynamic imports for better code splitting
 const SearchSection = dynamic(() => import('./components/SearchSection'), {
   loading: () => <div className="h-32 bg-gray-50 animate-pulse" />,
-  ssr: true
 })
 
 const NewArrivals = dynamic(() => import('./components/NewArrivals'), {
@@ -23,7 +22,6 @@ const NewArrivals = dynamic(() => import('./components/NewArrivals'), {
       </div>
     </section>
   ),
-  ssr: false // Load after initial render for better performance
 })
 
 const TrendingDeals = dynamic(() => import('./components/TrendingDeals'), {
@@ -39,7 +37,6 @@ const TrendingDeals = dynamic(() => import('./components/TrendingDeals'), {
       </div>
     </section>
   ),
-  ssr: false
 })
 
 const PopularWines = dynamic(() => import('./components/PopularWines'), {
@@ -55,12 +52,10 @@ const PopularWines = dynamic(() => import('./components/PopularWines'), {
       </div>
     </section>
   ),
-  ssr: false
 })
 
 const Footer = dynamic(() => import('./components/Footer'), {
   loading: () => <div className="h-64 bg-gray-100 animate-pulse" />,
-  ssr: true
 })
 
 export const metadata: Metadata = {

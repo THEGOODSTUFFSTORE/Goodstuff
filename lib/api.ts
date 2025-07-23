@@ -156,7 +156,7 @@ export async function getProductById(id: string): Promise<Product | null> {
   }
 }
 
-// New optimized function to get products by sections (trending, popular, etc.)
+// Optimized function to get products by sections (trending, popular, etc.)
 export async function getProductsBySection(section: string, itemLimit: number = 6): Promise<Product[]> {
   try {
     const cacheKey = `products_section_${section}_${itemLimit}`;
@@ -167,6 +167,7 @@ export async function getProductsBySection(section: string, itemLimit: number = 
     }
 
     const productsRef = collection(db, 'products');
+    // Optimized query with database-level sorting (requires composite index)
     const q = query(
       productsRef,
       where('sections', 'array-contains', section),

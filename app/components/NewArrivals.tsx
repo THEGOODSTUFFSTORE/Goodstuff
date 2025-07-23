@@ -98,8 +98,8 @@ const NewArrivals = React.memo(() => {
     );
   }
 
-  if (products.length === 0) {
-    return null; // Don't render if no products available
+  if (!loading && products.length === 0) {
+    return null; // Don't render if no products available after loading
   }
 
   return (

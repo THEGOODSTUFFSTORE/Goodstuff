@@ -69,11 +69,12 @@ export interface Order {
   updatedAt: string;
   shippingAddress?: {
     name: string;
-    street: string;
+    email: string;
+    phone: string;
     city: string;
-    state: string;
-    postalCode: string;
-    country: string;
+    area: string;
+    exactLocation: string;
+    customLocation: string;
   };
   paymentMethod?: string;
   paymentStatus?: 'pending' | 'paid' | 'failed';

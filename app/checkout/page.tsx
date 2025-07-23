@@ -135,8 +135,7 @@ export default function CheckoutPage() {
                   onSubmit={handleCheckout}
                   isLoading={isLoading}
                   initialAddress={{
-                    email: auth.currentUser?.email || '',
-                    country: 'Kenya'
+                    email: auth.currentUser?.email || ''
                   }}
                 />
               </div>

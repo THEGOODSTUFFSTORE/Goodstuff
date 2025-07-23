@@ -99,8 +99,8 @@ const PopularWines = React.memo(() => {
     );
   }
 
-  if (wines.length === 0) {
-    return null; // Don't render if no wines available
+  if (!loading && wines.length === 0) {
+    return null; // Don't render if no wines available after loading
   }
 
   return (
