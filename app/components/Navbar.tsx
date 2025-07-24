@@ -70,11 +70,11 @@ const Navbar = () => {
       key: 'gin' as DropdownCategory,
       href: '/gin',
     },
-    {
-      name: 'Bourbon',
-      key: 'bourbon' as DropdownCategory,
-      href: '/bourbon',
-    },
+          {
+        name: 'Whisky',
+        key: 'bourbon' as DropdownCategory,
+        href: '/bourbon',
+      },
     {
       name: 'Vodka',
       key: 'vodka' as DropdownCategory,
@@ -136,9 +136,9 @@ const Navbar = () => {
                 <Image 
                   src="/logo.png" 
                   alt="The Goodstuff Logo" 
-                  width={40}
-                  height={40}
-                  className="h-10 w-auto group-hover:scale-110 transition-transform duration-300"
+                  width={52}
+                  height={52}
+                  className="h-12 w-auto group-hover:scale-110 transition-transform duration-300 drop-shadow-sm"
                 />
                 <span className="text-2xl font-bold text-gray-900 hover:text-red-500 transition-colors duration-300">
                   The Goodstuff

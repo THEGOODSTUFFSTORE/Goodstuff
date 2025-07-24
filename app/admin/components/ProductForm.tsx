@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { X, Save, Upload } from 'lucide-react';
 import { createProduct, updateProduct, uploadProductImage } from '@/lib/firebaseApi';
 import { Product } from '@/lib/types';
@@ -14,31 +14,77 @@ interface ProductFormProps {
 const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: product?.name || '',
-    category: product?.category || 'wine',
-    subcategory: product?.subcategory || '',
-    type: product?.type || '',
-    price: product?.price || '',
-    stockQuantity: product?.stockQuantity || '',
-    description: product?.description || '',
-    detailedDescription: product?.detailedDescription || '',
-    tastingNotes: product?.tastingNotes || '',
-    additionalNotes: product?.additionalNotes || '',
-    origin: product?.origin || '',
-    alcoholContent: product?.alcoholContent || '',
-    volume: product?.volume || '',
-    brand: product?.brand || '',
+    name: '',
+    category: 'wine',
+    subcategory: '',
+    type: '',
+    price: '',
+    stockQuantity: '',
+    description: '',
+    detailedDescription: '',
+    tastingNotes: '',
+    additionalNotes: '',
+    origin: '',
+    alcoholContent: '',
+    volume: '',
+    brand: '',
     status: 'active',
-    sections: product?.sections || [],
+    sections: [] as string[],
     image: null as File | null,
   });
+
+  // Update form data when product prop changes
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        name: product.name || '',
+        category: product.category || 'wine',
+        subcategory: product.subcategory || '',
+        type: product.type || '',
+        price: product.price?.toString() || '',
+        stockQuantity: product.stockQuantity?.toString() || '',
+        description: product.description || '',
+        detailedDescription: product.detailedDescription || '',
+        tastingNotes: product.tastingNotes || '',
+        additionalNotes: product.additionalNotes || '',
+        origin: product.origin || '',
+        alcoholContent: product.alcoholContent || '',
+        volume: product.volume || '',
+        brand: product.brand || '',
+        status: 'active',
+        sections: product.sections || [],
+        image: null as File | null,
+      });
+    } else {
+      // Reset form for adding new product
+      setFormData({
+        name: '',
+        category: 'wine',
+        subcategory: '',
+        type: '',
+        price: '',
+        stockQuantity: '',
+        description: '',
+        detailedDescription: '',
+        tastingNotes: '',
+        additionalNotes: '',
+        origin: '',
+        alcoholContent: '',
+        volume: '',
+        brand: '',
+        status: 'active',
+        sections: [] as string[],
+        image: null as File | null,
+      });
+    }
+  }, [product]);
 
   const categories = [
     { value: 'wine', label: 'Wine' },
     { value: 'spirit', label: 'Spirits' },
     { value: 'beer', label: 'Beer' },
     { value: 'gin', label: 'Gin' },
-    { value: 'bourbon', label: 'Bourbon' },
+    { value: 'bourbon', label: 'Whisky' },
     { value: 'vodka', label: 'Vodka' },
     { value: 'cream-liquers', label: 'Cream Liquers' },
     { value: 'market', label: 'Market' },
@@ -130,6 +176,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
       };
 
       console.log('Saving product data:', productData);
+      console.log('Sections being saved:', formData.sections);
 
       // First save/update the product data without the new image
       let savedProduct: Product;

@@ -34,14 +34,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://thegoodstuff.co.ke'),
+  metadataBase: new URL('https://thegoodstuffdrinks.delivery'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: 'The Goodstuff - Premium Wines & Spirits',
     description: 'Discover premium wines, spirits, and more at The Goodstuff. We offer a curated selection of fine wines, craft spirits, and exclusive market items.',
-    url: 'https://thegoodstuff.co.ke',
+    url: 'https://thegoodstuffdrinks.delivery',
     siteName: 'The Goodstuff',
     images: [
       {

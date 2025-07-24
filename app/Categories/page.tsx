@@ -20,7 +20,7 @@ const categories = [
     description: 'Fine whiskeys and premium bourbons',
     icon: <FaWineGlass className="w-12 h-12" />,
     color: 'from-amber-500 to-amber-600',
-    subcategories: ['Scotch Whisky', 'Irish Whiskey', 'Bourbon', 'Rye Whiskey', 'Japanese Whisky']
+    subcategories: ['Scotch Whisky', 'Irish Whiskey', 'American Whisky', 'Rye Whiskey', 'Japanese Whisky']
   },
   {
     id: 'spirits',

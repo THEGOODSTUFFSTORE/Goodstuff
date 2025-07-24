@@ -11,7 +11,7 @@ const Hero: React.FC<HeroProps> = ({
   return (
     <section className="relative w-full">
       <img
-        src={"/BANNER-PLAYA-copy.webp"}
+        src={"/resize.jpg"}
         alt={alt}
         className="w-full h-auto object-cover"
         style={{ maxHeight: '600px' }}

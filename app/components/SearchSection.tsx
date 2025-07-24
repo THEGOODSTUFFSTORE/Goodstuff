@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FaSearch, FaTimes, FaFilter } from 'react-icons/fa';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 import { Product } from '@/lib/types';
 
 export default function SearchSection() {
@@ -12,13 +12,12 @@ export default function SearchSection() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [categories, setCategories] = useState<string[]>(['all']);
+
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Debounced search function
   const debouncedSearch = useCallback(
-    async (query: string, category: string) => {
+    async (query: string) => {
       if (query.trim().length === 0) {
         setSearchResults([]);
         setShowResults(false);
@@ -28,13 +27,7 @@ export default function SearchSection() {
 
       setIsSearching(true);
       try {
-        // Use API with search parameters instead of client-side filtering
-        const params = new URLSearchParams();
-        if (category !== 'all') {
-          params.append('category', category);
-        }
-        
-        const response = await fetch(`/api/products?${params.toString()}`);
+        const response = await fetch('/api/products');
         if (response.ok) {
           const products = await response.json();
           
@@ -61,33 +54,16 @@ export default function SearchSection() {
     []
   );
 
-  // Load categories on mount
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const response = await fetch('/api/products?pageSize=10');
-        if (response.ok) {
-          const products: Product[] = await response.json();
-          const productCategories = products.map((p) => p.category.toLowerCase());
-          const uniqueCategories: string[] = ['all', ...Array.from(new Set(productCategories))];
-          setCategories(uniqueCategories);
-        }
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
 
-    loadCategories();
-  }, []);
 
   // Handle search input changes with debouncing
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      debouncedSearch(searchQuery, selectedCategory);
+      debouncedSearch(searchQuery);
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, selectedCategory, debouncedSearch]);
+  }, [searchQuery, debouncedSearch]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -113,7 +89,7 @@ export default function SearchSection() {
 
   const handleViewAllResults = () => {
     setShowResults(false);
-    router.push(`/products?search=${encodeURIComponent(searchQuery)}&category=${selectedCategory}`);
+    router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
   };
 
   const clearSearch = () => {
@@ -133,41 +109,23 @@ export default function SearchSection() {
           
           <div className="relative">
             {/* Search Input */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search for wines, spirits, brands..."
-                  value={searchQuery}
-                  onChange={handleSearchInput}
-                  className="w-full pl-12 pr-12 py-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={clearSearch}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    <FaTimes className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-              
-              {/* Category Filter */}
-              <div className="relative">
-                <FaFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="appearance-none pl-12 pr-8 py-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg bg-white min-w-[150px]"
+            <div className="relative">
+              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search for wines, spirits, brands..."
+                value={searchQuery}
+                onChange={handleSearchInput}
+                className="w-full pl-12 pr-12 py-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg"
+              />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <FaTimes className="w-5 h-5" />
+                </button>
+              )}
             </div>
 
             {/* Search Results Dropdown */}

@@ -88,7 +88,7 @@ const PopularWines = React.memo(() => {
     return (
       <section className="container mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-light text-gray-800">Popular Wines</h2>
+          <h2 className="text-3xl font-light text-gray-800">Popular Products</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {[...Array(6)].map((_, index) => (
@@ -106,8 +106,8 @@ const PopularWines = React.memo(() => {
   return (
     <section className="container mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-light text-gray-800">Popular Wines</h2>
-        <a href="/products?category=wine" className="text-orange-600 font-medium hover:underline flex items-center">
+        <h2 className="text-3xl font-light text-gray-800">Popular Products</h2>
+        <a href="/products" className="text-orange-600 font-medium hover:underline flex items-center">
           VIEW ALL »
         </a>
       </div>

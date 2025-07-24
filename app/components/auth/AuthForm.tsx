@@ -19,6 +19,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   const [loading, setLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
+  // Get redirect URL from search params
+  const getRedirectUrl = () => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('redirect') || '/dashboard';
+    }
+    return '/dashboard';
+  };
+
   const handleGoogleSignIn = async () => {
     setError('');
     setLoading(true);
@@ -43,7 +52,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
         throw new Error('Failed to create session');
       }
 
-      router.push('/dashboard');
+      router.push(getRedirectUrl());
     } catch (err: any) {
       console.error('Google auth error:', err);
       setError(err.message || 'Failed to sign in with Google');
@@ -80,7 +89,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           throw new Error('Failed to create session');
         }
 
-        router.push('/dashboard');
+        router.push(getRedirectUrl());
       } else if (mode === 'login') {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const idToken = await userCredential.user.getIdToken();
@@ -97,7 +106,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           throw new Error('Failed to create session');
         }
 
-        router.push('/dashboard');
+        router.push(getRedirectUrl());
       } else if (mode === 'reset') {
         await sendPasswordResetEmail(auth, email);
         setResetSent(true);

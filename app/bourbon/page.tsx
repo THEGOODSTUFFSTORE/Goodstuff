@@ -1,4 +1,3 @@
-'use client';
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,13 +22,13 @@ export default async function BourbonPage() {
           <div className="text-center">
             <FaGlassWhiskey className="w-16 h-16 mx-auto mb-6 text-white/80" />
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
-              Bourbon Collection
+              Whisky Collection
             </h1>
             <p className="text-xl sm:text-2xl text-[#F5DEB3] max-w-3xl mx-auto">
-              Experience the finest Kentucky and American bourbons
+              Experience the finest Kentucky and American whiskies
             </p>
             <div className="mt-8 text-lg text-[#F5DEB3]">
-              {bourbonProducts.length} bourbons available • Free delivery for products above Ksh. 5000
+              {bourbonProducts.length} whiskies available • Free delivery for products above Ksh. 5000
             </div>
           </div>
         </div>
@@ -44,7 +43,7 @@ export default async function BourbonPage() {
                 <Link href="/" className="text-gray-500 hover:text-[#A76545] transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
-              <li className="text-gray-700 font-medium">Bourbon</li>
+              <li className="text-gray-700 font-medium">Whisky</li>
             </ol>
           </nav>
         </div>
@@ -53,7 +52,7 @@ export default async function BourbonPage() {
       {/* Products Grid */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Bourbon Collection</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Whisky Collection</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             From small-batch to single barrel, discover America's native spirit
           </p>
@@ -70,9 +69,6 @@ export default async function BourbonPage() {
                     width={150}
                     height={150}
                     style={{ objectFit: 'contain' }}
-                    onError={(e: any) => {
-                      e.currentTarget.src = '/wine.webp';
-                    }}
                   />
                 </div>
                 <div className="p-4">
@@ -96,9 +92,9 @@ export default async function BourbonPage() {
         {/* No products found */}
         {bourbonProducts.length === 0 && (
           <div className="text-center py-16">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No bourbons available</h3>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No whiskies available</h3>
             <p className="text-gray-600 mb-8">
-              Please check back later for our bourbon collection.
+              Please check back later for our whisky collection.
             </p>
             <Link
               href="/products"
@@ -109,24 +105,24 @@ export default async function BourbonPage() {
           </div>
         )}
 
-        {/* Bourbon Education */}
+        {/* Whisky Education */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <h4 className="text-xl font-bold text-[#A76545] mb-3">Bourbon History</h4>
+            <h4 className="text-xl font-bold text-[#A76545] mb-3">Whisky History</h4>
             <p className="text-gray-600 text-sm">
-              Learn about the rich history and traditions of bourbon making.
+              Learn about the rich history and traditions of whisky making.
             </p>
           </div>
           <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <h4 className="text-xl font-bold text-[#A76545] mb-3">Tasting Guide</h4>
             <p className="text-gray-600 text-sm">
-              Discover how to appreciate the complex flavors of bourbon.
+              Discover how to appreciate the complex flavors of whisky.
             </p>
           </div>
           <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <h4 className="text-xl font-bold text-[#A76545] mb-3">Classic Cocktails</h4>
             <p className="text-gray-600 text-sm">
-              Master the art of bourbon-based cocktails like the Old Fashioned.
+              Master the art of whisky-based cocktails like the Old Fashioned.
             </p>
           </div>
         </div>

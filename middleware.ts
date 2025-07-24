@@ -35,12 +35,15 @@ export async function middleware(request: NextRequest) {
     const data = await response.json();
     const isAdmin = data.isAdmin === true;
 
-    // Check admin routes
+    // Check admin routes - require admin privileges
     if (request.nextUrl.pathname.startsWith('/admin')) {
       if (!isAdmin) {
         return NextResponse.redirect(new URL('/admin/login', request.url));
       }
     }
+
+    // Dashboard routes just need a valid session (admin or regular user)
+    // No additional checks needed since we already validated the session
 
     return NextResponse.next();
   } catch (error) {

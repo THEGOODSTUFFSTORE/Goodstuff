@@ -18,13 +18,12 @@ export async function GET() {
     const customClaims = userRecord.customClaims || {};
     const isAdmin = customClaims.admin === true;
 
-    if (!isAdmin) {
-      return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
-    }
-
+    // Return user info for both regular users and admins
     return NextResponse.json({
       uid: decodedToken.uid,
-      isAdmin: true
+      email: userRecord.email,
+      isAdmin: isAdmin,
+      emailVerified: userRecord.emailVerified
     });
   } catch (error) {
     console.error('Session validation error:', error);

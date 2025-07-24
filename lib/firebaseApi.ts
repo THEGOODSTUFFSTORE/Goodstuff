@@ -41,6 +41,10 @@ const convertFirestoreData = (doc: any): Product => {
     alcoholContent: data.alcoholContent,
     volume: data.volume,
     brand: data.brand,
+    status: data.status,
+    sections: data.sections || [],
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
   };
 };
 
