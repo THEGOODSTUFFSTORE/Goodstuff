@@ -45,8 +45,20 @@ export async function POST(request: NextRequest) {
     };
 
     console.log('Creating order with data:', orderData);
-    const order = await createOrderServer(orderData);
-    console.log('Order created successfully:', order);
+    let order;
+    try {
+      order = await createOrderServer(orderData);
+      console.log('Order created successfully:', order);
+    } catch (orderError) {
+      console.error('Failed to create order:', orderError);
+      return NextResponse.json(
+        { 
+          error: 'Failed to create order',
+          details: orderError instanceof Error ? orderError.message : 'Unknown order creation error'
+        },
+        { status: 500 }
+      );
+    }
 
     // Send order confirmation emails (async, don't wait for completion)
     sendOrderNotifications(order, 'created').catch(error => {
@@ -65,7 +77,14 @@ export async function POST(request: NextRequest) {
       console.log('1. Register IPN URL: POST to /api/payments/pesapal/register-ipn');
       console.log('2. Add PESAPAL_IPN_ID to your .env.local file');
       return NextResponse.json(
-        { error: 'Payment service not properly configured. Please contact support.' },
+        { 
+          error: 'Payment configuration error: IPN ID missing',
+          details: 'The payment service needs to be configured. Please register the IPN URL first.',
+          fixInstructions: [
+            'Call POST /api/payments/pesapal/register-ipn to get a new IPN ID',
+            'Add the returned IPN ID to your environment variables as PESAPAL_IPN_ID'
+          ]
+        },
         { status: 500 }
       );
     }
@@ -73,7 +92,14 @@ export async function POST(request: NextRequest) {
     if (!process.env.PESAPAL_CONSUMER_KEY || !process.env.PESAPAL_CONSUMER_SECRET) {
       console.error('Pesapal credentials not configured');
       return NextResponse.json(
-        { error: 'Payment service not properly configured. Please contact support.' },
+        { 
+          error: 'Payment configuration error: API credentials missing',
+          details: 'PESAPAL_CONSUMER_KEY and PESAPAL_CONSUMER_SECRET must be configured',
+          missingVars: [
+            ...(!process.env.PESAPAL_CONSUMER_KEY ? ['PESAPAL_CONSUMER_KEY'] : []),
+            ...(!process.env.PESAPAL_CONSUMER_SECRET ? ['PESAPAL_CONSUMER_SECRET'] : [])
+          ]
+        },
         { status: 500 }
       );
     }
@@ -98,8 +124,20 @@ export async function POST(request: NextRequest) {
 
     console.log('Submitting order to Pesapal:', paymentRequest);
     
-    const pesapalResponse = await pesapalApi.submitOrder(paymentRequest);
-    console.log('Pesapal response:', pesapalResponse);
+    let pesapalResponse;
+    try {
+      pesapalResponse = await pesapalApi.submitOrder(paymentRequest);
+      console.log('Pesapal response:', pesapalResponse);
+    } catch (pesapalError) {
+      console.error('Pesapal API call failed:', pesapalError);
+      return NextResponse.json(
+        { 
+          error: 'Payment service unavailable',
+          details: pesapalError instanceof Error ? pesapalError.message : 'Failed to connect to payment provider'
+        },
+        { status: 502 }
+      );
+    }
 
     // Check for Pesapal error response
     if (pesapalResponse.error) {

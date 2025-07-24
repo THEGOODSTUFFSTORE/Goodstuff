@@ -1,9 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, db } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
 import { User } from 'firebase/auth';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { ShoppingBag, User as UserIcon, Settings, LogOut, Package, Clock, CheckCircle, XCircle, ChevronRight, TrendingUp } from 'lucide-react';
 import { Order } from '@/lib/types';
 import Image from 'next/image';
@@ -20,6 +19,7 @@ const CustomerDashboard = () => {
     processing: 0,
     pending: 0
   });
+  const [linkingOrders, setLinkingOrders] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -65,56 +65,21 @@ const CustomerDashboard = () => {
     try {
       console.log('Dashboard: Fetching orders for user ID:', userId);
       
-      // Try fetching with both the user ID and email for guest orders
-      const ordersRef = collection(db, 'orders');
-      
-      // First query: orders with matching userId
-      const q1 = query(
-        ordersRef,
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
-      
-      // Second query: orders with matching userEmail (for guest orders that might have been associated later)
-      const userEmail = auth.currentUser?.email;
-      const q2 = userEmail ? query(
-        ordersRef,
-        where('userEmail', '==', userEmail),
-        orderBy('createdAt', 'desc')
-      ) : null;
-      
-      const [snapshot1, snapshot2] = await Promise.all([
-        getDocs(q1),
-        q2 ? getDocs(q2) : Promise.resolve(null)
-      ]);
-      
-      const fetchedOrders: Order[] = [];
-      const orderIds = new Set();
-      
-      // Add orders from first query
-      snapshot1.forEach((doc) => {
-        if (!orderIds.has(doc.id)) {
-          fetchedOrders.push({ id: doc.id, ...doc.data() } as Order);
-          orderIds.add(doc.id);
-        }
+      // Use server-side API to fetch orders
+      const response = await fetch('/api/orders/user', {
+        method: 'GET',
+        credentials: 'include', // Include cookies for session authentication
       });
       
-      // Add orders from second query (avoid duplicates)
-      if (snapshot2) {
-        snapshot2.forEach((doc) => {
-          if (!orderIds.has(doc.id)) {
-            const orderData = { id: doc.id, ...doc.data() } as Order;
-            // Only add guest orders or orders with matching email
-            if (orderData.userId === 'guest' || orderData.userEmail === userEmail) {
-              fetchedOrders.push(orderData);
-              orderIds.add(doc.id);
-            }
-          }
-        });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch orders: ${response.status}`);
       }
       
+      const data = await response.json();
+      const fetchedOrders = data.orders || [];
+      
       console.log('Dashboard: Found orders:', fetchedOrders.length);
-      console.log('Dashboard: Orders data:', fetchedOrders.map(o => ({
+      console.log('Dashboard: Orders data:', fetchedOrders.map((o: Order) => ({
         id: o.id,
         orderNumber: o.orderNumber,
         userId: o.userId,
@@ -126,9 +91,9 @@ const CustomerDashboard = () => {
       setOrders(fetchedOrders);
       
       // Calculate order statistics
-      const stats = fetchedOrders.reduce((acc, order) => {
+      const stats = fetchedOrders.reduce((acc: any, order: Order) => {
         acc.total += order.totalAmount;
-        acc[order.status]++;
+        acc[order.status] = (acc[order.status] || 0) + 1;
         return acc;
       }, {
         total: 0,
@@ -152,6 +117,37 @@ const CustomerDashboard = () => {
       setLoading(true);
       await fetchOrders(user.uid);
       setLoading(false);
+    }
+  };
+
+  const handleLinkPreviousOrders = async () => {
+    if (!user) return;
+    
+    setLinkingOrders(true);
+    try {
+      const response = await fetch('/api/orders/link-guest', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to link orders');
+      }
+      
+      const data = await response.json();
+      
+      if (data.linkedCount > 0) {
+        alert(`Successfully linked ${data.linkedCount} previous orders to your account!`);
+        // Refresh orders after linking
+        await fetchOrders(user.uid);
+      } else {
+        alert('No previous orders found to link.');
+      }
+    } catch (error) {
+      console.error('Error linking orders:', error);
+      alert('Failed to link previous orders. Please try again.');
+    } finally {
+      setLinkingOrders(false);
     }
   };
 
@@ -268,21 +264,40 @@ const CustomerDashboard = () => {
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
-            <button
-              onClick={handleManualRefresh}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              🔄 Refresh Orders
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={handleLinkPreviousOrders}
+                disabled={linkingOrders}
+                className="inline-flex items-center px-3 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {linkingOrders ? '🔗 Linking...' : '🔗 Link Previous Orders'}
+              </button>
+              <button
+                onClick={handleManualRefresh}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                🔄 Refresh Orders
+              </button>
+            </div>
           </div>
         </div>
         <div className="divide-y divide-gray-100">
           {orders.length === 0 ? (
             <div className="p-6 text-center">
               <ShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No orders</h3>
-              <p className="mt-1 text-sm text-gray-500">Get started by exploring our products.</p>
-              <div className="mt-6">
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by exploring our products, or link any previous orders you made as a guest.
+              </p>
+              <div className="mt-6 space-y-3">
+                <button
+                  onClick={handleLinkPreviousOrders}
+                  disabled={linkingOrders}
+                  className="inline-flex items-center px-4 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {linkingOrders ? '🔗 Linking...' : '🔗 Link Previous Orders'}
+                </button>
+                <br />
                 <button
                   onClick={() => router.push('/')}
                   className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
