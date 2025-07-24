@@ -21,9 +21,20 @@ export async function POST(request: NextRequest) {
     const trackingId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
     // Create the order in Firebase first using Admin SDK
+    const currentUserId = userId || 'guest';
+    const currentUserEmail = userEmail || shippingAddress.email;
+    
+    console.log('Payment: Creating order with user info:', {
+      providedUserId: userId,
+      providedUserEmail: userEmail,
+      shippingEmail: shippingAddress.email,
+      finalUserId: currentUserId,
+      finalUserEmail: currentUserEmail
+    });
+    
     const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'orderNumber'> = {
-      userId: userId || 'guest',
-      userEmail: userEmail || shippingAddress.email,
+      userId: currentUserId,
+      userEmail: currentUserEmail,
       items,
       totalItems: items.reduce((acc: number, item: any) => acc + item.quantity, 0),
       totalAmount,

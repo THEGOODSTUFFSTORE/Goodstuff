@@ -25,7 +25,33 @@ const CustomerDashboard = () => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setUser(user);
+        console.log('Dashboard: User ID for fetching orders:', user.uid);
         await fetchOrders(user.uid);
+        
+        // Check for payment status in URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentStatus = urlParams.get('payment');
+        const orderId = urlParams.get('orderId');
+        
+        console.log('Dashboard: URL params:', { paymentStatus, orderId });
+        
+        if (paymentStatus === 'success' && orderId) {
+          // Refresh orders multiple times to ensure we get updated data
+          setTimeout(async () => {
+            console.log('Dashboard: First refresh after payment success');
+            await fetchOrders(user.uid);
+          }, 1000);
+          
+          setTimeout(async () => {
+            console.log('Dashboard: Second refresh after payment success');
+            await fetchOrders(user.uid);
+          }, 3000);
+          
+          setTimeout(async () => {
+            console.log('Dashboard: Third refresh after payment success');
+            await fetchOrders(user.uid);
+          }, 6000);
+        }
       } else {
         router.push('/login');
       }
@@ -37,19 +63,61 @@ const CustomerDashboard = () => {
 
   const fetchOrders = async (userId: string) => {
     try {
+      console.log('Dashboard: Fetching orders for user ID:', userId);
+      
+      // Try fetching with both the user ID and email for guest orders
       const ordersRef = collection(db, 'orders');
-      const q = query(
+      
+      // First query: orders with matching userId
+      const q1 = query(
         ordersRef,
         where('userId', '==', userId),
         orderBy('createdAt', 'desc')
       );
       
-      const querySnapshot = await getDocs(q);
-      const fetchedOrders: Order[] = [];
+      // Second query: orders with matching userEmail (for guest orders that might have been associated later)
+      const userEmail = auth.currentUser?.email;
+      const q2 = userEmail ? query(
+        ordersRef,
+        where('userEmail', '==', userEmail),
+        orderBy('createdAt', 'desc')
+      ) : null;
       
-      querySnapshot.forEach((doc) => {
-        fetchedOrders.push({ id: doc.id, ...doc.data() } as Order);
+      const [snapshot1, snapshot2] = await Promise.all([
+        getDocs(q1),
+        q2 ? getDocs(q2) : Promise.resolve(null)
+      ]);
+      
+      const fetchedOrders: Order[] = [];
+      const orderIds = new Set();
+      
+      // Add orders from first query
+      snapshot1.forEach((doc) => {
+        if (!orderIds.has(doc.id)) {
+          fetchedOrders.push({ id: doc.id, ...doc.data() } as Order);
+          orderIds.add(doc.id);
+        }
       });
+      
+      // Add orders from second query (avoid duplicates)
+      if (snapshot2) {
+        snapshot2.forEach((doc) => {
+          if (!orderIds.has(doc.id)) {
+            fetchedOrders.push({ id: doc.id, ...doc.data() } as Order);
+            orderIds.add(doc.id);
+          }
+        });
+      }
+      
+      console.log('Dashboard: Found orders:', fetchedOrders.length);
+      console.log('Dashboard: Orders data:', fetchedOrders.map(o => ({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        userId: o.userId,
+        userEmail: o.userEmail,
+        paymentStatus: o.paymentStatus,
+        status: o.status
+      })));
 
       setOrders(fetchedOrders);
       
@@ -71,6 +139,15 @@ const CustomerDashboard = () => {
       setOrderStats(stats);
     } catch (error) {
       console.error('Error fetching orders:', error);
+    }
+  };
+
+  const handleManualRefresh = async () => {
+    if (user) {
+      console.log('Dashboard: Manual refresh triggered');
+      setLoading(true);
+      await fetchOrders(user.uid);
+      setLoading(false);
     }
   };
 
@@ -185,7 +262,15 @@ const CustomerDashboard = () => {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
+            <button
+              onClick={handleManualRefresh}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              🔄 Refresh Orders
+            </button>
+          </div>
         </div>
         <div className="divide-y divide-gray-100">
           {orders.length === 0 ? (
