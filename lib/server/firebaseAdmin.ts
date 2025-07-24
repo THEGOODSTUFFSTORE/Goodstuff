@@ -1,16 +1,25 @@
-import { adminDb } from '../firebase-admin';
+import { adminDb, isAdminReady } from '../firebase-admin';
 import { Order } from '../types';
+
+// Helper function to ensure admin is ready
+const ensureAdminReady = () => {
+  if (!isAdminReady() || !adminDb) {
+    throw new Error('Firebase Admin is not initialized. Please check server configuration.');
+  }
+};
 
 // Generate a human-readable order number
 const generateOrderNumber = async (): Promise<string> => {
   try {
+    ensureAdminReady();
+    
     // Get current year and month for formatting
     const now = new Date();
     const year = now.getFullYear().toString().slice(-2); // Last 2 digits of year
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     
     // Try to get the last order number to increment
-    const counterRef = adminDb.collection('counters').doc('orderCounter');
+    const counterRef = adminDb!.collection('counters').doc('orderCounter');
     const counterDoc = await counterRef.get();
     
     let nextNumber = 1;
@@ -37,6 +46,7 @@ const generateOrderNumber = async (): Promise<string> => {
 // Create a new order (server-side)
 export const createOrderServer = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'orderNumber'>): Promise<Order> => {
   try {
+    ensureAdminReady();
     console.log('Attempting to create order with Admin SDK...');
     
     // Generate a human-readable order number
@@ -50,7 +60,7 @@ export const createOrderServer = async (orderData: Omit<Order, 'id' | 'createdAt
       updatedAt: new Date().toISOString(),
     };
     
-    const docRef = await adminDb.collection('orders').add(orderWithNumber);
+    const docRef = await adminDb!.collection('orders').add(orderWithNumber);
     
     console.log('Order document created, fetching the new document...');
     const newDoc = await docRef.get();
@@ -78,10 +88,11 @@ export const createOrderServer = async (orderData: Omit<Order, 'id' | 'createdAt
 // Update an order (server-side)
 export const updateOrderServer = async (id: string, orderData: Partial<Order>): Promise<void> => {
   try {
+    ensureAdminReady();
     console.log('Attempting to update order with Admin SDK...', { id, orderData });
     
     // First check if the document exists
-    const docRef = adminDb.collection('orders').doc(id);
+    const docRef = adminDb!.collection('orders').doc(id);
     const doc = await docRef.get();
     
     if (!doc.exists) {
@@ -109,21 +120,22 @@ export const updateOrderServer = async (id: string, orderData: Partial<Order>): 
 // Link guest orders to a user account when they sign up/login
 export const linkGuestOrdersToUser = async (userEmail: string, userId: string): Promise<number> => {
   try {
+    ensureAdminReady();
     console.log('Linking guest orders to user:', { userEmail, userId });
     
     // Find all guest orders with the user's email
-    const guestOrdersSnapshot = await adminDb.collection('orders')
+    const guestOrdersSnapshot = await adminDb!.collection('orders')
       .where('userId', '==', 'guest')
       .where('userEmail', '==', userEmail)
       .get();
     
     console.log(`Found ${guestOrdersSnapshot.size} guest orders to link`);
     
-    const batch = adminDb.batch();
+    const batch = adminDb!.batch();
     let linkedCount = 0;
     
     guestOrdersSnapshot.docs.forEach(doc => {
-      const orderRef = adminDb.collection('orders').doc(doc.id);
+      const orderRef = adminDb!.collection('orders').doc(doc.id);
       batch.update(orderRef, {
         userId: userId,
         updatedAt: new Date().toISOString(),
@@ -148,13 +160,14 @@ export const linkGuestOrdersToUser = async (userEmail: string, userId: string): 
 // Get orders by user (includes both user orders and linked guest orders)
 export const getOrdersByUserServer = async (userId: string, userEmail?: string): Promise<Order[]> => {
   try {
+    ensureAdminReady();
     console.log('Fetching orders for user:', { userId, userEmail });
     
     const orders: Order[] = [];
     const orderIds = new Set<string>();
     
     // Get orders with matching userId
-    const userOrdersSnapshot = await adminDb.collection('orders')
+    const userOrdersSnapshot = await adminDb!.collection('orders')
       .where('userId', '==', userId)
       .orderBy('createdAt', 'desc')
       .get();
@@ -168,7 +181,7 @@ export const getOrdersByUserServer = async (userId: string, userEmail?: string):
     
     // If email is provided, also get guest orders with that email
     if (userEmail) {
-      const guestOrdersSnapshot = await adminDb.collection('orders')
+      const guestOrdersSnapshot = await adminDb!.collection('orders')
         .where('userId', '==', 'guest')
         .where('userEmail', '==', userEmail)
         .orderBy('createdAt', 'desc')
@@ -196,12 +209,13 @@ export const getOrdersByUserServer = async (userId: string, userEmail?: string):
 // Reduce product inventory when order is paid
 export const reduceProductInventory = async (orderItems: any[]): Promise<void> => {
   try {
+    ensureAdminReady();
     console.log('Starting inventory reduction for order items:', orderItems);
     
-    const batch = adminDb.batch();
+    const batch = adminDb!.batch();
     
     for (const item of orderItems) {
-      const productRef = adminDb.collection('products').doc(item.productId);
+      const productRef = adminDb!.collection('products').doc(item.productId);
       const productDoc = await productRef.get();
       
       if (productDoc.exists) {

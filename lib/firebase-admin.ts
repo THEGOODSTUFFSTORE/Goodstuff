@@ -37,17 +37,26 @@ function getServiceAccountConfig() {
   );
 }
 
-// Ensure we only initialize the admin SDK once
-if (!admin.apps.length) {
+// Check if we're in a build environment where Firebase Admin might not be needed
+const isBuildTime = process.env.NODE_ENV === 'production' && 
+                    (process.env.NEXT_PHASE === 'phase-production-build' || 
+                     process.env.VERCEL_ENV === 'preview' ||
+                     !process.env.FIREBASE_PRIVATE_KEY);
+
+let adminInitialized = false;
+
+// Initialize Firebase Admin only if not in build time and if we have the required config
+if (!isBuildTime && !admin.apps.length) {
   try {
     const serviceAccount = getServiceAccountConfig();
     
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
+    adminInitialized = true;
     console.log('Firebase Admin initialized successfully');
     
-    // Verify the service account has necessary permissions
+    // Verify the service account has necessary permissions (non-blocking)
     const db = admin.firestore();
     db.collection('orders').limit(1).get()
       .then(() => {
@@ -67,8 +76,12 @@ if (!admin.apps.length) {
   }
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
+// Safe exports that handle uninitialized admin
+export const adminAuth = adminInitialized ? admin.auth() : null;
+export const adminDb = adminInitialized ? admin.firestore() : null;
 
 // Export the admin instance for advanced usage if needed
-export { admin }; 
+export { admin };
+
+// Helper function to check if admin is ready
+export const isAdminReady = () => adminInitialized; 

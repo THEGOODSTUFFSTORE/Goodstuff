@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
+import { adminAuth, isAdminReady } from '@/lib/firebase-admin';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
     // First verify the request is authorized
     const session = request.cookies.get('session')?.value;
     if (!session) {
