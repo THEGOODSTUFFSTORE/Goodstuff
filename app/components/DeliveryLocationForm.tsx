@@ -26,7 +26,7 @@ const DELIVERY_LOCATIONS: DeliveryLocations = {
     areas: {
       "CBD": {
         locations: ["City Square", "Railways", "Moi Avenue"],
-        fee: 200
+        fee: 1
       },
       "Westlands": {
         locations: ["Sarit Centre", "The Oval", "Westgate"],
