@@ -1,38 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
+import { adminAuth, isAdminReady } from '@/lib/firebase-admin';
 import { linkGuestOrdersToUser } from '@/lib/server/firebaseAdmin';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if user is authenticated
-    const session = request.cookies.get('session')?.value;
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
     }
 
-    const decodedToken = await adminAuth.verifySessionCookie(session);
-    const userId = decodedToken.uid;
+    const { userId } = await request.json();
+    const decodedToken = await adminAuth.verifySessionCookie(request.cookies.get('session')?.value || '');
     
-    // Get user info to get email
+    // Get the user's email
     const user = await adminAuth.getUser(userId);
+    const userEmail = user.email;
     
-    if (!user.email) {
-      return NextResponse.json({ error: 'User has no email address' }, { status: 400 });
+    if (!userEmail) {
+      return NextResponse.json({ error: 'User email not found' }, { status: 400 });
     }
     
-    // Link guest orders to user account
-    const linkedCount = await linkGuestOrdersToUser(user.email, userId);
+    // Link guest orders to the user
+    const linkedCount = await linkGuestOrdersToUser(userEmail, userId);
     
-    console.log(`Manually linked ${linkedCount} guest orders to user ${userId}`);
-    
-    return NextResponse.json({
-      success: true,
-      message: `Successfully linked ${linkedCount} orders to your account`,
+    return NextResponse.json({ 
+      success: true, 
       linkedCount,
-      userEmail: user.email
+      message: `${linkedCount} guest orders linked to user account`
     });
   } catch (error) {
-    console.error('Error manually linking guest orders:', error);
+    console.error('Error linking guest orders:', error);
     return NextResponse.json(
       { error: 'Failed to link guest orders' },
       { status: 500 }

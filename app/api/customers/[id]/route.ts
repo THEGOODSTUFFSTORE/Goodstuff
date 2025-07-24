@@ -1,12 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
-import { getOrdersByUserServer, linkGuestOrdersToUser } from '@/lib/server/firebaseAdmin';
+import { adminAuth, isAdminReady } from '@/lib/firebase-admin';
+import { linkGuestOrdersToUser } from '@/lib/server/firebaseAdmin';
+
+interface Params {
+  id: string;
+}
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: Params }
 ) {
   try {
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
+    const { id: customerId } = params;
+
     // Verify admin session
     const session = request.cookies.get('session')?.value;
     if (!session) {
@@ -14,35 +28,117 @@ export async function GET(
     }
 
     const decodedToken = await adminAuth.verifySessionCookie(session);
-    const adminUser = await adminAuth.getUser(decodedToken.uid);
-    if (!adminUser.customClaims?.admin) {
+    if (!decodedToken.admin) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    // Get customer details
+    const customer = await adminAuth.getUser(customerId);
+
+    const customerData = {
+      uid: customer.uid,
+      email: customer.email,
+      displayName: customer.displayName,
+      emailVerified: customer.emailVerified,
+      disabled: customer.disabled,
+      creationTime: customer.metadata.creationTime,
+      lastSignInTime: customer.metadata.lastSignInTime,
+      customClaims: customer.customClaims || {},
+      isAdmin: customer.customClaims?.admin === true,
+      phoneNumber: customer.phoneNumber,
+      photoURL: customer.photoURL
+    };
+
+    return NextResponse.json({ customer: customerData });
+
+  } catch (error: any) {
+    if (error.code === 'auth/user-not-found') {
+      return NextResponse.json(
+        { error: 'Customer not found' },
+        { status: 404 }
+      );
+    }
+    
+    console.error('Error fetching customer:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch customer' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Params }
+) {
+  try {
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
+    const { id: customerId } = params;
+
+    // Verify admin session
+    const session = request.cookies.get('session')?.value;
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const params = await context.params;
-    const { id: customerId } = params;
+         const decodedToken = await adminAuth!.verifySessionCookie(session);
+     if (!decodedToken.admin) {
+       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+     }
 
-    // Get customer info
-    const customer = await adminAuth.getUser(customerId);
-    
-    // Get orders for this customer
-    const orders = await getOrdersByUserServer(customerId, customer.email || undefined);
+     const updateData = await request.json();
+
+     // Get current customer to preserve existing data
+     const customer = await adminAuth!.getUser(customerId);
+     
+     // Prepare update object (only include fields that are allowed to be updated)
+     const allowedUpdates: any = {};
+     
+     if (updateData.email !== undefined) allowedUpdates.email = updateData.email;
+     if (updateData.displayName !== undefined) allowedUpdates.displayName = updateData.displayName;
+     if (updateData.disabled !== undefined) allowedUpdates.disabled = updateData.disabled;
+     if (updateData.emailVerified !== undefined) allowedUpdates.emailVerified = updateData.emailVerified;
+     if (updateData.phoneNumber !== undefined) allowedUpdates.phoneNumber = updateData.phoneNumber;
+     if (updateData.photoURL !== undefined) allowedUpdates.photoURL = updateData.photoURL;
+
+     // Update user
+     const updatedUser = await adminAuth!.updateUser(customerId, allowedUpdates);
+
+     // Handle custom claims separately if provided
+     if (updateData.customClaims !== undefined) {
+       await adminAuth!.setCustomUserClaims(customerId, updateData.customClaims);
+     }
 
     return NextResponse.json({
+      message: 'Customer updated successfully',
       customer: {
-        id: customer.uid,
-        email: customer.email,
-        name: customer.displayName,
-        phone: customer.phoneNumber,
-        joinDate: customer.metadata.creationTime,
-        status: customer.disabled ? 'inactive' : 'active'
-      },
-      orders
+        uid: updatedUser.uid,
+        email: updatedUser.email,
+        displayName: updatedUser.displayName,
+        emailVerified: updatedUser.emailVerified,
+        disabled: updatedUser.disabled,
+        customClaims: updateData.customClaims || customer.customClaims || {}
+      }
     });
-  } catch (error) {
-    console.error('Error fetching customer orders:', error);
+
+  } catch (error: any) {
+    if (error.code === 'auth/user-not-found') {
+      return NextResponse.json(
+        { error: 'Customer not found' },
+        { status: 404 }
+      );
+    }
+    
+    console.error('Error updating customer:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch customer orders' },
+      { error: 'Failed to update customer' },
       { status: 500 }
     );
   }
@@ -50,9 +146,19 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: Params }
 ) {
   try {
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
+    const { id: customerId } = params;
+
     // Verify admin session
     const session = request.cookies.get('session')?.value;
     if (!session) {
@@ -60,13 +166,10 @@ export async function POST(
     }
 
     const decodedToken = await adminAuth.verifySessionCookie(session);
-    const adminUser = await adminAuth.getUser(decodedToken.uid);
-    if (!adminUser.customClaims?.admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!decodedToken.admin) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const params = await context.params;
-    const { id: customerId } = params;
     const body = await request.json();
     const { action } = body;
 

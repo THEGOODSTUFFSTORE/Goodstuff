@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth, adminDb } from '@/lib/firebase-admin';
+import { adminAuth, adminDb, isAdminReady } from '@/lib/firebase-admin';
 import { updateOrderServer, reduceProductInventory } from '@/lib/server/firebaseAdmin';
 import { pesapalApi } from '@/lib/pesapal';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth || !adminDb) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
     // Check if user is admin
     const session = request.cookies.get('session')?.value;
     if (!session) {

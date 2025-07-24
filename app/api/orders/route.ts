@@ -1,8 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb, adminAuth } from '@/lib/firebase-admin';
+import { adminAuth, adminDb, isAdminReady } from '@/lib/firebase-admin';
+import { createOrderServer } from '@/lib/server/firebaseAdmin';
+
+export async function POST(request: NextRequest) {
+  try {
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
+    const session = request.cookies.get('session')?.value;
+    const decodedToken = await adminAuth.verifySessionCookie(session || '');
+    
+    const orderData = await request.json();
+    const order = await createOrderServer({
+      ...orderData,
+      userId: decodedToken.uid
+    });
+    
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error('Error creating order:', error);
+    return NextResponse.json(
+      { error: 'Failed to create order' },
+      { status: 500 }
+    );
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth || !adminDb) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
     // Check if user is authenticated and is admin
     const session = request.cookies.get('session')?.value;
     if (!session) {
@@ -19,7 +57,7 @@ export async function GET(request: NextRequest) {
       .orderBy('createdAt', 'desc')
       .get();
 
-    const orders = ordersSnapshot.docs.map(doc => ({
+    const orders = ordersSnapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data()
     }));

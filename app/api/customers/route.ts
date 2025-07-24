@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
+import { adminAuth, isAdminReady } from '@/lib/firebase-admin';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { Order } from '@/lib/types';
@@ -27,6 +27,20 @@ async function getUserOrders(userId: string) {
 // GET /api/customers
 export async function GET(request: NextRequest) {
   try {
+    // Check if Firebase Admin is ready
+    if (!isAdminReady() || !adminAuth) {
+      return NextResponse.json(
+        { error: 'Firebase Admin is not initialized. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const search = searchParams.get('search') || '';
+
     // Verify admin session
     const session = request.cookies.get('session')?.value;
     if (!session) {
@@ -34,35 +48,61 @@ export async function GET(request: NextRequest) {
     }
 
     const decodedToken = await adminAuth.verifySessionCookie(session);
-    const adminUser = await adminAuth.getUser(decodedToken.uid);
-    if (!adminUser.customClaims?.admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!decodedToken.admin) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
     // Get all users
-    const { users } = await adminAuth.listUsers();
+    let allUsers: any[] = [];
+    let pageToken: string | undefined;
     
-    // Get orders for each user
-    const customersWithOrders = await Promise.all(
-      users.map(async (user) => {
-        const orders = await getUserOrders(user.uid);
-        const totalSpent = orders.reduce((sum: number, order: any) => sum + (order.totalAmount || 0), 0);
-        
-        return {
-          id: user.uid,
-          name: user.displayName || 'N/A',
-          email: user.email || 'N/A',
-          phone: user.phoneNumber || 'N/A',
-          joinDate: user.metadata.creationTime,
-          totalOrders: orders.length,
-          totalSpent: totalSpent,
-          lastOrder: orders[0]?.createdAt || null,
-          status: user.disabled ? 'inactive' : 'active'
-        };
-      })
-    );
+    do {
+      const listUsersResult = await adminAuth.listUsers(1000, pageToken);
+      allUsers = allUsers.concat(listUsersResult.users);
+      pageToken = listUsersResult.pageToken;
+    } while (pageToken);
 
-    return NextResponse.json(customersWithOrders);
+    // Filter users if search term provided
+    let filteredUsers = allUsers;
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filteredUsers = allUsers.filter(user => 
+        user.email?.toLowerCase().includes(searchLower) ||
+        user.displayName?.toLowerCase().includes(searchLower) ||
+        user.uid.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Paginate results
+    const startIndex = (page - 1) * limit;
+    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + limit);
+
+    // Format user data
+    const customers = paginatedUsers.map(user => ({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      emailVerified: user.emailVerified,
+      disabled: user.disabled,
+      creationTime: user.metadata.creationTime,
+      lastSignInTime: user.metadata.lastSignInTime,
+      customClaims: user.customClaims || {},
+      isAdmin: user.customClaims?.admin === true
+    }));
+
+    return NextResponse.json({
+      customers,
+      pagination: {
+        page,
+        limit,
+        total: filteredUsers.length,
+        totalPages: Math.ceil(filteredUsers.length / limit),
+        hasNext: startIndex + limit < filteredUsers.length,
+        hasPrev: page > 1
+      },
+      search
+    });
+
   } catch (error) {
     console.error('Error fetching customers:', error);
     return NextResponse.json(
