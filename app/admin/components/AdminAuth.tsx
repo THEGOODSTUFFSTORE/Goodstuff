@@ -17,16 +17,30 @@ const AdminAuth = () => {
     setIsLoading(true);
 
     try {
+      console.log('🔐 Starting admin login process...');
+      console.log('🌍 Environment:', process.env.NODE_ENV);
+      console.log('🔥 Firebase Config:', {
+        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.substring(0, 10) + '...',
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+      });
+      
       // First try to sign in with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Firebase auth successful');
+      console.log('✅ Firebase auth successful for user:', userCredential.user.uid);
+      console.log('📧 User email:', userCredential.user.email);
       
       // Get the ID token
       const idToken = await userCredential.user.getIdToken();
-      console.log('Got ID token');
+      console.log('🎫 Got ID token, length:', idToken.length);
+      
+      // Get token result to check claims
+      const tokenResult = await userCredential.user.getIdTokenResult();
+      console.log('👑 Token claims:', tokenResult.claims);
+      console.log('🛡️ Admin claim:', tokenResult.claims.admin);
       
       // Send the ID token to backend
-      const response = await fetch('/api/auth/session', {
+      const sessionResponse = await fetch('/api/auth/session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,17 +48,34 @@ const AdminAuth = () => {
         body: JSON.stringify({ idToken }),
       });
 
-      const data = await response.json();
+      console.log('🌐 Session API response status:', sessionResponse.status);
+      const sessionData = await sessionResponse.json();
+      console.log('📦 Session response data:', sessionData);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create session');
+      if (!sessionResponse.ok) {
+        throw new Error(sessionData.error || 'Failed to create session');
       }
 
-      console.log('Session created successfully');
+      console.log('🎉 Session created successfully, isAdmin:', sessionData.isAdmin);
+      
+      // Additional validation
+      const validateResponse = await fetch('/api/auth/session/validate');
+      console.log('✅ Validation response status:', validateResponse.status);
+      if (validateResponse.ok) {
+        const validateData = await validateResponse.json();
+        console.log('🔍 Validation data:', validateData);
+      }
+      
       // Redirect to admin page after successful login
       router.push('/admin');
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('❌ Login error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack,
+        fullError: error
+      });
+      
       // Handle Firebase Auth errors
       if (error.code) {
         switch (error.code) {

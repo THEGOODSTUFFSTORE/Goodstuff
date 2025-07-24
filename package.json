@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "create-admin": "ts-node scripts/create-first-admin.ts",
+    "create-admin-prod": "node scripts/create-production-admin.js",
     "analyze": "cross-env ANALYZE=true next build",
     "build:analyze": "cross-env ANALYZE=true next build"
   },
