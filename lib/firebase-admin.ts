@@ -22,7 +22,7 @@ function getServiceAccountConfig(): admin.ServiceAccount {
   
   // For development, try to load from JSON file
   try {
-    const serviceAccount = require('../firebase-service-account.json.json');
+    const serviceAccount = require('../firebase-service-account.json');
     return serviceAccount;
   } catch (error) {
     throw new Error(

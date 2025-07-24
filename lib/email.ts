@@ -94,11 +94,12 @@ export const generateOrderConfirmationEmail = (order: Order): EmailTemplate => {
         <h3 style="color: #374151; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Delivery Address</h3>
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 5px 0;"><strong>Name:</strong> ${order.shippingAddress.name}</p>
-          <p style="margin: 5px 0;"><strong>Address:</strong> ${order.shippingAddress.street || ''}</p>
-          <p style="margin: 5px 0;"><strong>City:</strong> ${order.shippingAddress.city || ''}</p>
-          <p style="margin: 5px 0;"><strong>State:</strong> ${order.shippingAddress.state || ''}</p>
-          <p style="margin: 5px 0;"><strong>Postal Code:</strong> ${order.shippingAddress.postalCode || ''}</p>
-          <p style="margin: 5px 0;"><strong>Country:</strong> ${order.shippingAddress.country || 'Kenya'}</p>
+          <p style="margin: 5px 0;"><strong>Email:</strong> ${order.shippingAddress.email}</p>
+          <p style="margin: 5px 0;"><strong>Phone:</strong> ${order.shippingAddress.phone}</p>
+          <p style="margin: 5px 0;"><strong>City:</strong> ${order.shippingAddress.city}</p>
+          <p style="margin: 5px 0;"><strong>Area:</strong> ${order.shippingAddress.area}</p>
+          <p style="margin: 5px 0;"><strong>Exact Location:</strong> ${order.shippingAddress.exactLocation}</p>
+          ${order.shippingAddress.customLocation ? `<p style="margin: 5px 0;"><strong>Custom Location:</strong> ${order.shippingAddress.customLocation}</p>` : ''}
         </div>
         ` : ''}
 
@@ -146,12 +147,13 @@ Total Items: ${order.totalItems}
 
 ${order.shippingAddress ? `
 Delivery Address:
-${order.shippingAddress.name}
-${order.shippingAddress.street || ''}
-${order.shippingAddress.city || ''}
-${order.shippingAddress.state || ''}
-${order.shippingAddress.postalCode || ''}
-${order.shippingAddress.country || 'Kenya'}
+Name: ${order.shippingAddress.name}
+Email: ${order.shippingAddress.email}
+Phone: ${order.shippingAddress.phone}
+City: ${order.shippingAddress.city}
+Area: ${order.shippingAddress.area}
+Exact Location: ${order.shippingAddress.exactLocation}
+${order.shippingAddress.customLocation ? `Custom Location: ${order.shippingAddress.customLocation}` : ''}
 ` : ''}
 
 What's Next?
@@ -216,10 +218,12 @@ export const generateAdminNewOrderEmail = (order: Order): EmailTemplate => {
           <p style="margin: 5px 0;"><strong>User ID:</strong> ${order.userId}</p>
           ${order.shippingAddress ? `
           <p style="margin: 5px 0;"><strong>Name:</strong> ${order.shippingAddress.name}</p>
-          <p style="margin: 5px 0;"><strong>Address:</strong> ${order.shippingAddress.street || ''}, ${order.shippingAddress.city || ''}</p>
-          <p style="margin: 5px 0;"><strong>State:</strong> ${order.shippingAddress.state || ''}</p>
-          <p style="margin: 5px 0;"><strong>Postal Code:</strong> ${order.shippingAddress.postalCode || ''}</p>
-          <p style="margin: 5px 0;"><strong>Country:</strong> ${order.shippingAddress.country || 'Kenya'}</p>
+          <p style="margin: 5px 0;"><strong>Email:</strong> ${order.shippingAddress.email}</p>
+          <p style="margin: 5px 0;"><strong>Phone:</strong> ${order.shippingAddress.phone}</p>
+          <p style="margin: 5px 0;"><strong>City:</strong> ${order.shippingAddress.city}</p>
+          <p style="margin: 5px 0;"><strong>Area:</strong> ${order.shippingAddress.area}</p>
+          <p style="margin: 5px 0;"><strong>Exact Location:</strong> ${order.shippingAddress.exactLocation}</p>
+          ${order.shippingAddress.customLocation ? `<p style="margin: 5px 0;"><strong>Custom Location:</strong> ${order.shippingAddress.customLocation}</p>` : ''}
           ` : ''}
         </div>
 
@@ -271,10 +275,12 @@ Customer Information:
 - User ID: ${order.userId}
 ${order.shippingAddress ? `
 - Name: ${order.shippingAddress.name}
-- Address: ${order.shippingAddress.street || ''}, ${order.shippingAddress.city || ''}
-- State: ${order.shippingAddress.state || ''}
-- Postal Code: ${order.shippingAddress.postalCode || ''}
-- Country: ${order.shippingAddress.country || 'Kenya'}
+- Email: ${order.shippingAddress.email}
+- Phone: ${order.shippingAddress.phone}
+- City: ${order.shippingAddress.city}
+- Area: ${order.shippingAddress.area}
+- Exact Location: ${order.shippingAddress.exactLocation}
+${order.shippingAddress.customLocation ? `- Custom Location: ${order.shippingAddress.customLocation}` : ''}
 ` : ''}
 
 Items Ordered:
