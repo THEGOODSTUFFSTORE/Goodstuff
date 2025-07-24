@@ -170,7 +170,6 @@ For production deployment:
 6. **Set up email bounce handling**
 
 ## Support
-
 If you encounter issues with the email system, check:
 1. Environment variables are correctly set
 2. Network connectivity
