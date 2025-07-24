@@ -87,6 +87,8 @@ export interface Order {
   callbackProcessedAt?: string; // Added for tracking callback processing
   linkedToUser?: boolean; // Added for tracking guest order linking
   linkedAt?: string; // Added for tracking when guest order was linked
+  inventoryReduced?: boolean; // Added for tracking inventory reduction
+  inventoryReducedAt?: string; // Added for tracking when inventory was reduced
 }
 
 export interface CartContextType {

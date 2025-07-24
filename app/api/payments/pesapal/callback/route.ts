@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pesapalApi } from '@/lib/pesapal';
-import { updateOrderServer } from '@/lib/server/firebaseAdmin';
+import { updateOrderServer, reduceProductInventory } from '@/lib/server/firebaseAdmin';
 import { sendOrderNotifications } from '@/lib/email';
 import { adminDb } from '@/lib/firebase-admin';
 
@@ -63,6 +63,31 @@ export async function GET(request: NextRequest) {
     console.log('Updating order with status:', JSON.stringify(updateData, null, 2));
     await updateOrderServer(orderId, updateData);
     console.log('Order updated successfully');
+
+    // Reduce inventory if payment is completed and we haven't already processed this payment
+    if ((paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') && orderData) {
+      try {
+        const order = orderData as any;
+        // Check if inventory has already been reduced for this order to prevent double reduction
+        if (!order.inventoryReduced) {
+          console.log('Callback: Reducing inventory for completed payment');
+          await reduceProductInventory(order.items);
+          
+          // Mark that inventory has been reduced for this order
+          await updateOrderServer(orderId, {
+            inventoryReduced: true,
+            inventoryReducedAt: new Date().toISOString()
+          });
+          
+          console.log('Callback: Inventory reduction completed');
+        } else {
+          console.log('Callback: Inventory already reduced for this order, skipping');
+        }
+      } catch (inventoryError) {
+        console.error('Callback: Failed to reduce inventory:', inventoryError);
+        // Don't fail the callback for inventory issues, but log it
+      }
+    }
 
     // Verify the update worked
     const updatedOrderDoc = await adminDb.collection('orders').doc(orderId).get();

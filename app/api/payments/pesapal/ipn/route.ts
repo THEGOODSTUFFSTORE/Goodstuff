@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pesapalApi } from '@/lib/pesapal';
-import { updateOrderServer } from '@/lib/server/firebaseAdmin';
+import { updateOrderServer, reduceProductInventory } from '@/lib/server/firebaseAdmin';
 import { adminDb } from '@/lib/firebase-admin';
 import { sendOrderNotifications } from '@/lib/email';
 
@@ -31,6 +31,31 @@ async function handleIPN(OrderTrackingId: string, OrderMerchantReference: string
   console.log('Updating order via IPN with status:', updateData);
   await updateOrderServer(OrderMerchantReference, updateData);
   console.log('Order updated successfully via IPN');
+
+  // Reduce inventory if payment is completed and we haven't already processed this payment
+  if ((paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') && orderData) {
+    try {
+      const order = orderData as any;
+      // Check if inventory has already been reduced for this order to prevent double reduction
+      if (!order.inventoryReduced) {
+        console.log('IPN: Reducing inventory for completed payment');
+        await reduceProductInventory(order.items);
+        
+        // Mark that inventory has been reduced for this order
+        await updateOrderServer(OrderMerchantReference, {
+          inventoryReduced: true,
+          inventoryReducedAt: new Date().toISOString()
+        });
+        
+        console.log('IPN: Inventory reduction completed');
+      } else {
+        console.log('IPN: Inventory already reduced for this order, skipping');
+      }
+    } catch (inventoryError) {
+      console.error('IPN: Failed to reduce inventory:', inventoryError);
+      // Don't fail the IPN for inventory issues, but log it
+    }
+  }
 
   // Send email notifications for status changes
   if (orderData) {

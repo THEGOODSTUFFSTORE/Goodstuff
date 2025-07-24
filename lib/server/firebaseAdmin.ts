@@ -192,3 +192,39 @@ export const getOrdersByUserServer = async (userId: string, userEmail?: string):
     throw error;
   }
 }; 
+
+// Reduce product inventory when order is paid
+export const reduceProductInventory = async (orderItems: any[]): Promise<void> => {
+  try {
+    console.log('Starting inventory reduction for order items:', orderItems);
+    
+    const batch = adminDb.batch();
+    
+    for (const item of orderItems) {
+      const productRef = adminDb.collection('products').doc(item.productId);
+      const productDoc = await productRef.get();
+      
+      if (productDoc.exists) {
+        const productData = productDoc.data();
+        const currentStock = productData?.stockQuantity || 0;
+        const orderedQuantity = item.quantity;
+        const newStock = Math.max(0, currentStock - orderedQuantity); // Prevent negative stock
+        
+        console.log(`Reducing inventory for product ${item.productId}: ${currentStock} - ${orderedQuantity} = ${newStock}`);
+        
+        batch.update(productRef, {
+          stockQuantity: newStock,
+          updatedAt: new Date().toISOString()
+        });
+      } else {
+        console.warn(`Product ${item.productId} not found, skipping inventory reduction`);
+      }
+    }
+    
+    await batch.commit();
+    console.log('Inventory reduction completed successfully');
+  } catch (error) {
+    console.error('Error reducing product inventory:', error);
+    throw error;
+  }
+}; 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
-import { updateOrderServer } from '@/lib/server/firebaseAdmin';
+import { updateOrderServer, reduceProductInventory } from '@/lib/server/firebaseAdmin';
 import { pesapalApi } from '@/lib/pesapal';
 
 export async function POST(request: NextRequest) {
@@ -41,19 +41,49 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date().toISOString(),
         adminNote: `Payment manually marked as paid by admin at ${new Date().toISOString()}`
       };
+      
+      // Reduce inventory if not already reduced
+      if (!orderData.inventoryReduced) {
+        try {
+          console.log('Admin: Reducing inventory for manually marked payment');
+          await reduceProductInventory(orderData.items);
+          updateData.inventoryReduced = true;
+          updateData.inventoryReducedAt = new Date().toISOString();
+          console.log('Admin: Inventory reduction completed');
+        } catch (inventoryError) {
+          console.error('Admin: Failed to reduce inventory:', inventoryError);
+          // Continue without failing the payment update
+        }
+      }
     } else if (action === 'check_pesapal' && pesapalTrackingId) {
       // Check with Pesapal
       try {
         const paymentStatus = await pesapalApi.getTransactionStatus(pesapalTrackingId);
+        const isCompleted = (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED');
+        
         updateData = {
           pesapalPaymentStatus: paymentStatus,
-          paymentStatus: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'paid' : 
+          paymentStatus: isCompleted ? 'paid' : 
                         (paymentStatus.payment_status_description === 'Failed' || paymentStatus.payment_status === 'FAILED') ? 'failed' : 'pending',
-          status: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'processing' : 'pending',
+          status: isCompleted ? 'processing' : 'pending',
           updatedAt: new Date().toISOString(),
           adminNote: `Payment status checked with Pesapal by admin at ${new Date().toISOString()}`
         };
         debugInfo.pesapalResponse = paymentStatus;
+        
+        // Reduce inventory if payment is completed and not already reduced
+        if (isCompleted && !orderData.inventoryReduced) {
+          try {
+            console.log('Admin: Reducing inventory for Pesapal confirmed payment');
+            await reduceProductInventory(orderData.items);
+            updateData.inventoryReduced = true;
+            updateData.inventoryReducedAt = new Date().toISOString();
+            console.log('Admin: Inventory reduction completed');
+          } catch (inventoryError) {
+            console.error('Admin: Failed to reduce inventory:', inventoryError);
+            // Continue without failing the payment update
+          }
+        }
       } catch (error) {
         return NextResponse.json({ 
           error: 'Failed to check Pesapal status', 
@@ -61,12 +91,12 @@ export async function POST(request: NextRequest) {
         }, { status: 500 });
       }
     } else if (action === 'reset_to_pending') {
-      // Reset to pending
+      // Reset to pending - NOTE: This does NOT restore inventory
       updateData = {
         paymentStatus: 'pending',
         status: 'pending',
         updatedAt: new Date().toISOString(),
-        adminNote: `Payment reset to pending by admin at ${new Date().toISOString()}`
+        adminNote: `Payment reset to pending by admin at ${new Date().toISOString()} - WARNING: Inventory NOT restored`
       };
     } else if (action === 'force_sync') {
       // Force sync with Pesapal using the stored tracking ID
@@ -82,15 +112,31 @@ export async function POST(request: NextRequest) {
         const paymentStatus = await pesapalApi.getTransactionStatus(storedTrackingId);
         console.log('Force sync: Pesapal response:', paymentStatus);
         
+        const isCompleted = (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED');
+        
         updateData = {
           pesapalPaymentStatus: paymentStatus,
-          paymentStatus: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'paid' : 
+          paymentStatus: isCompleted ? 'paid' : 
                         (paymentStatus.payment_status_description === 'Failed' || paymentStatus.payment_status === 'FAILED') ? 'failed' : 'pending',
-          status: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'processing' : 'pending',
+          status: isCompleted ? 'processing' : 'pending',
           updatedAt: new Date().toISOString(),
           adminNote: `Payment status force synced with Pesapal by admin at ${new Date().toISOString()}`,
           lastSyncAt: new Date().toISOString()
         };
+        
+        // Reduce inventory if payment is completed and not already reduced
+        if (isCompleted && !orderData.inventoryReduced) {
+          try {
+            console.log('Force sync: Reducing inventory for synced completed payment');
+            await reduceProductInventory(orderData.items);
+            updateData.inventoryReduced = true;
+            updateData.inventoryReducedAt = new Date().toISOString();
+            console.log('Force sync: Inventory reduction completed');
+          } catch (inventoryError) {
+            console.error('Force sync: Failed to reduce inventory:', inventoryError);
+            // Continue without failing the payment update
+          }
+        }
         
         console.log('Force sync: About to update order with data:', updateData);
         debugInfo.pesapalResponse = paymentStatus;
