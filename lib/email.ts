@@ -170,7 +170,7 @@ ${COMPANY_WEBSITE}
   `;
 
   return {
-    subject: `Order Confirmation - ${order.id} | ${COMPANY_NAME}`,
+    subject: `Order Confirmation - ${order.orderNumber || order.id} | ${COMPANY_NAME}`,
     html,
     text
   };
@@ -294,7 +294,7 @@ This is an automated notification from ${COMPANY_NAME} Order Management System
   `;
 
   return {
-    subject: `🚨 New Order Alert: #${order.id} - KES ${order.totalAmount.toLocaleString()} | ${COMPANY_NAME}`,
+    subject: `🚨 New Order Alert: #${order.orderNumber || order.id} - KES ${order.totalAmount.toLocaleString()} | ${COMPANY_NAME}`,
     html,
     text
   };
@@ -373,7 +373,7 @@ ${COMPANY_WEBSITE}
   `;
 
   return {
-    subject: `📦 Your Order Has Been Shipped - ${order.id} | ${COMPANY_NAME}`,
+    subject: `📦 Your Order Has Been Shipped - ${order.orderNumber || order.id} | ${COMPANY_NAME}`,
     html,
     text
   };
@@ -460,7 +460,88 @@ ${COMPANY_WEBSITE}
   `;
 
   return {
-    subject: `✅ Order Delivered Successfully - ${order.id} | ${COMPANY_NAME}`,
+    subject: `✅ Order Delivered Successfully - ${order.orderNumber || order.id} | ${COMPANY_NAME}`,
+    html,
+    text
+  };
+};
+
+export const generatePaymentConfirmationEmail = (order: Order): EmailTemplate => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Payment Confirmed - ${order.orderNumber || order.id}</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #059669; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+        <h1 style="margin: 0; text-align: center;">✅ PAYMENT CONFIRMED</h1>
+        <h2 style="margin: 10px 0; text-align: center;">Order #${order.orderNumber || order.id}</h2>
+      </div>
+      
+      <div style="background-color: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e5e7eb;">
+        <p>Dear ${order.shippingAddress?.name || 'Valued Customer'},</p>
+        
+        <p>Great news! Your payment has been successfully processed and confirmed.</p>
+        
+        <div style="background-color: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+          <h3 style="margin: 0 0 10px 0; color: #065f46;">Payment Details</h3>
+          <p style="margin: 5px 0;"><strong>Order Number:</strong> ${order.orderNumber || order.id}</p>
+          <p style="margin: 5px 0;"><strong>Payment Amount:</strong> KES ${order.totalAmount.toLocaleString()}</p>
+          <p style="margin: 5px 0;"><strong>Payment Date:</strong> ${new Date().toLocaleDateString()}</p>
+          <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: #059669;">Paid & Confirmed</span></p>
+        </div>
+
+        <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+          <h3 style="margin: 0 0 10px 0; color: #1e40af;">What's Next?</h3>
+          <p style="margin: 0; color: #1e3a8a;">
+            Your order is now being processed and will be shipped within 1-2 business days.
+            You'll receive a shipping confirmation email with tracking details once your order is dispatched.
+          </p>
+        </div>
+
+        <p>You can track your order status in your <a href="${COMPANY_WEBSITE}/dashboard" style="color: #dc2626;">dashboard</a>.</p>
+        
+        <p>Thank you for your business!</p>
+        
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+        <p style="font-size: 12px; color: #6b7280; text-align: center;">
+          © ${new Date().getFullYear()} ${COMPANY_NAME}. All rights reserved.<br>
+          <a href="${COMPANY_WEBSITE}" style="color: #dc2626;">${COMPANY_WEBSITE}</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `
+PAYMENT CONFIRMED - ${COMPANY_NAME}
+
+Dear ${order.shippingAddress?.name || 'Valued Customer'},
+
+Great news! Your payment has been successfully processed and confirmed.
+
+Payment Details:
+- Order Number: ${order.orderNumber || order.id}
+- Payment Amount: KES ${order.totalAmount.toLocaleString()}
+- Payment Date: ${new Date().toLocaleDateString()}
+- Status: Paid & Confirmed
+
+What's Next?
+Your order is now being processed and will be shipped within 1-2 business days.
+You'll receive a shipping confirmation email with tracking details once your order is dispatched.
+
+You can track your order status in your dashboard: ${COMPANY_WEBSITE}/dashboard
+
+Thank you for your business!
+
+© ${new Date().getFullYear()} ${COMPANY_NAME}. All rights reserved.
+${COMPANY_WEBSITE}
+  `;
+
+  return {
+    subject: `✅ Payment Confirmed - Order #${order.orderNumber || order.id} | ${COMPANY_NAME}`,
     html,
     text
   };
@@ -506,8 +587,13 @@ export const sendOrderDeliveredEmail = async (order: Order): Promise<boolean> =>
   return await sendEmail(order.userEmail, template);
 };
 
+export const sendPaymentConfirmationEmail = async (order: Order): Promise<boolean> => {
+  const template = generatePaymentConfirmationEmail(order);
+  return await sendEmail(order.userEmail, template);
+};
+
 // Utility function to send multiple emails
-export const sendOrderNotifications = async (order: Order, type: 'created' | 'shipped' | 'delivered', trackingNumber?: string): Promise<void> => {
+export const sendOrderNotifications = async (order: Order, type: 'created' | 'paid' | 'shipped' | 'delivered', trackingNumber?: string): Promise<void> => {
   try {
     switch (type) {
       case 'created':
@@ -515,6 +601,9 @@ export const sendOrderNotifications = async (order: Order, type: 'created' | 'sh
           sendOrderConfirmationEmail(order),
           sendAdminNewOrderEmail(order)
         ]);
+        break;
+      case 'paid':
+        await sendPaymentConfirmationEmail(order);
         break;
       case 'shipped':
         await sendOrderShippedEmail(order, trackingNumber);

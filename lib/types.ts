@@ -59,6 +59,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  orderNumber: string; // Human-readable order number like GS24120001
   userId: string;
   userEmail: string;
   items: OrderItem[];

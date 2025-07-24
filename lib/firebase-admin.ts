@@ -28,7 +28,7 @@ function getServiceAccountConfig(): admin.ServiceAccount {
     throw new Error(
       'Firebase service account configuration not found. ' +
       'Please set FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, and FIREBASE_PROJECT_ID environment variables, ' +
-      'or ensure firebase-service-account.json.json exists in the root directory.'
+      'or ensure firebase-service-account.json exists in the root directory.'
     );
   }
 }

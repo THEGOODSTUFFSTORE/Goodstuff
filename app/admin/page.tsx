@@ -929,7 +929,7 @@ const AdminDashboard = () => {
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">#{order.id}</div>
+                          <div className="text-sm font-medium text-gray-900">#{order.orderNumber || order.id}</div>
                           {order.trackingNumber && (
                             <div className="text-sm text-gray-500">Tracking: {order.trackingNumber}</div>
                           )}
@@ -955,7 +955,16 @@ const AdminDashboard = () => {
                           KES {order.totalAmount.toLocaleString()}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {order.paymentStatus === 'paid' ? 'Paid' : 'Pending Payment'}
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            order.paymentStatus === 'paid' 
+                              ? 'bg-green-100 text-green-800' 
+                              : order.paymentStatus === 'failed'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {order.paymentStatus === 'paid' ? 'Payment Confirmed' : 
+                             order.paymentStatus === 'failed' ? 'Payment Failed' : 'Payment Pending'}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

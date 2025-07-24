@@ -221,7 +221,7 @@ const CustomerDashboard = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900">
-                        Order #{order.id.slice(-6)}
+                        Order #{order.orderNumber || order.id.slice(-6)}
                       </h3>
                       <p className="text-sm text-gray-500">
                         {new Date(order.createdAt).toLocaleDateString()}
@@ -229,6 +229,21 @@ const CustomerDashboard = () => {
                       <p className="text-sm text-gray-500">
                         {order.items.length} items · KES {order.totalAmount.toFixed(2)}
                       </p>
+                      {order.paymentStatus === 'paid' && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                          Payment Confirmed
+                        </span>
+                      )}
+                      {order.paymentStatus === 'pending' && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
+                          Payment Pending
+                        </span>
+                      )}
+                      {order.paymentStatus === 'failed' && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1">
+                          Payment Failed
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">

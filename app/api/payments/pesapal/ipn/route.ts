@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { pesapalApi } from '@/lib/pesapal';
 import { updateOrderServer } from '@/lib/server/firebaseAdmin';
 import { adminDb } from '@/lib/firebase-admin';
+import { sendOrderNotifications } from '@/lib/email';
 
 async function handleIPN(OrderTrackingId: string, OrderMerchantReference: string) {
   if (!OrderTrackingId || !OrderMerchantReference) {
@@ -14,13 +15,35 @@ async function handleIPN(OrderTrackingId: string, OrderMerchantReference: string
   const paymentStatus = await pesapalApi.getTransactionStatus(OrderTrackingId);
   console.log('Payment status from Pesapal:', paymentStatus);
 
+  // Get current order data for email notifications
+  const orderDoc = await adminDb.collection('orders').doc(OrderMerchantReference).get();
+  const orderData = orderDoc.exists ? { id: orderDoc.id, ...orderDoc.data() } : null;
+
   // Update the order status in Firebase using Admin SDK
-  await updateOrderServer(OrderMerchantReference, {
+  const updateData: any = {
     pesapalPaymentStatus: paymentStatus,
     paymentStatus: paymentStatus.payment_status === 'COMPLETED' ? 'paid' : 
                   paymentStatus.payment_status === 'FAILED' ? 'failed' : 'pending',
-    status: paymentStatus.payment_status === 'COMPLETED' ? 'processing' : 'pending'
-  });
+    status: paymentStatus.payment_status === 'COMPLETED' ? 'processing' : 'pending',
+    updatedAt: new Date().toISOString()
+  };
+
+  console.log('Updating order via IPN with status:', updateData);
+  await updateOrderServer(OrderMerchantReference, updateData);
+  console.log('Order updated successfully via IPN');
+
+  // Send email notifications for status changes
+  if (orderData) {
+    try {
+      if (paymentStatus.payment_status === 'COMPLETED') {
+        await sendOrderNotifications(orderData as any, 'paid');
+        console.log('Payment confirmation emails sent via IPN');
+      }
+    } catch (emailError) {
+      console.error('Failed to send emails via IPN:', emailError);
+      // Don't fail the IPN for email issues
+    }
+  }
 
   return { status: 'success' };
 }
