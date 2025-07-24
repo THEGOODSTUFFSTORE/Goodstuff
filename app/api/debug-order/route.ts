@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
     }
 
     let results = [];
+    let guestOrders = [];
+    let linkedOrders = [];
 
     if (orderId) {
       // Get specific order
@@ -51,17 +53,46 @@ export async function GET(request: NextRequest) {
         .get();
       
       emailOrdersSnapshot.forEach(doc => {
-        results.push({
+        const orderData = {
           id: doc.id,
           ...doc.data()
-        });
+        } as any;
+        results.push(orderData);
+        
+        // Categorize orders
+        if (orderData.userId === 'guest') {
+          guestOrders.push(orderData);
+        } else {
+          linkedOrders.push(orderData);
+        }
       });
     }
 
+    // Remove duplicates
+    const uniqueResults = results.filter((order, index, self) => 
+      index === self.findIndex(o => o.id === order.id)
+    );
+
     return NextResponse.json({
       searchParams: { orderId, userId, userEmail },
-      totalFound: results.length,
-      orders: results
+      totalFound: uniqueResults.length,
+      orders: uniqueResults,
+      analysis: {
+        guestOrdersCount: guestOrders.length,
+        linkedOrdersCount: linkedOrders.length,
+                 paymentStatusBreakdown: uniqueResults.reduce((acc: any, order: any) => {
+           const status = order.paymentStatus || 'unknown';
+           acc[status] = (acc[status] || 0) + 1;
+           return acc;
+         }, {}),
+         orderStatusBreakdown: uniqueResults.reduce((acc: any, order: any) => {
+           const status = order.status || 'unknown';
+           acc[status] = (acc[status] || 0) + 1;
+           return acc;
+         }, {}),
+                 hasTrackingIds: uniqueResults.filter((order: any) => order.pesapalOrderTrackingId).length,
+         callbackProcessed: uniqueResults.filter((order: any) => order.callbackProcessedAt).length
+      }
     });
 
   } catch (error) {

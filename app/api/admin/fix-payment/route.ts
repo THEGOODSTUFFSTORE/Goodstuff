@@ -28,9 +28,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const orderData = { id: orderDoc.id, ...orderDoc.data() };
+    const orderData = { id: orderDoc.id, ...orderDoc.data() } as any;
 
     let updateData: any = {};
+    let debugInfo: any = {};
 
     if (action === 'mark_paid') {
       // Manually mark as paid
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
           updatedAt: new Date().toISOString(),
           adminNote: `Payment status checked with Pesapal by admin at ${new Date().toISOString()}`
         };
+        debugInfo.pesapalResponse = paymentStatus;
       } catch (error) {
         return NextResponse.json({ 
           error: 'Failed to check Pesapal status', 
@@ -66,6 +68,49 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date().toISOString(),
         adminNote: `Payment reset to pending by admin at ${new Date().toISOString()}`
       };
+    } else if (action === 'force_sync') {
+      // Force sync with Pesapal using the stored tracking ID
+      const storedTrackingId = orderData.pesapalOrderTrackingId;
+      if (!storedTrackingId) {
+        return NextResponse.json({ 
+          error: 'No Pesapal tracking ID found for this order' 
+        }, { status: 400 });
+      }
+      
+      try {
+        const paymentStatus = await pesapalApi.getTransactionStatus(storedTrackingId);
+        updateData = {
+          pesapalPaymentStatus: paymentStatus,
+          paymentStatus: paymentStatus.payment_status === 'COMPLETED' ? 'paid' : 
+                        paymentStatus.payment_status === 'FAILED' ? 'failed' : 'pending',
+          status: paymentStatus.payment_status === 'COMPLETED' ? 'processing' : 'pending',
+          updatedAt: new Date().toISOString(),
+          adminNote: `Payment status force synced with Pesapal by admin at ${new Date().toISOString()}`,
+          lastSyncAt: new Date().toISOString()
+        };
+        debugInfo.pesapalResponse = paymentStatus;
+        debugInfo.trackingId = storedTrackingId;
+      } catch (error) {
+        return NextResponse.json({ 
+          error: 'Failed to sync with Pesapal', 
+          details: error instanceof Error ? error.message : 'Unknown error' 
+        }, { status: 500 });
+      }
+    } else if (action === 'debug_info') {
+      // Return debug information without making changes
+      return NextResponse.json({
+        order: orderData,
+        debugInfo: {
+          hasTrackingId: !!orderData.pesapalOrderTrackingId,
+          trackingId: orderData.pesapalOrderTrackingId,
+          currentPaymentStatus: orderData.paymentStatus,
+          currentStatus: orderData.status,
+          lastUpdated: orderData.updatedAt,
+          callbackProcessed: !!orderData.callbackProcessedAt,
+          callbackTime: orderData.callbackProcessedAt,
+          adminNotes: orderData.adminNote
+        }
+      });
     } else {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
@@ -77,13 +122,14 @@ export async function POST(request: NextRequest) {
       message: `Order ${orderId} payment status updated`,
       orderId,
       action,
-      updateData
+      updateData,
+      debugInfo
     });
 
   } catch (error) {
-    console.error('Error fixing payment status:', error);
+    console.error('Error in fix payment:', error);
     return NextResponse.json(
-      { error: 'Failed to fix payment status', details: error },
+      { error: 'Failed to process payment fix' },
       { status: 500 }
     );
   }

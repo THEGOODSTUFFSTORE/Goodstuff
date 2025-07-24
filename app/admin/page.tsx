@@ -74,6 +74,155 @@ const AdminDashboard = () => {
   const [selectedOrderStatus, setSelectedOrderStatus] = useState<string>('all');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+  // Payment Debug Modal Component
+  const PaymentDebugModal = ({ order, isOpen, onClose }: { order: Order | null, isOpen: boolean, onClose: () => void }) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [debugInfo, setDebugInfo] = useState<any>(null);
+
+    const handlePaymentAction = async (action: string, pesapalTrackingId?: string) => {
+      if (!order) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/admin/fix-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderId: order.id,
+            action,
+            pesapalTrackingId
+          }),
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          alert(`Success: ${result.message}`);
+          if (result.debugInfo) {
+            setDebugInfo(result.debugInfo);
+          }
+          // Refresh orders
+          const ordersResponse = await fetch('/api/orders');
+          if (ordersResponse.ok) {
+            const fetchedOrders = await ordersResponse.json();
+            setOrders(fetchedOrders);
+          }
+        } else {
+          alert(`Error: ${result.error}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to perform action');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const getDebugInfo = async () => {
+      if (!order) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/admin/fix-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderId: order.id,
+            action: 'debug_info'
+          }),
+        });
+
+        const result = await response.json();
+        setDebugInfo(result.debugInfo);
+      } catch (error) {
+        console.error('Error getting debug info:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (!isOpen || !order) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Payment Debug: Order #{order.orderNumber || order.id}</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Current Status</h4>
+              <p><strong>Payment Status:</strong> {order.paymentStatus || 'unknown'}</p>
+              <p><strong>Order Status:</strong> {order.status}</p>
+              <p><strong>Total Amount:</strong> KES {order.totalAmount.toLocaleString()}</p>
+              <p><strong>Pesapal Tracking ID:</strong> {order.pesapalOrderTrackingId || 'None'}</p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={getDebugInfo}
+                disabled={isLoading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                Get Debug Info
+              </button>
+              
+              <button
+                onClick={() => handlePaymentAction('force_sync')}
+                disabled={isLoading || !order.pesapalOrderTrackingId}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                Force Sync with Pesapal
+              </button>
+              
+              <button
+                onClick={() => handlePaymentAction('mark_paid')}
+                disabled={isLoading}
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
+              >
+                Mark as Paid
+              </button>
+              
+              <button
+                onClick={() => handlePaymentAction('reset_to_pending')}
+                disabled={isLoading}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                Reset to Pending
+              </button>
+            </div>
+
+            {debugInfo && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Debug Information</h4>
+                <pre className="text-sm overflow-x-auto">{JSON.stringify(debugInfo, null, 2)}</pre>
+              </div>
+            )}
+
+            {isLoading && (
+              <div className="text-center py-4">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const tabs: Tab[] = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
@@ -979,9 +1128,21 @@ const AdminDashboard = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <Eye className="h-5 w-5" />
-                        </button>
+                        <div className="flex items-center justify-end space-x-2">
+                          <button 
+                            onClick={() => {
+                              setSelectedOrder(order);
+                              setIsPaymentModalOpen(true);
+                            }}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="Debug Payment"
+                          >
+                            🔧
+                          </button>
+                          <button className="text-gray-400 hover:text-gray-600">
+                            <Eye className="h-5 w-5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -1139,6 +1300,16 @@ const AdminDashboard = () => {
           {renderContent()}
         </main>
       </div>
+
+      {/* Payment Debug Modal */}
+      <PaymentDebugModal
+        order={selectedOrder}
+        isOpen={isPaymentModalOpen}
+        onClose={() => {
+          setIsPaymentModalOpen(false);
+          setSelectedOrder(null);
+        }}
+      />
     </div>
   );
 };

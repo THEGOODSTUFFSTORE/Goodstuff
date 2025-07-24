@@ -104,4 +104,91 @@ export const updateOrderServer = async (id: string, orderData: Partial<Order>): 
     });
     throw error;
   }
+};
+
+// Link guest orders to a user account when they sign up/login
+export const linkGuestOrdersToUser = async (userEmail: string, userId: string): Promise<number> => {
+  try {
+    console.log('Linking guest orders to user:', { userEmail, userId });
+    
+    // Find all guest orders with the user's email
+    const guestOrdersSnapshot = await adminDb.collection('orders')
+      .where('userId', '==', 'guest')
+      .where('userEmail', '==', userEmail)
+      .get();
+    
+    console.log(`Found ${guestOrdersSnapshot.size} guest orders to link`);
+    
+    const batch = adminDb.batch();
+    let linkedCount = 0;
+    
+    guestOrdersSnapshot.docs.forEach(doc => {
+      const orderRef = adminDb.collection('orders').doc(doc.id);
+      batch.update(orderRef, {
+        userId: userId,
+        updatedAt: new Date().toISOString(),
+        linkedToUser: true,
+        linkedAt: new Date().toISOString()
+      });
+      linkedCount++;
+    });
+    
+    if (linkedCount > 0) {
+      await batch.commit();
+      console.log(`Successfully linked ${linkedCount} guest orders to user ${userId}`);
+    }
+    
+    return linkedCount;
+  } catch (error) {
+    console.error('Error linking guest orders to user:', error);
+    throw error;
+  }
+};
+
+// Get orders by user (includes both user orders and linked guest orders)
+export const getOrdersByUserServer = async (userId: string, userEmail?: string): Promise<Order[]> => {
+  try {
+    console.log('Fetching orders for user:', { userId, userEmail });
+    
+    const orders: Order[] = [];
+    const orderIds = new Set<string>();
+    
+    // Get orders with matching userId
+    const userOrdersSnapshot = await adminDb.collection('orders')
+      .where('userId', '==', userId)
+      .orderBy('createdAt', 'desc')
+      .get();
+    
+    userOrdersSnapshot.docs.forEach(doc => {
+      if (!orderIds.has(doc.id)) {
+        orders.push({ id: doc.id, ...doc.data() } as Order);
+        orderIds.add(doc.id);
+      }
+    });
+    
+    // If email is provided, also get guest orders with that email
+    if (userEmail) {
+      const guestOrdersSnapshot = await adminDb.collection('orders')
+        .where('userId', '==', 'guest')
+        .where('userEmail', '==', userEmail)
+        .orderBy('createdAt', 'desc')
+        .get();
+      
+      guestOrdersSnapshot.docs.forEach(doc => {
+        if (!orderIds.has(doc.id)) {
+          orders.push({ id: doc.id, ...doc.data() } as Order);
+          orderIds.add(doc.id);
+        }
+      });
+    }
+    
+    // Sort by creation date
+    orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    console.log(`Found ${orders.length} total orders for user`);
+    return orders;
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    throw error;
+  }
 }; 

@@ -103,8 +103,12 @@ const CustomerDashboard = () => {
       if (snapshot2) {
         snapshot2.forEach((doc) => {
           if (!orderIds.has(doc.id)) {
-            fetchedOrders.push({ id: doc.id, ...doc.data() } as Order);
-            orderIds.add(doc.id);
+            const orderData = { id: doc.id, ...doc.data() } as Order;
+            // Only add guest orders or orders with matching email
+            if (orderData.userId === 'guest' || orderData.userEmail === userEmail) {
+              fetchedOrders.push(orderData);
+              orderIds.add(doc.id);
+            }
           }
         });
       }

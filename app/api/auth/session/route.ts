@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { adminAuth } from '@/lib/firebase-admin';
+import { linkGuestOrdersToUser } from '@/lib/server/firebaseAdmin';
 
 const COOKIE_NAME = 'session';
 
@@ -26,6 +27,19 @@ export async function POST(request: NextRequest) {
       // Get the user's custom claims
       const user = await adminAuth.getUser(decodedToken.uid);
       const customClaims = user.customClaims || {};
+      
+      // Link guest orders to this user account if they have an email
+      if (user.email) {
+        try {
+          const linkedCount = await linkGuestOrdersToUser(user.email, decodedToken.uid);
+          if (linkedCount > 0) {
+            console.log(`Linked ${linkedCount} guest orders to user ${decodedToken.uid}`);
+          }
+        } catch (linkError) {
+          console.error('Error linking guest orders (non-critical):', linkError);
+          // Don't fail the session creation for this
+        }
+      }
       
       // Create a session cookie
       const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
@@ -56,17 +70,17 @@ export async function POST(request: NextRequest) {
       });
 
       return response;
-    } catch (verifyError: any) {
-      console.error('Error verifying token or creating session:', verifyError);
+    } catch (authError) {
+      console.error('Token verification failed:', authError);
       return NextResponse.json(
-        { error: verifyError.message || 'Invalid ID token' },
+        { error: 'Invalid token' },
         { status: 401 }
       );
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Session creation error:', error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
