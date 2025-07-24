@@ -53,9 +53,9 @@ export async function GET(request: NextRequest) {
     // Update the order status in Firebase using Admin SDK
     const updateData: any = {
       pesapalPaymentStatus: paymentStatus,
-      paymentStatus: paymentStatus.payment_status === 'COMPLETED' ? 'paid' : 
-                    paymentStatus.payment_status === 'FAILED' ? 'failed' : 'pending',
-      status: paymentStatus.payment_status === 'COMPLETED' ? 'processing' : 'pending',
+      paymentStatus: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'paid' : 
+                    (paymentStatus.payment_status_description === 'Failed' || paymentStatus.payment_status === 'FAILED') ? 'failed' : 'pending',
+      status: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'processing' : 'pending',
       updatedAt: new Date().toISOString(),
       callbackProcessedAt: new Date().toISOString()
     };
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Send email notifications for successful payments
-    if (paymentStatus.payment_status === 'COMPLETED' && orderData) {
+    if ((paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') && orderData) {
       try {
         console.log('Sending payment confirmation emails...');
         await sendOrderNotifications(orderData as any, 'paid');
@@ -89,9 +89,9 @@ export async function GET(request: NextRequest) {
 
     // Redirect to the appropriate page based on payment status
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-    const redirectUrl = paymentStatus.payment_status === 'COMPLETED' 
+    const redirectUrl = (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED')
       ? `${baseUrl}/dashboard?payment=success&orderId=${orderId}&timestamp=${Date.now()}`
-      : paymentStatus.payment_status === 'FAILED'
+      : (paymentStatus.payment_status_description === 'Failed' || paymentStatus.payment_status === 'FAILED')
       ? `${baseUrl}/dashboard?payment=failed&orderId=${orderId}&timestamp=${Date.now()}`
       : `${baseUrl}/dashboard?payment=pending&orderId=${orderId}&timestamp=${Date.now()}`;
 

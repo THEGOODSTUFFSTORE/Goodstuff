@@ -87,6 +87,7 @@ const AdminDashboard = () => {
       
       setIsLoading(true);
       try {
+        console.log('Payment action:', action, 'for order:', order.id);
         const response = await fetch('/api/admin/fix-payment', {
           method: 'POST',
           headers: {
@@ -100,24 +101,40 @@ const AdminDashboard = () => {
         });
 
         const result = await response.json();
+        console.log('Payment action result:', result);
         
         if (response.ok) {
-          alert(`Success: ${result.message}`);
+          // Show detailed success message
+          const message = `${result.message}\n\nUpdated Data:\n${JSON.stringify(result.verifiedData || result.updateData, null, 2)}`;
+          alert(message);
+          
           if (result.debugInfo) {
             setDebugInfo(result.debugInfo);
           }
-          // Refresh orders
-          const ordersResponse = await fetch('/api/orders');
-          if (ordersResponse.ok) {
-            const fetchedOrders = await ordersResponse.json();
-            setOrders(fetchedOrders);
-          }
+          
+          // Force refresh orders with a small delay to ensure database update is complete
+          setTimeout(async () => {
+            console.log('Refreshing orders list...');
+            const ordersResponse = await fetch('/api/orders');
+            if (ordersResponse.ok) {
+              const fetchedOrders = await ordersResponse.json();
+              console.log('Refreshed orders:', fetchedOrders.length);
+              setOrders(fetchedOrders);
+              
+              // Also update the current order in the modal
+              const updatedOrder = fetchedOrders.find((o: any) => o.id === order.id);
+              if (updatedOrder) {
+                console.log('Updated order found:', updatedOrder.paymentStatus, updatedOrder.status);
+                setSelectedOrder(updatedOrder);
+              }
+            }
+          }, 1000);
         } else {
-          alert(`Error: ${result.error}`);
+          alert(`Error: ${result.error}\n\nDetails: ${JSON.stringify(result.details || {}, null, 2)}`);
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Failed to perform action');
+        alert('Failed to perform action: ' + error);
       } finally {
         setIsLoading(false);
       }
@@ -170,6 +187,8 @@ const AdminDashboard = () => {
               <p><strong>Order Status:</strong> {order.status}</p>
               <p><strong>Total Amount:</strong> KES {order.totalAmount.toLocaleString()}</p>
               <p><strong>Pesapal Tracking ID:</strong> {order.pesapalOrderTrackingId || 'None'}</p>
+              <p><strong>Last Updated:</strong> {order.updatedAt || 'Never'}</p>
+              <p><strong>Admin Note:</strong> {order.adminNote || 'None'}</p>
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -179,6 +198,23 @@ const AdminDashboard = () => {
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
                 Get Debug Info
+              </button>
+              
+              <button
+                onClick={async () => {
+                  // Immediately check current order status
+                  try {
+                    const response = await fetch(`/api/debug-order?orderId=${order.id}`);
+                    const result = await response.json();
+                    alert(`Current Order Status:\n${JSON.stringify(result.orders[0], null, 2)}`);
+                  } catch (error) {
+                    alert('Failed to check order status');
+                  }
+                }}
+                disabled={isLoading}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+              >
+                Check Current Status
               </button>
               
               <button

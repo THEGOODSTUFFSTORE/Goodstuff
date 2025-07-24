@@ -47,9 +47,9 @@ export async function POST(request: NextRequest) {
         const paymentStatus = await pesapalApi.getTransactionStatus(pesapalTrackingId);
         updateData = {
           pesapalPaymentStatus: paymentStatus,
-          paymentStatus: paymentStatus.payment_status === 'COMPLETED' ? 'paid' : 
-                        paymentStatus.payment_status === 'FAILED' ? 'failed' : 'pending',
-          status: paymentStatus.payment_status === 'COMPLETED' ? 'processing' : 'pending',
+          paymentStatus: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'paid' : 
+                        (paymentStatus.payment_status_description === 'Failed' || paymentStatus.payment_status === 'FAILED') ? 'failed' : 'pending',
+          status: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'processing' : 'pending',
           updatedAt: new Date().toISOString(),
           adminNote: `Payment status checked with Pesapal by admin at ${new Date().toISOString()}`
         };
@@ -78,19 +78,26 @@ export async function POST(request: NextRequest) {
       }
       
       try {
+        console.log('Force sync: Checking Pesapal status for tracking ID:', storedTrackingId);
         const paymentStatus = await pesapalApi.getTransactionStatus(storedTrackingId);
+        console.log('Force sync: Pesapal response:', paymentStatus);
+        
         updateData = {
           pesapalPaymentStatus: paymentStatus,
-          paymentStatus: paymentStatus.payment_status === 'COMPLETED' ? 'paid' : 
-                        paymentStatus.payment_status === 'FAILED' ? 'failed' : 'pending',
-          status: paymentStatus.payment_status === 'COMPLETED' ? 'processing' : 'pending',
+          paymentStatus: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'paid' : 
+                        (paymentStatus.payment_status_description === 'Failed' || paymentStatus.payment_status === 'FAILED') ? 'failed' : 'pending',
+          status: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'processing' : 'pending',
           updatedAt: new Date().toISOString(),
           adminNote: `Payment status force synced with Pesapal by admin at ${new Date().toISOString()}`,
           lastSyncAt: new Date().toISOString()
         };
+        
+        console.log('Force sync: About to update order with data:', updateData);
         debugInfo.pesapalResponse = paymentStatus;
         debugInfo.trackingId = storedTrackingId;
+        debugInfo.updateData = updateData;
       } catch (error) {
+        console.error('Force sync: Error getting status from Pesapal:', error);
         return NextResponse.json({ 
           error: 'Failed to sync with Pesapal', 
           details: error instanceof Error ? error.message : 'Unknown error' 
@@ -117,13 +124,30 @@ export async function POST(request: NextRequest) {
 
     await updateOrderServer(orderId, updateData);
 
+    // Verify the update worked by fetching the order again
+    const verifyDoc = await adminDb.collection('orders').doc(orderId).get();
+    const verifiedData = verifyDoc.exists ? verifyDoc.data() : null;
+    
+    console.log('Payment fix: Verified order data after update:', {
+      id: orderId,
+      paymentStatus: verifiedData?.paymentStatus,
+      status: verifiedData?.status,
+      lastSyncAt: verifiedData?.lastSyncAt,
+      adminNote: verifiedData?.adminNote
+    });
+
     return NextResponse.json({
       success: true,
       message: `Order ${orderId} payment status updated`,
       orderId,
       action,
       updateData,
-      debugInfo
+      debugInfo,
+      verifiedData: {
+        paymentStatus: verifiedData?.paymentStatus,
+        status: verifiedData?.status,
+        lastSyncAt: verifiedData?.lastSyncAt
+      }
     });
 
   } catch (error) {

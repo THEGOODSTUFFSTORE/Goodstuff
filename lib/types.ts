@@ -82,6 +82,11 @@ export interface Order {
   trackingNumber?: string;
   pesapalOrderTrackingId?: string;
   pesapalPaymentStatus?: PesapalPaymentStatus;
+  adminNote?: string; // Added for admin debugging and notes
+  lastSyncAt?: string; // Added for tracking last payment sync
+  callbackProcessedAt?: string; // Added for tracking callback processing
+  linkedToUser?: boolean; // Added for tracking guest order linking
+  linkedAt?: string; // Added for tracking when guest order was linked
 }
 
 export interface CartContextType {

@@ -22,9 +22,9 @@ async function handleIPN(OrderTrackingId: string, OrderMerchantReference: string
   // Update the order status in Firebase using Admin SDK
   const updateData: any = {
     pesapalPaymentStatus: paymentStatus,
-    paymentStatus: paymentStatus.payment_status === 'COMPLETED' ? 'paid' : 
-                  paymentStatus.payment_status === 'FAILED' ? 'failed' : 'pending',
-    status: paymentStatus.payment_status === 'COMPLETED' ? 'processing' : 'pending',
+    paymentStatus: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'paid' : 
+                  (paymentStatus.payment_status_description === 'Failed' || paymentStatus.payment_status === 'FAILED') ? 'failed' : 'pending',
+    status: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'processing' : 'pending',
     updatedAt: new Date().toISOString()
   };
 
@@ -35,7 +35,7 @@ async function handleIPN(OrderTrackingId: string, OrderMerchantReference: string
   // Send email notifications for status changes
   if (orderData) {
     try {
-      if (paymentStatus.payment_status === 'COMPLETED') {
+      if (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') {
         await sendOrderNotifications(orderData as any, 'paid');
         console.log('Payment confirmation emails sent via IPN');
       }
