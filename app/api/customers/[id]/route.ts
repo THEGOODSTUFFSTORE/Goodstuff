@@ -2,13 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth, isAdminReady } from '@/lib/firebase-admin';
 import { linkGuestOrdersToUser } from '@/lib/server/firebaseAdmin';
 
-interface Params {
-  id: string;
-}
-
 export async function GET(
   request: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if Firebase Admin is ready
@@ -19,7 +15,7 @@ export async function GET(
       );
     }
 
-    const { id: customerId } = params;
+    const { id: customerId } = await params;
 
     // Verify admin session
     const session = request.cookies.get('session')?.value;
@@ -69,7 +65,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if Firebase Admin is ready
@@ -80,7 +76,7 @@ export async function PUT(
       );
     }
 
-    const { id: customerId } = params;
+    const { id: customerId } = await params;
 
     // Verify admin session
     const session = request.cookies.get('session')?.value;
@@ -88,33 +84,33 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-         const decodedToken = await adminAuth!.verifySessionCookie(session);
-     if (!decodedToken.admin) {
-       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-     }
+    const decodedToken = await adminAuth!.verifySessionCookie(session);
+    if (!decodedToken.admin) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
 
-     const updateData = await request.json();
+    const updateData = await request.json();
 
-     // Get current customer to preserve existing data
-     const customer = await adminAuth!.getUser(customerId);
-     
-     // Prepare update object (only include fields that are allowed to be updated)
-     const allowedUpdates: any = {};
-     
-     if (updateData.email !== undefined) allowedUpdates.email = updateData.email;
-     if (updateData.displayName !== undefined) allowedUpdates.displayName = updateData.displayName;
-     if (updateData.disabled !== undefined) allowedUpdates.disabled = updateData.disabled;
-     if (updateData.emailVerified !== undefined) allowedUpdates.emailVerified = updateData.emailVerified;
-     if (updateData.phoneNumber !== undefined) allowedUpdates.phoneNumber = updateData.phoneNumber;
-     if (updateData.photoURL !== undefined) allowedUpdates.photoURL = updateData.photoURL;
+    // Get current customer to preserve existing data
+    const customer = await adminAuth!.getUser(customerId);
+    
+    // Prepare update object (only include fields that are allowed to be updated)
+    const allowedUpdates: any = {};
+    
+    if (updateData.email !== undefined) allowedUpdates.email = updateData.email;
+    if (updateData.displayName !== undefined) allowedUpdates.displayName = updateData.displayName;
+    if (updateData.disabled !== undefined) allowedUpdates.disabled = updateData.disabled;
+    if (updateData.emailVerified !== undefined) allowedUpdates.emailVerified = updateData.emailVerified;
+    if (updateData.phoneNumber !== undefined) allowedUpdates.phoneNumber = updateData.phoneNumber;
+    if (updateData.photoURL !== undefined) allowedUpdates.photoURL = updateData.photoURL;
 
-     // Update user
-     const updatedUser = await adminAuth!.updateUser(customerId, allowedUpdates);
+    // Update user
+    const updatedUser = await adminAuth!.updateUser(customerId, allowedUpdates);
 
-     // Handle custom claims separately if provided
-     if (updateData.customClaims !== undefined) {
-       await adminAuth!.setCustomUserClaims(customerId, updateData.customClaims);
-     }
+    // Handle custom claims separately if provided
+    if (updateData.customClaims !== undefined) {
+      await adminAuth!.setCustomUserClaims(customerId, updateData.customClaims);
+    }
 
     return NextResponse.json({
       message: 'Customer updated successfully',
@@ -146,7 +142,7 @@ export async function PUT(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if Firebase Admin is ready
@@ -157,7 +153,7 @@ export async function POST(
       );
     }
 
-    const { id: customerId } = params;
+    const { id: customerId } = await params;
 
     // Verify admin session
     const session = request.cookies.get('session')?.value;
