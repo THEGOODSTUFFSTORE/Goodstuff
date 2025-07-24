@@ -24,7 +24,7 @@ export interface EmailTemplate {
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'tgsliquorstore@gmail.com';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@thegoodstuff.com';
 const COMPANY_NAME = 'The Goodstuff';
-const COMPANY_WEBSITE = process.env.NEXT_PUBLIC_APP_URL || 'https://thegoodstuffdrinks.delivery';
+const COMPANY_WEBSITE = process.env.NEXT_PUBLIC_APP_URL || 'https://goodstuff-five.vercel.app';
 
 // Email template generators
 export const generateOrderConfirmationEmail = (order: Order): EmailTemplate => {

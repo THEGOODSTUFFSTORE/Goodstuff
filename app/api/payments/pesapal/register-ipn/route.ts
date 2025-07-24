@@ -4,7 +4,7 @@ import { pesapalApi } from '@/lib/pesapal';
 export async function POST(request: NextRequest) {
   try {
     // Get the base URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://goodstuff-five.vercel.app';
     const ipnUrl = `${baseUrl}/api/payments/pesapal/ipn`;
     
     console.log('Registering IPN URL:', ipnUrl);

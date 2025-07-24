@@ -7,7 +7,7 @@ class PesapalAPI {
   private token: string | null = null;
 
   constructor() {
-    this.baseUrl = process.env.PESAPAL_API_URL || 'https://cybqa.pesapal.com/pesapalv3';
+    this.baseUrl = process.env.PESAPAL_API_URL || 'https://pay.pesapal.com/v3';
     this.consumerKey = process.env.PESAPAL_CONSUMER_KEY || '';
     this.consumerSecret = process.env.PESAPAL_CONSUMER_SECRET || '';
   }

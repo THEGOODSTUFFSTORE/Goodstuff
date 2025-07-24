@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare the Pesapal payment request
     const ipnId = process.env.PESAPAL_IPN_ID;
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://7f2b8a32eb2b.ngrok-free.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://goodstuff-five.vercel.app';
     
     console.log('IPN ID found:', ipnId);
     
