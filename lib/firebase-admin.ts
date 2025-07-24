@@ -2,21 +2,13 @@
 import * as admin from 'firebase-admin';
 
 // Function to get service account from environment variables or JSON file
-function getServiceAccountConfig(): admin.ServiceAccount {
-  // For production, use environment variables
+function getServiceAccountConfig() {
+  // First try environment variables (production)
   if (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PROJECT_ID) {
     return {
-      type: 'service_account',
-      project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      client_id: process.env.FIREBASE_CLIENT_ID,
-      auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-      token_uri: 'https://oauth2.googleapis.com/token',
-      auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-      client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(process.env.FIREBASE_CLIENT_EMAIL)}`,
-      universe_domain: 'googleapis.com'
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     } as admin.ServiceAccount;
   }
   
@@ -25,6 +17,8 @@ function getServiceAccountConfig(): admin.ServiceAccount {
     const serviceAccount = require('../firebase-service-account.json');
     return serviceAccount;
   } catch (error) {
+    console.warn('Firebase service account file not found, using environment variables only');
+    // If file doesn't exist and env vars aren't set, throw error
     throw new Error(
       'Firebase service account configuration not found. ' +
       'Please set FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, and FIREBASE_PROJECT_ID environment variables, ' +

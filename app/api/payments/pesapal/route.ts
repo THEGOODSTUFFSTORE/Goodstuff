@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const trackingId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
     // Create the order in Firebase first using Admin SDK
-    const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
+    const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'orderNumber'> = {
       userId: userId || 'guest',
       userEmail: userEmail || shippingAddress.email,
       items,
