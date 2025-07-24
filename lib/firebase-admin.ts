@@ -12,19 +12,29 @@ function getServiceAccountConfig() {
     } as admin.ServiceAccount;
   }
   
-  // For development, try to load from JSON file
-  try {
-    const serviceAccount = require('../firebase-service-account.json');
-    return serviceAccount;
-  } catch (error) {
-    console.warn('Firebase service account file not found, using environment variables only');
-    // If file doesn't exist and env vars aren't set, throw error
-    throw new Error(
-      'Firebase service account configuration not found. ' +
-      'Please set FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, and FIREBASE_PROJECT_ID environment variables, ' +
-      'or ensure firebase-service-account.json exists in the root directory.'
-    );
+  // For development only, try to load from JSON file
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      // Use dynamic require to avoid webpack bundling issues
+      const path = require('path');
+      const fs = require('fs');
+      const serviceAccountPath = path.join(process.cwd(), 'firebase-service-account.json');
+      
+      if (fs.existsSync(serviceAccountPath)) {
+        const serviceAccountData = fs.readFileSync(serviceAccountPath, 'utf8');
+        return JSON.parse(serviceAccountData);
+      }
+    } catch (error) {
+      console.warn('Firebase service account file not found in development');
+    }
   }
+  
+  // If neither works, throw error
+  throw new Error(
+    'Firebase service account configuration not found. ' +
+    'Please set FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, and FIREBASE_PROJECT_ID environment variables, ' +
+    'or ensure firebase-service-account.json exists in the root directory for development.'
+  );
 }
 
 // Ensure we only initialize the admin SDK once

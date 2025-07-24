@@ -53,6 +53,7 @@ const convertOrderData = (doc: any): Order => {
   const data = doc.data();
   return {
     id: doc.id,
+    orderNumber: data.orderNumber || data.id, // Fallback to document ID for older orders
     userId: data.userId,
     userEmail: data.userEmail,
     items: data.items,
@@ -65,6 +66,8 @@ const convertOrderData = (doc: any): Order => {
     paymentMethod: data.paymentMethod,
     paymentStatus: data.paymentStatus,
     trackingNumber: data.trackingNumber,
+    pesapalOrderTrackingId: data.pesapalOrderTrackingId,
+    pesapalPaymentStatus: data.pesapalPaymentStatus,
   };
 };
 
