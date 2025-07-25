@@ -115,9 +115,6 @@ jobs:
         print("Service account JSON created successfully")
         EOF
         
-        # Set up authentication
-        export GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
-        
         # Verify the service account file exists and is valid
         echo "Verifying service account file..."
         if [ -f firebase-service-account.json ]; then
@@ -128,9 +125,11 @@ jobs:
           exit 1
         fi
         
-        # Deploy
+        # Deploy using service account authentication
+        echo "Starting Firebase deployment..."
         firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting,functions --non-interactive
       env:
         PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-        CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }} 
+        CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        GOOGLE_APPLICATION_CREDENTIALS: ./firebase-service-account.json 
