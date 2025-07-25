@@ -3,6 +3,14 @@ import { adminDb } from '@/lib/firebase-admin';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if Firebase Admin is initialized
+    if (!adminDb) {
+      return NextResponse.json(
+        { error: 'Firebase Admin not initialized' },
+        { status: 503 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const orderId = searchParams.get('orderId');
     const userId = searchParams.get('userId');
