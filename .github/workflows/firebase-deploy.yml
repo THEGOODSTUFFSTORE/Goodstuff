@@ -60,19 +60,36 @@ jobs:
         PESAPAL_IPN_ID: ${{ secrets.PESAPAL_IPN_ID }}
         NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
         
-    - name: Create Firebase Service Account JSON
-      id: create_service_account
+    - name: Prepare public directory for hosting
       run: |
-        # Create service account JSON using environment variables and jq for proper escaping
-        SERVICE_ACCOUNT_JSON=$(jq -n \
+        mkdir -p public
+        echo '<html><body><h1>App deployed to Firebase Functions</h1><p>Visit your app at the function URL</p></body></html>' > public/index.html
+        
+    - name: Setup Functions
+      run: |
+        # Copy the built app to functions directory
+        cp -r .next functions/
+        cp -r public functions/
+        cp package.json functions/
+        cp package-lock.json functions/
+        
+        # Install function dependencies
+        cd functions
+        npm install
+        
+    - name: Install Firebase CLI
+      run: npm install -g firebase-tools
+        
+    - name: Deploy to Firebase
+      run: |
+        # Create service account JSON with proper private key formatting
+        echo '${{ secrets.FIREBASE_PRIVATE_KEY }}' | sed 's/\\n/\n/g' > private_key.pem
+        
+        jq -n \
           --arg type "service_account" \
-          --arg project_id "$PROJECT_ID" \
-          --arg private_key "$PRIVATE_KEY" \
-          --arg client_email "$CLIENT_EMAIL" \
-          --arg auth_uri "https://accounts.google.com/o/oauth2/auth" \
-          --arg token_uri "https://oauth2.googleapis.com/token" \
-          --arg auth_provider_x509_cert_url "https://www.googleapis.com/oauth2/v1/certs" \
-          --arg client_x509_cert_url "https://www.googleapis.com/robot/v1/metadata/x509/$CLIENT_EMAIL" \
+          --arg project_id "${{ secrets.FIREBASE_PROJECT_ID }}" \
+          --rawfile private_key private_key.pem \
+          --arg client_email "${{ secrets.FIREBASE_CLIENT_EMAIL }}" \
           '{
             type: $type,
             project_id: $project_id,
@@ -80,26 +97,17 @@ jobs:
             private_key: $private_key,
             client_email: $client_email,
             client_id: "",
-            auth_uri: $auth_uri,
-            token_uri: $token_uri,
-            auth_provider_x509_cert_url: $auth_provider_x509_cert_url,
-            client_x509_cert_url: $client_x509_cert_url
-          }')
+            auth_uri: "https://accounts.google.com/o/oauth2/auth",
+            token_uri: "https://oauth2.googleapis.com/token",
+            auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+            client_x509_cert_url: ("https://www.googleapis.com/robot/v1/metadata/x509/" + $client_email)
+          }' > firebase-service-account.json
         
-        # Set as output for next step
-        echo "service_account_json<<EOF" >> $GITHUB_OUTPUT
-        echo "$SERVICE_ACCOUNT_JSON" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-      env:
-        PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-        PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-        CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        # Clean up temp file
+        rm private_key.pem
         
-    - name: Deploy to Firebase
-      uses: FirebaseExtended/action-hosting-deploy@v0
-      with:
-        repoToken: ${{ secrets.GITHUB_TOKEN }}
-        firebaseServiceAccount: ${{ steps.create_service_account.outputs.service_account_json }}
-        projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
-        channelId: live
-        target: live 
+        # Set up authentication
+        export GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
+        
+        # Deploy
+        firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting,functions --non-interactive 

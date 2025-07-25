@@ -20,11 +20,11 @@
     "rewrites": [
       {
         "source": "/api/**",
-        "function": "nextjs"
+        "function": "nextjsFunc"
       },
       {
         "source": "**",
-        "destination": "/index.html"
+        "function": "nextjsFunc"
       }
     ]
   }

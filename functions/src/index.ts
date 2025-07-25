@@ -1,36 +1,22 @@
-import { onRequest } from "firebase-functions/v2/https";
-import { setGlobalOptions } from "firebase-functions/v2";
-import next from "next";
+import * as functions from "firebase-functions";
+const next = require("next");
 
-// Set global options
-setGlobalOptions({
-  maxInstances: 10,
-  region: "us-central1",
-});
-
-const isDev = process.env.NODE_ENV !== "production";
+const isDev = false;
 const app = next({
   dev: isDev,
-  conf: {
-    distDir: ".next"
-  }
+  conf: { distDir: ".next" },
 });
 
 const handle = app.getRequestHandler();
 
-export const nextjs = onRequest(
-  {
-    memory: "1GiB",
+export const nextjsFunc = functions
+  .region("us-central1")
+  .runWith({
+    memory: "1GB",
     timeoutSeconds: 60,
-    maxInstances: 10,
-  },
-  async (req, res) => {
-    console.log("Request received:", req.url);
-    
-    // Prepare Next.js
+  })
+  .https.onRequest(async (req, res) => {
+    console.log("File: " + req.originalUrl); // log the page.js file that is being requested
     await app.prepare();
-    
-    // Handle the request
-    return handle(req, res);
-  }
-); 
+    handle(req, res);
+  }); 
