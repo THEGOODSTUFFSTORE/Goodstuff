@@ -5,7 +5,7 @@ import { useCartStore } from '@/lib/store';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { toast } from 'react-toastify';
 import ShippingAddressForm from '@/app/components/ShippingAddressForm';
-import LocationBasedDeliveryForm from '@/app/components/LocationBasedDeliveryForm';
+import SimpleLocationPicker from '@/app/components/SimpleLocationPicker';
 import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 
@@ -122,7 +122,7 @@ export default function CheckoutPage() {
               {/* Delivery Location Selection */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Delivery Location</h2>
-                <LocationBasedDeliveryForm
+                <SimpleLocationPicker
                   onDeliveryFeeChange={setDeliveryFee}
                   onLocationChange={setDeliveryLocation}
                 />

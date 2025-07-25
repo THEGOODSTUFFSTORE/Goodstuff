@@ -165,4 +165,11 @@ export interface PesapalPaymentStatus {
   created_date: string;
   confirmation_code: string;
   payment_status_description: string;
+}
+
+// Google Maps global types
+declare global {
+  interface Window {
+    google: typeof google;
+  }
 } 
