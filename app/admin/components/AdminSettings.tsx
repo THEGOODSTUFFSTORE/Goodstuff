@@ -117,12 +117,37 @@ const AdminSettings = () => {
 
   const handleSaveSettings = async () => {
     try {
-      // TODO: Implement settings save functionality
-      console.log('Saving settings:', settings);
-      alert('Settings saved successfully!');
-    } catch (error) {
+      const auth = getAuth();
+      const token = await auth.currentUser?.getIdToken();
+      
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ settings }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save settings');
+      }
+
+      setSuccess('Settings saved successfully!');
+      setError('');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error: any) {
       console.error('Error saving settings:', error);
-      alert('Error saving settings. Please try again.');
+      setError(error.message || 'Error saving settings. Please try again.');
+      setSuccess('');
     }
   };
 

@@ -32,6 +32,7 @@ import {
 import ProductForm from './components/ProductForm';
 import AdminAuth from './components/AdminAuth';
 import AdminSettings from './components/AdminSettings';
+import OrderDetailsModal from '../components/OrderDetailsModal';
 import { getProducts, deleteProduct, getOrderStats } from '@/lib/firebaseApi';
 import { Product, Customer, Order } from '@/lib/types';
 import { auth } from '@/lib/firebase';
@@ -76,6 +77,8 @@ const AdminDashboard = () => {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
+  const [isOrderDetailsModalOpen, setIsOrderDetailsModalOpen] = useState(false);
 
   // Payment Debug Modal Component
   const PaymentDebugModal = ({ order, isOpen, onClose }: { order: Order | null, isOpen: boolean, onClose: () => void }) => {
@@ -1175,7 +1178,14 @@ const AdminDashboard = () => {
                           >
                             🔧
                           </button>
-                          <button className="text-gray-400 hover:text-gray-600">
+                          <button 
+                            onClick={() => {
+                              setSelectedOrderForDetails(order);
+                              setIsOrderDetailsModalOpen(true);
+                            }}
+                            className="text-gray-400 hover:text-gray-600"
+                            title="View Order Details"
+                          >
                             <Eye className="h-5 w-5" />
                           </button>
                         </div>
@@ -1344,6 +1354,16 @@ const AdminDashboard = () => {
         onClose={() => {
           setIsPaymentModalOpen(false);
           setSelectedOrder(null);
+        }}
+      />
+
+      {/* Order Details Modal */}
+      <OrderDetailsModal
+        order={selectedOrderForDetails}
+        isOpen={isOrderDetailsModalOpen}
+        onClose={() => {
+          setIsOrderDetailsModalOpen(false);
+          setSelectedOrderForDetails(null);
         }}
       />
     </div>

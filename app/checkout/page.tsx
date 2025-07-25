@@ -5,7 +5,7 @@ import { useCartStore } from '@/lib/store';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { toast } from 'react-toastify';
 import ShippingAddressForm from '@/app/components/ShippingAddressForm';
-import DeliveryLocationForm from '@/app/components/DeliveryLocationForm';
+import LocationBasedDeliveryForm from '@/app/components/LocationBasedDeliveryForm';
 import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 
@@ -16,10 +16,10 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [deliveryLocation, setDeliveryLocation] = useState<{
-    city: string;
-    area: string;
-    exactLocation: string;
-    customLocation: string;
+    latitude: number;
+    longitude: number;
+    address: string;
+    distance: number;
   } | null>(null);
 
   useEffect(() => {
@@ -52,10 +52,10 @@ export default function CheckoutPage() {
       // Combine shipping address with delivery location
       const fullShippingAddress = {
         ...shippingAddress,
-        city: deliveryLocation.city,
-        area: deliveryLocation.area,
-        exactLocation: deliveryLocation.exactLocation,
-        customLocation: deliveryLocation.customLocation
+        latitude: deliveryLocation.latitude,
+        longitude: deliveryLocation.longitude,
+        deliveryAddress: deliveryLocation.address,
+        distance: deliveryLocation.distance
       };
 
       // Send payment request to our API
@@ -122,7 +122,7 @@ export default function CheckoutPage() {
               {/* Delivery Location Selection */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Delivery Location</h2>
-                <DeliveryLocationForm
+                <LocationBasedDeliveryForm
                   onDeliveryFeeChange={setDeliveryFee}
                   onLocationChange={setDeliveryLocation}
                 />
