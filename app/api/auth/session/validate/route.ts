@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       valid: true,
+      isAdmin: decodedToken.admin || false,
       user: {
         uid: userRecord.uid,
         email: userRecord.email,

@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
+      isAdmin: customClaims.admin || false,
       user: {
         uid: user.uid,
         email: user.email,
