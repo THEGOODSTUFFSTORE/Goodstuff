@@ -6,6 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { Metadata } from 'next';
 import Script from 'next/script';
+import AgeVerificationModal from './components/AgeVerificationModal';
+import WhatsAppFloat from './components/WhatsAppFloat';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -132,6 +134,8 @@ export default function RootLayout({
             pauseOnHover
             theme="light"
           />
+          <AgeVerificationModal />
+          <WhatsAppFloat />
         </StoreProvider>
         
         {/* Service Worker Registration */}
