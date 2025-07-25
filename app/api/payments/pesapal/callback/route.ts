@@ -10,6 +10,14 @@ export async function GET(request: NextRequest) {
   console.log('Request headers:', Object.fromEntries(request.headers.entries()));
   
   try {
+    // Check if Firebase Admin is initialized
+    if (!adminDb) {
+      return NextResponse.json(
+        { error: 'Firebase Admin not initialized' },
+        { status: 503 }
+      );
+    }
+
     // Get the order tracking ID from the URL
     const searchParams = request.nextUrl.searchParams;
     const orderTrackingId = searchParams.get('OrderTrackingId');

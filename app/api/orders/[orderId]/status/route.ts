@@ -8,6 +8,14 @@ export async function PATCH(
   context: { params: Promise<{ orderId: string }> }
 ) {
   try {
+    // Check if Firebase Admin is initialized
+    if (!adminDb) {
+      return NextResponse.json(
+        { error: 'Firebase Admin not initialized' },
+        { status: 503 }
+      );
+    }
+
     // First verify we have the order ID
     const params = await context.params;
     const { orderId } = params;

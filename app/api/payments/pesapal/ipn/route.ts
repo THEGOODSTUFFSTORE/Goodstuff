@@ -9,6 +9,11 @@ async function handleIPN(OrderTrackingId: string, OrderMerchantReference: string
     throw new Error('Missing required parameters');
   }
 
+  // Check if Firebase Admin is initialized
+  if (!adminDb) {
+    throw new Error('Firebase Admin not initialized');
+  }
+
   console.log('Processing IPN:', { OrderTrackingId, OrderMerchantReference });
 
   // Verify the payment status with Pesapal
