@@ -125,9 +125,32 @@ jobs:
           exit 1
         fi
         
-        # Deploy using service account authentication
+        # Debug authentication
+        echo "Debug: Checking environment variables..."
+        echo "GOOGLE_APPLICATION_CREDENTIALS: $GOOGLE_APPLICATION_CREDENTIALS"
+        echo "File exists: $(ls -la firebase-service-account.json)"
+        
+        # Try alternative authentication methods
+        echo "Trying gcloud authentication..."
+        if command -v gcloud &> /dev/null; then
+          gcloud auth activate-service-account --key-file=firebase-service-account.json
+          gcloud config set project ${{ secrets.FIREBASE_PROJECT_ID }}
+        else
+          echo "gcloud not available, trying direct Firebase authentication..."
+        fi
+        
+        # Set the project explicitly
+        firebase use ${{ secrets.FIREBASE_PROJECT_ID }} --token ${{ secrets.FIREBASE_TOKEN }} || firebase use --add ${{ secrets.FIREBASE_PROJECT_ID }} --token ${{ secrets.FIREBASE_TOKEN }} || echo "Could not set project with token"
+        
+        # Deploy using token authentication if available, otherwise service account
         echo "Starting Firebase deployment..."
-        firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting,functions --non-interactive
+        if [ -n "${{ secrets.FIREBASE_TOKEN }}" ]; then
+          echo "Using Firebase token authentication..."
+          firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting,functions --token ${{ secrets.FIREBASE_TOKEN }} --non-interactive
+        else
+          echo "Using service account authentication..."
+          firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting,functions --non-interactive
+        fi
       env:
         PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
