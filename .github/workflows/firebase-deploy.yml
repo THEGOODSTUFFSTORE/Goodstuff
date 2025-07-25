@@ -58,11 +58,40 @@ jobs:
         PESAPAL_IPN_ID: ${{ secrets.PESAPAL_IPN_ID }}
         NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
         
+    - name: Create Firebase Service Account JSON
+      run: |
+        # Create service account JSON using environment variables and jq for proper escaping
+        jq -n \
+          --arg type "service_account" \
+          --arg project_id "$PROJECT_ID" \
+          --arg private_key "$PRIVATE_KEY" \
+          --arg client_email "$CLIENT_EMAIL" \
+          --arg auth_uri "https://accounts.google.com/o/oauth2/auth" \
+          --arg token_uri "https://oauth2.googleapis.com/token" \
+          --arg auth_provider_x509_cert_url "https://www.googleapis.com/oauth2/v1/certs" \
+          --arg client_x509_cert_url "https://www.googleapis.com/robot/v1/metadata/x509/$CLIENT_EMAIL" \
+          '{
+            type: $type,
+            project_id: $project_id,
+            private_key_id: "",
+            private_key: $private_key,
+            client_email: $client_email,
+            client_id: "",
+            auth_uri: $auth_uri,
+            token_uri: $token_uri,
+            auth_provider_x509_cert_url: $auth_provider_x509_cert_url,
+            client_x509_cert_url: $client_x509_cert_url
+          }' > firebase-service-account.json
+      env:
+        PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+        CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        
     - name: Deploy to Firebase
       uses: FirebaseExtended/action-hosting-deploy@v0
       with:
         repoToken: ${{ secrets.GITHUB_TOKEN }}
-        firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        firebaseServiceAccount: ./firebase-service-account.json
         projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
         channelId: live
         target: live 
