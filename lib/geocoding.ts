@@ -111,8 +111,12 @@ export const DEFAULT_DELIVERY_TIERS: DeliveryTier[] = [
 ];
 
 export function calculateDeliveryFee(distance: number, tiers: DeliveryTier[] = DEFAULT_DELIVERY_TIERS): number {
-  const tier = tiers.find(tier => distance <= tier.maxDistance);
-  return tier ? tier.fee : tiers[tiers.length - 1].fee;
+  // TESTING MODE: Return 1 KES for all delivery locations
+  return 1;
+  
+  // Original calculation (commented out for testing):
+  // const tier = tiers.find(tier => distance <= tier.maxDistance);
+  // return tier ? tier.fee : tiers[tiers.length - 1].fee;
 }
 
 // Format distance for display
