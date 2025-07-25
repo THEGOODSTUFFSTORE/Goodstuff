@@ -81,32 +81,56 @@ jobs:
         
     - name: Deploy to Firebase
       run: |
-        # Create service account JSON with proper private key formatting
-        echo '${{ secrets.FIREBASE_PRIVATE_KEY }}' | sed 's/\\n/\n/g' > private_key.pem
+        # Create service account JSON using Python for reliable JSON handling
+        python3 << 'EOF'
+        import json
+        import os
         
-        jq -n \
-          --arg type "service_account" \
-          --arg project_id "${{ secrets.FIREBASE_PROJECT_ID }}" \
-          --rawfile private_key private_key.pem \
-          --arg client_email "${{ secrets.FIREBASE_CLIENT_EMAIL }}" \
-          '{
-            type: $type,
-            project_id: $project_id,
-            private_key_id: "",
-            private_key: $private_key,
-            client_email: $client_email,
-            client_id: "",
-            auth_uri: "https://accounts.google.com/o/oauth2/auth",
-            token_uri: "https://oauth2.googleapis.com/token",
-            auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-            client_x509_cert_url: ("https://www.googleapis.com/robot/v1/metadata/x509/" + $client_email)
-          }' > firebase-service-account.json
+        # Get environment variables
+        project_id = os.environ['PROJECT_ID']
+        private_key = os.environ['PRIVATE_KEY']
+        client_email = os.environ['CLIENT_EMAIL']
         
-        # Clean up temp file
-        rm private_key.pem
+        # Handle escaped newlines in private key
+        private_key = private_key.replace('\\n', '\n')
+        
+        # Create service account dictionary
+        service_account = {
+            "type": "service_account",
+            "project_id": project_id,
+            "private_key_id": "",
+            "private_key": private_key,
+            "client_email": client_email,
+            "client_id": "",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{client_email}"
+        }
+        
+        # Write to file
+        with open('firebase-service-account.json', 'w') as f:
+            json.dump(service_account, f, indent=2)
+        
+        print("Service account JSON created successfully")
+        EOF
         
         # Set up authentication
         export GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
         
+        # Verify the service account file exists and is valid
+        echo "Verifying service account file..."
+        if [ -f firebase-service-account.json ]; then
+          echo "✓ Service account file exists"
+          python3 -m json.tool firebase-service-account.json > /dev/null && echo "✓ Valid JSON format"
+        else
+          echo "✗ Service account file not found"
+          exit 1
+        fi
+        
         # Deploy
-        firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting,functions --non-interactive 
+        firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --only hosting,functions --non-interactive
+      env:
+        PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+        CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }} 
