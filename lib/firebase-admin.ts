@@ -12,10 +12,10 @@ function getServiceAccountConfig() {
     } as admin.ServiceAccount;
   }
   
-  // For development only, try to load from JSON file
-  if (process.env.NODE_ENV === 'development') {
-    try {
-      // Use dynamic require to avoid webpack bundling issues
+  // Fallback to local JSON when running outside managed hosts (e.g., local dev or self-hosted), regardless of NODE_ENV
+  try {
+    // Avoid reading local files on Vercel/managed build environments
+    if (!process.env.VERCEL) {
       const path = require('path');
       const fs = require('fs');
       const serviceAccountPath = path.join(process.cwd(), 'firebase-service-account.json');
@@ -24,29 +24,27 @@ function getServiceAccountConfig() {
         const serviceAccountData = fs.readFileSync(serviceAccountPath, 'utf8');
         return JSON.parse(serviceAccountData);
       }
-    } catch (error) {
-      console.warn('Firebase service account file not found in development');
     }
+  } catch (error) {
+    console.warn('Firebase service account file not found or unreadable');
   }
   
   // If neither works, throw error
   throw new Error(
     'Firebase service account configuration not found. ' +
     'Please set FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, and FIREBASE_PROJECT_ID environment variables, ' +
-    'or ensure firebase-service-account.json exists in the root directory for development.'
+    'or ensure firebase-service-account.json exists in the root directory.'
   );
 }
 
-// Check if we're in a build environment where Firebase Admin might not be needed
-const isBuildTime = process.env.NODE_ENV === 'production' && 
-                    (process.env.NEXT_PHASE === 'phase-production-build' || 
-                     process.env.VERCEL_ENV === 'preview' ||
-                     !process.env.FIREBASE_PRIVATE_KEY);
+// Only treat Next.js build phase explicitly as build-time
+const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
 
-let adminInitialized = false;
+// Consider already-initialized apps (e.g., hot reload or other modules)
+let adminInitialized = admin.apps.length > 0;
 
 // Initialize Firebase Admin only if not in build time and if we have the required config
-if (!isBuildTime && !admin.apps.length) {
+if (!isBuildTime && !adminInitialized) {
   try {
     const serviceAccount = getServiceAccountConfig();
     
@@ -77,11 +75,11 @@ if (!isBuildTime && !admin.apps.length) {
 }
 
 // Safe exports that handle uninitialized admin
-export const adminAuth = adminInitialized ? admin.auth() : null;
-export const adminDb = adminInitialized ? admin.firestore() : null;
+export const adminAuth = admin.apps.length ? admin.auth() : null;
+export const adminDb = admin.apps.length ? admin.firestore() : null;
 
 // Export the admin instance for advanced usage if needed
 export { admin };
 
 // Helper function to check if admin is ready
-export const isAdminReady = () => adminInitialized; 
+export const isAdminReady = () => admin.apps.length > 0; 

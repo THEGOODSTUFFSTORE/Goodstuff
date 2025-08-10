@@ -139,21 +139,23 @@ export default function RootLayout({
         </StoreProvider>
         
         {/* Service Worker Registration */}
-        <Script id="sw-registration" strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js', {
-                  scope: '/'
-                }).then(function(registration) {
-                  console.log('SW registered: ', registration);
-                }).catch(function(registrationError) {
-                  console.log('SW registration failed: ', registrationError);
+        {process.env.NODE_ENV === 'production' && (
+          <Script id="sw-registration" strategy="afterInteractive">
+            {`
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
+                  }).then(function(registration) {
+                    console.log('SW registered: ', registration);
+                  }).catch(function(registrationError) {
+                    console.log('SW registration failed: ', registrationError);
+                  });
                 });
-              });
-            }
-          `}
-        </Script>
+              }
+            `}
+          </Script>
+        )}
       </body>
     </html>
   );

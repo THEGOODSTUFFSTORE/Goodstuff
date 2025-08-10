@@ -169,7 +169,6 @@ export const getOrdersByUserServer = async (userId: string, userEmail?: string):
     // Get orders with matching userId
     const userOrdersSnapshot = await adminDb!.collection('orders')
       .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
       .get();
     
     userOrdersSnapshot.docs.forEach(doc => {
@@ -184,7 +183,6 @@ export const getOrdersByUserServer = async (userId: string, userEmail?: string):
       const guestOrdersSnapshot = await adminDb!.collection('orders')
         .where('userId', '==', 'guest')
         .where('userEmail', '==', userEmail)
-        .orderBy('createdAt', 'desc')
         .get();
       
       guestOrdersSnapshot.docs.forEach(doc => {
@@ -204,7 +202,7 @@ export const getOrdersByUserServer = async (userId: string, userEmail?: string):
     console.error('Error fetching user orders:', error);
     throw error;
   }
-}; 
+};
 
 // Reduce product inventory when order is paid
 export const reduceProductInventory = async (orderItems: any[]): Promise<void> => {

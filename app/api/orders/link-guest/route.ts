@@ -12,19 +12,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { userId } = await request.json();
-    const decodedToken = await adminAuth.verifySessionCookie(request.cookies.get('session')?.value || '');
-    
-    // Get the user's email
-    const user = await adminAuth.getUser(userId);
+    const sessionCookie = request.cookies.get('session')?.value || '';
+    const decodedToken = await adminAuth.verifySessionCookie(sessionCookie);
+
+    // Get the user's email from auth
+    const user = await adminAuth.getUser(decodedToken.uid);
     const userEmail = user.email;
-    
+
     if (!userEmail) {
       return NextResponse.json({ error: 'User email not found' }, { status: 400 });
     }
     
-    // Link guest orders to the user
-    const linkedCount = await linkGuestOrdersToUser(userEmail, userId);
+    // Link guest orders to the session user
+    const linkedCount = await linkGuestOrdersToUser(userEmail, decodedToken.uid);
     
     return NextResponse.json({ 
       success: true, 

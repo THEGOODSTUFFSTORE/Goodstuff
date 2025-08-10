@@ -314,6 +314,87 @@ export const getOrderStats = async (): Promise<{ totalOrders: number; totalReven
   }
 }; 
 
+// Get a limited number of most recent orders
+export const getRecentOrders = async (limitCount: number = 5): Promise<Order[]> => {
+  try {
+    const snapshot = await getDocs(
+      query(
+        collection(db, ORDERS_COLLECTION),
+        orderBy('createdAt', 'desc'),
+        limit(limitCount)
+      )
+    );
+    return snapshot.docs.map(convertOrderData);
+  } catch (error) {
+    console.error('Error fetching recent orders:', error);
+    return [];
+  }
+};
+
+export interface TopSellingProduct {
+  productId: string;
+  productName: string;
+  productImage: string;
+  soldQuantity: number;
+  revenue: number;
+}
+
+// Compute top-selling products from orders over a lookback window
+export const getTopSellingProducts = async (
+  limitCount: number = 5,
+  lookbackDays: number = 90
+): Promise<TopSellingProduct[]> => {
+  try {
+    const since = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000).toISOString();
+
+    // Fetch recent orders within the lookback window
+    const snapshot = await getDocs(
+      query(
+        collection(db, ORDERS_COLLECTION),
+        where('createdAt', '>=', since),
+        orderBy('createdAt', 'desc')
+      )
+    );
+
+    const orders = snapshot.docs.map(convertOrderData);
+
+    // Aggregate quantities and revenue by productId using order items
+    const productIdToTotals: Record<string, { name: string; image: string; qty: number; revenue: number }> = {};
+
+    for (const order of orders) {
+      for (const item of order.items || []) {
+        const key = item.productId;
+        if (!productIdToTotals[key]) {
+          productIdToTotals[key] = {
+            name: item.productName,
+            image: item.productImage,
+            qty: 0,
+            revenue: 0,
+          };
+        }
+        productIdToTotals[key].qty += item.quantity || 0;
+        productIdToTotals[key].revenue += (item.quantity || 0) * (item.priceAtOrder || 0);
+      }
+    }
+
+    const top = Object.entries(productIdToTotals)
+      .map(([productId, v]) => ({
+        productId,
+        productName: v.name,
+        productImage: v.image,
+        soldQuantity: v.qty,
+        revenue: v.revenue,
+      }))
+      .sort((a, b) => b.soldQuantity - a.soldQuantity)
+      .slice(0, limitCount);
+
+    return top;
+  } catch (error) {
+    console.error('Error computing top selling products:', error);
+    return [];
+  }
+};
+
 // Get all customers with their order data
 export const getCustomers = async (): Promise<Customer[]> => {
   try {

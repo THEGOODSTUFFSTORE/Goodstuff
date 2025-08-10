@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     // Get orders for this user (includes both user orders and linked guest orders)
     const orders = await getOrdersByUserServer(decodedToken.uid, userEmail);
     
-    return NextResponse.json(orders);
+    return NextResponse.json({ orders });
   } catch (error) {
     console.error('Error fetching user orders:', error);
     return NextResponse.json(

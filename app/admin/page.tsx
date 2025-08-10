@@ -16,7 +16,6 @@ import {
   Upload,
   TrendingUp,
   ShoppingCart,
-  DollarSign,
   LogOut,
   Mail,
   Phone,
@@ -33,7 +32,7 @@ import ProductForm from './components/ProductForm';
 import AdminAuth from './components/AdminAuth';
 import AdminSettings from './components/AdminSettings';
 import OrderDetailsModal from '../components/OrderDetailsModal';
-import { getProducts, deleteProduct, getOrderStats } from '@/lib/firebaseApi';
+import { getProducts, deleteProduct, getOrderStats, getRecentOrders, getTopSellingProducts, TopSellingProduct } from '@/lib/firebaseApi';
 import { Product, Customer, Order } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -42,7 +41,6 @@ import { LucideIcon } from 'lucide-react';
 interface AdminStats {
   totalProducts: number;
   totalOrders: number;
-  totalRevenue: number;
   monthlyGrowth: number;
 }
 
@@ -63,13 +61,14 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState<AdminStats>({
     totalProducts: 0,
     totalOrders: 0,
-    totalRevenue: 0,
     monthlyGrowth: 12.5
   });
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
   const [isCustomersLoading, setIsCustomersLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [topProducts, setTopProducts] = useState<TopSellingProduct[]>([]);
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
   const [isOrdersLoading, setIsOrdersLoading] = useState(true);
   const [selectedOrderStatus, setSelectedOrderStatus] = useState<string>('all');
@@ -283,11 +282,18 @@ const AdminDashboard = () => {
         // Fetch order stats
         const orderStats = await getOrderStats();
 
+        // Fetch dashboard lists
+        const [recent, top] = await Promise.all([
+          getRecentOrders(5),
+          getTopSellingProducts(5, 90),
+        ]);
+        setRecentOrders(recent);
+        setTopProducts(top);
+
         // Update stats
         setStats({
           totalProducts: fetchedProducts.length,
           totalOrders: orderStats.totalOrders,
-          totalRevenue: orderStats.totalRevenue,
           monthlyGrowth: 12.5
         });
       } catch (error) {
@@ -488,7 +494,7 @@ const AdminDashboard = () => {
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
         <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 transition-all duration-200 hover:shadow-md">
           <div className="flex items-center justify-between">
             <div>
@@ -513,17 +519,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 transition-all duration-200 hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-              <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">KES {stats.totalRevenue.toLocaleString()}</p>
-            </div>
-            <div className="p-2 md:p-3 bg-gray-50 rounded-xl">
-              <DollarSign className="h-5 w-5 md:h-6 md:w-6 text-gray-600" />
-            </div>
-          </div>
-        </div>
+        {/* Revenue card removed */}
       </div>
 
       {/* Recent Activity Section */}
@@ -543,7 +539,21 @@ const AdminDashboard = () => {
               </select>
             </div>
           </div>
-          {/* Chart content */}
+          <div className="space-y-3">
+            {recentOrders.length === 0 ? (
+              <div className="text-sm text-gray-500">No recent orders</div>
+            ) : (
+              recentOrders.map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">#{order.orderNumber || order.id}</div>
+                    <div className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleString()}</div>
+                  </div>
+                  <div className="text-sm font-medium text-gray-900">KES {order.totalAmount.toLocaleString()}</div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         {/* Top Products */}
@@ -561,7 +571,24 @@ const AdminDashboard = () => {
               </select>
             </div>
           </div>
-          {/* Products list */}
+          <div className="space-y-3">
+            {topProducts.length === 0 ? (
+              <div className="text-sm text-gray-500">No sales data</div>
+            ) : (
+              topProducts.map((p) => (
+                <div key={p.productId} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <img src={p.productImage || '/wine.webp'} alt={p.productName} className="h-10 w-10 rounded object-cover" />
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{p.productName}</div>
+                      <div className="text-xs text-gray-500">{p.soldQuantity} sold</div>
+                    </div>
+                  </div>
+                  <div className="text-sm font-medium text-gray-900">KES {p.revenue.toLocaleString()}</div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
