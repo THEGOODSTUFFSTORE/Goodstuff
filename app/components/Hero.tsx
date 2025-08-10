@@ -11,7 +11,7 @@ const Hero: React.FC<HeroProps> = ({
   return (
     <section className="relative w-full">
       <img
-        src={"/resize.jpg"}
+        src={"/Goodstuff store.png"}
         alt={alt}
         className="w-full h-auto object-cover"
         style={{ maxHeight: '600px' }}

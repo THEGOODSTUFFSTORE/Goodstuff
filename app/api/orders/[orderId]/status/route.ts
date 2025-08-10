@@ -46,7 +46,7 @@ export async function PATCH(
       );
     }
 
-    // Get the current order to send emails
+    // Get the current order to send notifications
     const orderDoc = await adminDb.collection('orders').doc(orderId).get();
     if (!orderDoc.exists) {
       return NextResponse.json(
@@ -70,13 +70,13 @@ export async function PATCH(
 
     await updateOrderServer(orderId, updateData);
 
-    // Send appropriate email notifications
+    // Send appropriate WhatsApp notifications
     if (status === 'shipped') {
-      sendOrderNotifications(orderData as any, 'shipped', trackingNumber).catch(error => {
+      sendOrderNotifications(orderData as any, 'shipped', trackingNumber).catch((error: unknown) => {
         console.error('Failed to send shipping notification:', error);
       });
     } else if (status === 'delivered' || status === 'completed') {
-      sendOrderNotifications(orderData as any, 'delivered').catch(error => {
+      sendOrderNotifications(orderData as any, 'delivered').catch((error: unknown) => {
         console.error('Failed to send delivery notification:', error);
       });
     }

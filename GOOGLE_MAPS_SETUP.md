@@ -34,7 +34,7 @@ Add your API key to your environment variables:
 
 ```bash
 # .env.local
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_api_key_here
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyBA414fQslLT0USRtFquDFexP6IyfjwIwM
 ```
 
 **Important**: The API key must be prefixed with `NEXT_PUBLIC_` to be accessible in the browser.

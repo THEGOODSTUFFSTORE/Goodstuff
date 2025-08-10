@@ -20,7 +20,7 @@ async function handleIPN(OrderTrackingId: string, OrderMerchantReference: string
   const paymentStatus = await pesapalApi.getTransactionStatus(OrderTrackingId);
   console.log('Payment status from Pesapal:', paymentStatus);
 
-  // Get current order data for email notifications
+  // Get current order data for notifications
   const orderDoc = await adminDb.collection('orders').doc(OrderMerchantReference).get();
   const orderData = orderDoc.exists ? { id: orderDoc.id, ...orderDoc.data() } : null;
 
@@ -62,14 +62,14 @@ async function handleIPN(OrderTrackingId: string, OrderMerchantReference: string
     }
   }
 
-  // Send email notifications for status changes
+  // Send WhatsApp notifications for status changes
   if (orderData) {
     try {
       if (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') {
         await sendOrderNotifications(orderData as any, 'paid');
         console.log('Payment confirmation emails sent via IPN');
       }
-    } catch (emailError) {
+          } catch (emailError) {
       console.error('Failed to send emails via IPN:', emailError);
       // Don't fail the IPN for email issues
     }

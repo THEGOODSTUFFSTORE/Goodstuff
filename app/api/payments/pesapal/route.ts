@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send order confirmation emails (async, don't wait for completion)
-    sendOrderNotifications(order, 'created').catch(error => {
+    sendOrderNotifications(order, 'created').catch((error: unknown) => {
       console.error('Failed to send order emails:', error);
     });
 

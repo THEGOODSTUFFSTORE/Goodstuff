@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const paymentStatus = await pesapalApi.getTransactionStatus(orderTrackingId);
     console.log('Payment status from Pesapal:', JSON.stringify(paymentStatus, null, 2));
 
-    // Get current order data for email notifications
+    // Get current order data for notifications
     console.log('Fetching order from database...');
     const orderDoc = await adminDb.collection('orders').doc(orderId).get();
     console.log('Order exists in database:', orderDoc.exists);
@@ -108,13 +108,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Send email notifications for successful payments
+    // Send WhatsApp notifications for successful payments
     if ((paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') && orderData) {
       try {
         console.log('Sending payment confirmation emails...');
         await sendOrderNotifications(orderData as any, 'paid');
         console.log('Payment confirmation emails sent');
-      } catch (emailError) {
+              } catch (emailError) {
         console.error('Failed to send payment confirmation emails:', emailError);
         // Don't fail the callback for email issues
       }

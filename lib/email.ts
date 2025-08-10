@@ -10,6 +10,9 @@ const emailConfig = {
   },
 };
 
+// Allow disabling all order emails via env
+const DISABLE_ORDER_EMAILS = (process.env.DISABLE_ORDER_EMAILS || '').toLowerCase() === 'true';
+
 // Create transporter
 const transporter = nodemailer.createTransport(emailConfig);
 
@@ -550,6 +553,11 @@ ${COMPANY_WEBSITE}
 // Email sending functions
 export const sendEmail = async (to: string, template: EmailTemplate): Promise<boolean> => {
   try {
+    if (DISABLE_ORDER_EMAILS) {
+      console.log(`Email disabled by DISABLE_ORDER_EMAILS. Skipping send to ${to} with subject: ${template.subject}`);
+      return true;
+    }
+
     const mailOptions = {
       from: `"${COMPANY_NAME}" <${FROM_EMAIL}>`,
       to,
@@ -595,6 +603,10 @@ export const sendPaymentConfirmationEmail = async (order: Order): Promise<boolea
 // Utility function to send multiple emails
 export const sendOrderNotifications = async (order: Order, type: 'created' | 'paid' | 'shipped' | 'delivered', trackingNumber?: string): Promise<void> => {
   try {
+    if (DISABLE_ORDER_EMAILS) {
+      console.log(`Emails disabled by DISABLE_ORDER_EMAILS. Skipping ${type} email notifications for order ${order.orderNumber || order.id}`);
+      return;
+    }
     switch (type) {
       case 'created':
         await Promise.all([
