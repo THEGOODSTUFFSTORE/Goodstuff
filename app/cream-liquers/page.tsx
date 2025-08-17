@@ -1,10 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { FaWineGlass } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import AddToBasketButton from '@/app/components/AddToBasketButton';
+import ProductImage from '@/app/components/ProductImage';
 import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
 
@@ -63,15 +63,12 @@ export default async function CreamLiqueursPage() {
             <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
               <Link href={`/products/${product.id}`} className="block">
                 <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
-                  <Image
+                  <ProductImage
                     src={product.productImage || '/wine.webp'}
                     alt={product.name}
                     width={150}
                     height={150}
-                    style={{ objectFit: 'contain' }}
-                    onError={(e: any) => {
-                      e.currentTarget.src = '/wine.webp';
-                    }}
+                    fallbackSrc="/wine.webp"
                   />
                 </div>
                 <div className="p-4">
