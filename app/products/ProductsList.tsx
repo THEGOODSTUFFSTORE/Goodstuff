@@ -16,11 +16,15 @@ const ProductsList = React.memo(() => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   // Memoize the fetch function to prevent unnecessary re-renders
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (loadMore = false) => {
     try {
-      setLoading(true);
+      if (!loadMore) setLoading(true);
+      else setLoadingMore(true);
+      
       const categoryParam = searchParams.get('category');
       const searchParam = searchParams.get('search');
       
@@ -29,22 +33,33 @@ const ProductsList = React.memo(() => {
       if (categoryParam && categoryParam !== 'all') {
         params.append('category', categoryParam);
       }
-      params.append('pageSize', '50'); // Limit initial load
+      // Remove the pageSize limit to fetch all products
+      // params.append('pageSize', '50'); // Removed this limit
       
       const response = await fetch(`/api/products?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch');
       const data: Product[] = await response.json();
       console.log('Fetched products data:', data);
-      setProducts(data);
+      
+      if (loadMore) {
+        setProducts(prev => [...prev, ...data]);
+      } else {
+        setProducts(data);
+      }
+      
+      // If we got fewer products than expected, we've reached the end
+      if (data.length < 1000) {
+        setHasMore(false);
+      }
       
       if (categoryParam) {
         setSelectedCategory(categoryParam);
       }
       
       // Apply search filtering if needed
-      let filtered = data;
+      let filtered = loadMore ? [...products, ...data] : data;
       if (searchParam) {
-        filtered = data.filter((product: Product) =>
+        filtered = filtered.filter((product: Product) =>
           product.name.toLowerCase().includes(searchParam.toLowerCase()) ||
           product.category.toLowerCase().includes(searchParam.toLowerCase()) ||
           product.subcategory?.toLowerCase().includes(searchParam.toLowerCase()) ||
@@ -56,16 +71,19 @@ const ProductsList = React.memo(() => {
       setFilteredProducts(filtered);
     } catch (error) {
       console.error('Error fetching products:', error);
-      setProducts([]);
-      setFilteredProducts([]);
+      if (!loadMore) {
+        setProducts([]);
+        setFilteredProducts([]);
+      }
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, [searchParams]);
+  }, [searchParams, products]);
 
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+  }, [searchParams]); // Remove fetchProducts from dependencies to avoid infinite loop
 
   const filterProducts = useCallback((productList: Product[], category: string) => {
     if (category === 'all') {
@@ -95,6 +113,10 @@ const ProductsList = React.memo(() => {
     e.stopPropagation();
     addToCart(product, 1);
   }, [addToCart]);
+
+  const handleLoadMore = useCallback(() => {
+    fetchProducts(true);
+  }, [fetchProducts]);
 
   // Memoize categories to prevent recalculation
   const categories = useMemo(() => 
@@ -181,7 +203,13 @@ const ProductsList = React.memo(() => {
               Our Products
             </h2>
             <p className="text-gray-600 text-sm md:text-base">
-              {loading ? 'Loading products...' : `${filteredProducts.length} products available`}
+              {loading ? 'Loading products...' : (
+                <>
+                  Showing {filteredProducts.length} products
+                  {selectedCategory !== 'all' && ` in ${selectedCategory}`}
+                  {!hasMore && filteredProducts.length > 0 && ' (All products loaded)'}
+                </>
+              )}
             </p>
           </div>
           
@@ -215,10 +243,26 @@ const ProductsList = React.memo(() => {
                 <>
                   {productGrid}
                   
+                  {/* Load More Button */}
+                  {hasMore && selectedCategory === 'all' && (
+                    <div className="mt-8 md:mt-12 text-center">
+                      <button
+                        onClick={handleLoadMore}
+                        disabled={loadingMore}
+                        className="bg-red-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:translate-y-[-1px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loadingMore ? 'Loading...' : 'Load More Products'}
+                      </button>
+                    </div>
+                  )}
+                  
                   {/* Results Count */}
                   <div className="mt-8 md:mt-12 text-center">
                     <p className="text-gray-600 text-sm md:text-base">
-                      Showing {filteredProducts.length} of {products.length} products
+                      {!hasMore && selectedCategory === 'all' 
+                        ? `All ${filteredProducts.length} products loaded` 
+                        : `Showing ${filteredProducts.length} products`
+                      }
                     </p>
                   </div>
                 </>

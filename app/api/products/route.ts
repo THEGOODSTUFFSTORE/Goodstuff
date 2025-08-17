@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const productId = searchParams.get('id');
     const type = searchParams.get('type'); // trending, popular, new_arrivals, wine, non-wine
     const category = searchParams.get('category');
-    const pageSize = parseInt(searchParams.get('pageSize') || '50');
+    const pageSize = parseInt(searchParams.get('pageSize') || '1000'); // Increased default from 50 to 1000
     
     // If ID is provided, fetch single product
     if (productId) {

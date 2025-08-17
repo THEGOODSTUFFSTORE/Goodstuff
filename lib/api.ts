@@ -35,7 +35,7 @@ const getProductImageUrl = (contentfulImage: any): string => {
 };
 
 // Optimized fetch all products with caching and pagination
-export async function getProducts(pageSize: number = 50, lastDoc?: QueryDocumentSnapshot): Promise<Product[]> {
+export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocumentSnapshot): Promise<Product[]> {
   try {
     const cacheKey = `products_${pageSize}_${lastDoc?.id || 'first'}`;
     const cached = getFromCache<Product[]>(cacheKey);
@@ -79,7 +79,7 @@ export async function getProducts(pageSize: number = 50, lastDoc?: QueryDocument
 }
 
 // Optimized fetch products by category with caching
-export async function getProductsByCategory(category: string, pageSize: number = 50): Promise<Product[]> {
+export async function getProductsByCategory(category: string, pageSize: number = 1000): Promise<Product[]> {
   try {
     const cacheKey = `products_category_${category}_${pageSize}`;
     const cached = getFromCache<Product[]>(cacheKey);
