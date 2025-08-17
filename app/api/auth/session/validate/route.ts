@@ -23,11 +23,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       valid: true,
       isAdmin: decodedToken.admin || false,
+      isSuperAdmin: (decodedToken as any).superadmin || false,
       user: {
         uid: userRecord.uid,
         email: userRecord.email,
         emailVerified: userRecord.emailVerified,
-        admin: decodedToken.admin || false
+        admin: decodedToken.admin || false,
+        superadmin: (decodedToken as any).superadmin || false
       }
     });
   } catch (error) {

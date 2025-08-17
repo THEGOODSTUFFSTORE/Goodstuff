@@ -17,9 +17,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify the session and check if the user is already an admin
+    // Verify the session and check if the user is a superadmin
     const decodedToken = await adminAuth.verifySessionCookie(session);
-    if (!decodedToken.admin) {
+    const isSuperAdmin = (decodedToken as any).superadmin === true;
+    if (!isSuperAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -60,9 +61,12 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Set admin claim
+    // Set admin claim (but not superadmin)
+    const existingClaims = user.customClaims || {};
     await adminAuth.setCustomUserClaims(user.uid, {
-      admin: true
+      ...existingClaims,
+      admin: true,
+      superadmin: existingClaims.superadmin === true ? true : false
     });
 
     return NextResponse.json({ 

@@ -11,7 +11,8 @@ const marketTypes = {
   'nicotine-pouches': ['mint', 'citrus', 'berry', 'original'],
   'vapes': ['disposable', 'pod-systems', 'e-liquids', 'accessories'],
   'lighters': ['torch-lighters', 'classic-lighters', 'premium-brands', 'accessories'],
-  'cigars': ['premium-cigars', 'cigarillos', 'humidors', 'cutters']
+  'cigars': ['premium-cigars', 'cigarillos', 'humidors', 'cutters'],
+  'soft-drinks': ['sodas', 'juices', 'energy-drinks', 'water']
 } as const;
 
 interface MarketTypePageProps {

@@ -24,9 +24,12 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Check if user has admin role
+    // Check if user has superadmin role via custom claims or fallback doc role
+    const user = await getAuth().getUser(decodedToken.uid);
+    const isSuperAdmin = (user.customClaims as any)?.superadmin === true;
     const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
-    if (!userDoc.exists || userDoc.data()?.role !== 'admin') {
+    const hasLegacyAdminDoc = userDoc.exists && userDoc.data()?.role === 'admin';
+    if (!isSuperAdmin && !hasLegacyAdminDoc) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }
@@ -86,9 +89,12 @@ export async function GET(req: NextRequest) {
       );
     }
     
-    // Check if user has admin role
+    // Check if user has superadmin role via custom claims or fallback doc role
+    const user = await getAuth().getUser(decodedToken.uid);
+    const isSuperAdmin = (user.customClaims as any)?.superadmin === true;
     const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
-    if (!userDoc.exists || userDoc.data()?.role !== 'admin') {
+    const hasLegacyAdminDoc = userDoc.exists && userDoc.data()?.role === 'admin';
+    if (!isSuperAdmin && !hasLegacyAdminDoc) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }

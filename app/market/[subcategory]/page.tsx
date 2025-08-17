@@ -38,6 +38,11 @@ const subcategoryInfo: { [key: string]: any } = {
     name: 'Cigars',
     description: 'Fine cigars and smoking accessories',
     color: 'from-amber-600 to-amber-800'
+  },
+  'soft-drinks': {
+    name: 'Soft Drinks',
+    description: 'Refreshing beverages and non-alcoholic drinks',
+    color: 'from-cyan-500 to-blue-600'
   }
 };
 

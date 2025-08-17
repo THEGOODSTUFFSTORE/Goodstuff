@@ -316,7 +316,10 @@ const AdminDashboard = () => {
           throw new Error('Failed to fetch customers');
         }
         const fetchedCustomers = await response.json();
-        setCustomers(fetchedCustomers);
+        const customersArray = Array.isArray(fetchedCustomers)
+          ? fetchedCustomers
+          : (fetchedCustomers.customers || []);
+        setCustomers(customersArray);
       } catch (error) {
         console.error('Error loading customers:', error);
       } finally {
@@ -431,7 +434,7 @@ const AdminDashboard = () => {
   const handleUpdateCustomerStatus = async (customerId: string, disabled: boolean) => {
     try {
       const response = await fetch(`/api/customers/${customerId}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -449,7 +452,10 @@ const AdminDashboard = () => {
           throw new Error('Failed to fetch customers');
         }
         const fetchedCustomers = await response.json();
-        setCustomers(fetchedCustomers);
+        const customersArray = Array.isArray(fetchedCustomers)
+          ? fetchedCustomers
+          : (fetchedCustomers.customers || []);
+        setCustomers(customersArray);
       }
     } catch (error) {
       console.error('Error updating customer status:', error);
@@ -854,11 +860,13 @@ const AdminDashboard = () => {
   );
 
   const renderCustomers = () => {
-    const filteredCustomers = customers.filter(customer => 
-      customer.name.toLowerCase().includes(customerSearchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(customerSearchTerm.toLowerCase()) ||
-      customer.phone.includes(customerSearchTerm)
-    );
+    const filteredCustomers = customers.filter((customer: any) => {
+      const name = (customer.name || customer.displayName || '').toLowerCase();
+      const email = (customer.email || '').toLowerCase();
+      const phone = (customer.phone || customer.phoneNumber || '');
+      const term = customerSearchTerm.toLowerCase();
+      return name.includes(term) || email.includes(term) || phone.includes(customerSearchTerm);
+    });
 
     return (
       <div className="space-y-6">
@@ -921,47 +929,58 @@ const AdminDashboard = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredCustomers.map((customer) => (
+                  filteredCustomers.map((customer: any) => (
                     <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
                             <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                               <span className="text-sm font-medium text-gray-600">
-                                {customer.name.split(' ').map(n => n[0]).join('')}
+                                {(customer.displayName || customer.name || customer.email || 'U')
+                                  .toString()
+                                  .split(' ')
+                                  .map((n: string) => n[0])
+                                  .join('')}
                               </span>
                             </div>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                            <div className="text-sm text-gray-500">Joined {new Date(customer.joinDate).toLocaleDateString()}</div>
+                            <div className="text-sm font-medium text-gray-900">{customer.displayName || customer.name || customer.email || 'User'}</div>
+                            <div className="text-sm text-gray-500">Joined {new Date(customer.creationTime || customer.joinDate || Date.now()).toLocaleDateString()}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{customer.email}</div>
-                        <div className="text-sm text-gray-500">{customer.phone}</div>
+                        <div className="text-sm text-gray-500">{customer.phone || customer.phoneNumber || '-'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{customer.totalOrders} orders</div>
+                        <div className="text-sm text-gray-900">{customer.totalOrders || 0} orders</div>
                         {customer.lastOrder && (
                           <div className="text-sm text-gray-500">Last order {new Date(customer.lastOrder).toLocaleDateString()}</div>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">KES {customer.totalSpent.toLocaleString()}</div>
+                        <div className="text-sm font-medium text-gray-900">KES {(customer.totalSpent || 0).toLocaleString()}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span 
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
-                            customer.status === 'active' 
-                              ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                              : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                          }`}
-                          onClick={() => handleUpdateCustomerStatus(customer.id, customer.status === 'active')}
-                        >
-                          {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
-                        </span>
+                        {(() => {
+                          const isDisabled = customer.disabled === true ? true : (customer.status ? customer.status !== 'active' : false);
+                          const statusLabel = isDisabled ? 'Inactive' : 'Active';
+                          const userId = customer.uid || customer.id;
+                          return (
+                            <span 
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
+                                !isDisabled 
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                              }`}
+                              onClick={() => handleUpdateCustomerStatus(userId, !isDisabled)}
+                            >
+                              {statusLabel}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button className="text-gray-400 hover:text-gray-600">

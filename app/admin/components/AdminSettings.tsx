@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Save, Bell, ShoppingCart, Shield, Users } from 'lucide-react';
+import { Save, ShoppingCart, Shield, Users } from 'lucide-react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
@@ -18,11 +18,15 @@ const AdminSettings = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetStatus, setResetStatus] = useState({ error: '', success: '' });
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   // User Management state
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+  const [sessionsError, setSessionsError] = useState('');
+  const [adminSessions, setAdminSessions] = useState<any[]>([]);
   const [settings, setSettings] = useState({
     orders: {
       minimumOrderAmount: 0,
@@ -78,6 +82,7 @@ const AdminSettings = () => {
           
           if (data.isAdmin) {
             setIsAdmin(true);
+            setIsSuperAdmin(!!data.isSuperAdmin);
             setAuthError('');
           } else {
             setAuthError('You do not have admin privileges. Please contact your administrator.');
@@ -100,7 +105,6 @@ const AdminSettings = () => {
 
   const sections: SettingsSection[] = [
     { id: 'orders', title: 'Order Settings', icon: ShoppingCart },
-    { id: 'notifications', title: 'Notifications', icon: Bell },
     { id: 'users', title: 'User Management', icon: Users },
     { id: 'security', title: 'Security', icon: Shield },
   ];
@@ -282,102 +286,58 @@ const AdminSettings = () => {
     </div>
   );
 
-  const renderNotificationSettings = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Low Stock Alerts</label>
-            <p className="text-sm text-gray-500">Get notified when products are running low</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.notifications.lowStockAlerts}
-            onChange={(e) => handleInputChange('notifications', 'lowStockAlerts', e.target.checked)}
-            className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">New Order Notifications</label>
-            <p className="text-sm text-gray-500">Receive alerts for new orders</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.notifications.newOrderNotifications}
-            onChange={(e) => handleInputChange('notifications', 'newOrderNotifications', e.target.checked)}
-            className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Order Status Updates</label>
-            <p className="text-sm text-gray-500">Get notified when order status changes</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.notifications.orderStatusUpdates}
-            onChange={(e) => handleInputChange('notifications', 'orderStatusUpdates', e.target.checked)}
-            className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email Notifications</label>
-            <p className="text-sm text-gray-500">Receive notifications via email</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.notifications.emailNotifications}
-            onChange={(e) => handleInputChange('notifications', 'emailNotifications', e.target.checked)}
-            className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-          />
-        </div>
-      </div>
-    </div>
-  );
+  
 
   const renderUserSettings = () => (
       <div className="space-y-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Create Admin User</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Grant admin privileges to a user. If the email doesn't exist, a new user account will be created with a temporary password.
-          </p>
-          <form onSubmit={handleCreateAdmin} className="space-y-4">
-            <div>
-              <label htmlFor="adminEmail" className="block text-sm font-medium text-gray-700">
-                Admin Email
-              </label>
-              <input
-                type="email"
-                id="adminEmail"
-                value={newAdminEmail}
-                onChange={(e) => setNewAdminEmail(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
-                placeholder="Enter email address"
-                required
-              />
-            </div>
-            {error && (
-              <div className="text-red-600 text-sm">
-                {error}
+        {isSuperAdmin ? (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Create Admin User</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Grant admin privileges to a user. If the email doesn't exist, a new user account will be created with a temporary password.
+            </p>
+            <form onSubmit={handleCreateAdmin} className="space-y-4">
+              <div>
+                <label htmlFor="adminEmail" className="block text-sm font-medium text-gray-700">
+                  Admin Email
+                </label>
+                <input
+                  type="email"
+                  id="adminEmail"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
+                  placeholder="Enter email address"
+                  required
+                />
               </div>
-            )}
-            {success && (
-              <div className="text-green-600 text-sm">
-                {success}
-              </div>
-            )}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-            >
-              {isSubmitting ? 'Creating...' : 'Create Admin User'}
-            </button>
-          </form>
-        </div>
+              {error && (
+                <div className="text-red-600 text-sm">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="text-green-600 text-sm">
+                  {success}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+              >
+                {isSubmitting ? 'Creating...' : 'Create Admin User'}
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Admin Management</h3>
+            <p className="text-sm text-gray-600">
+              Only the main admin can assign new admins. Contact your superadmin to request changes.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -528,6 +488,67 @@ const AdminSettings = () => {
             </button>
           </form>
         </div>
+
+        {/* Admin Sessions (Superadmin only) */}
+        {isSuperAdmin && (
+          <div className="mt-8 p-6 bg-white rounded-lg shadow">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Recent Admin Sessions</h3>
+              <button
+                onClick={async () => {
+                  setIsLoadingSessions(true);
+                  setSessionsError('');
+                  try {
+                    const res = await fetch('/api/admin/sessions');
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Failed to load sessions');
+                    setAdminSessions(data.sessions || []);
+                  } catch (e: any) {
+                    setSessionsError(e.message || 'Failed to load sessions');
+                  } finally {
+                    setIsLoadingSessions(false);
+                  }
+                }}
+                className="px-3 py-1.5 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800"
+              >
+                {isLoadingSessions ? 'Loading...' : 'Refresh'}
+              </button>
+            </div>
+            {sessionsError && (
+              <div className="text-sm text-red-600 mb-2">{sessionsError}</div>
+            )}
+            {adminSessions.length === 0 ? (
+              <div className="text-sm text-gray-500">No sessions to display</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Agent</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {adminSessions.map((s) => (
+                      <tr key={s.id}>
+                        <td className="px-4 py-2 text-sm text-gray-900">{s.uid}</td>
+                        <td className="px-4 py-2 text-sm text-gray-900">{s.email || '-'}</td>
+                        <td className="px-4 py-2 text-sm text-gray-900">{s.ip || '-'}</td>
+                        <td className="px-4 py-2 text-sm text-gray-900 truncate max-w-[16rem]" title={s.userAgent}>{s.userAgent || '-'}</td>
+                        <td className="px-4 py-2 text-sm text-gray-900">{s.createdAt ? new Date(s.createdAt).toLocaleString() : '-'}</td>
+                        <td className="px-4 py-2 text-sm text-gray-900">{s.type || 'login'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -536,8 +557,6 @@ const AdminSettings = () => {
     switch (activeSection) {
       case 'orders':
         return renderOrderSettings();
-      case 'notifications':
-        return renderNotificationSettings();
       case 'users':
         return renderUserSettings();
       case 'security':

@@ -103,8 +103,11 @@ export default function Footer() {
                 { name: 'Wine', href: '/wine' },
                 { name: 'Spirits', href: '/spirit' },
                 { name: 'Beer', href: '/beer' },
+                { name: 'Rum', href: '/rum' },
+                { name: 'Tequila', href: '/tequila' },
+                { name: 'Gin', href: '/gin' },
                 { name: 'Mixers', href: '/mixers' },
-                { name: 'Gifts', href: '/gifts' }
+                { name: 'Market', href: '/market' }
               ].map((category) => (
                 <li key={category.name}>
                   <Link 

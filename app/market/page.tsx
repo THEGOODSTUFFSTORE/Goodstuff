@@ -45,6 +45,14 @@ const marketSubcategories = [
     color: 'from-amber-600 to-amber-800',
     image: '/cigar.jpg',
     types: ['Premium Cigars', 'Cigarillos', 'Humidors', 'Cutters']
+  },
+  {
+    id: 'soft-drinks',
+    name: 'Soft Drinks',
+    description: 'Refreshing beverages and non-alcoholic drinks',
+    color: 'from-cyan-500 to-blue-600',
+    image: '/hero.jpg',
+    types: ['Sodas', 'Juices', 'Energy Drinks', 'Water']
   }
 ];
 

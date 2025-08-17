@@ -6,73 +6,73 @@ export default function CategoryGrid() {
       name: 'Wine',
       image: '🍷',
       gradient: 'from-red-500 to-red-300',
-      href: '/category/wine'
+      href: '/wine'
     },
     {
       name: 'Gin',
       image: '🍸',
       gradient: 'from-orange-500 to-orange-300',
-      href: '/category/gin'
+      href: '/gin'
     },
     {
       name: 'Whisky',
       image: '🥃',
       gradient: 'from-amber-600 to-yellow-400',
-      href: '/category/whisky'
+      href: '/bourbon'
     },
     {
       name: 'Vodka',
       image: '🍾',
       gradient: 'from-lime-500 to-yellow-300',
-      href: '/category/vodka'
+      href: '/vodka'
     },
     {
       name: 'Beer',
       image: '🍺',
       gradient: 'from-green-500 to-green-300',
-      href: '/category/beer'
-    },
-    {
-      name: 'Brandy',
-      image: '🥃',
-      gradient: 'from-amber-500 to-amber-200',
-      href: '/category/brandy'
-    },
-    {
-      name: 'Tequila',
-      image: '🍹',
-      gradient: 'from-yellow-500 to-orange-300',
-      href: '/category/tequila'
+      href: '/beer'
     },
     {
       name: 'Rum',
       image: '🥃',
       gradient: 'from-amber-600 to-yellow-400',
-      href: '/category/rum'
+      href: '/rum'
     },
     {
-      name: 'Liqueur',
+      name: 'Tequila',
+      image: '🍹',
+      gradient: 'from-yellow-500 to-orange-300',
+      href: '/tequila'
+    },
+    {
+      name: 'Cider',
+      image: '🍺',
+      gradient: 'from-green-400 to-yellow-300',
+      href: '/cider'
+    },
+    {
+      name: 'Cognac',
+      image: '🥃',
+      gradient: 'from-amber-700 to-orange-600',
+      href: '/cognac'
+    },
+    {
+      name: 'Cream Liquers',
       image: '🍷',
       gradient: 'from-purple-500 to-pink-400',
-      href: '/category/liqueur'
-    },
-    {
-      name: 'Sparkling',
-      image: '🍾',
-      gradient: 'from-yellow-500 to-amber-300',
-      href: '/category/sparkling'
+      href: '/cream-liquers'
     },
     {
       name: 'Mixers',
       image: '🍸',
       gradient: 'from-teal-400 to-cyan-300',
-      href: '/category/mixers'
+      href: '/mixers'
     },
     {
-      name: 'Snacks',
-      image: '🍿',
-      gradient: 'from-yellow-400 to-pink-300',
-      href: '/category/snacks'
+      name: 'Market',
+      image: '🛒',
+      gradient: 'from-blue-500 to-green-500',
+      href: '/market'
     }
   ];
 

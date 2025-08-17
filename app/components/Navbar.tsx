@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useCartStore, useUserStore } from '@/lib/store';
 import { ShoppingBag, User } from 'lucide-react';
 
-type DropdownCategory = 'wine' | 'spirits' | 'beer' | 'gin' | 'bourbon' | 'vodka' | 'cream-liquers' | 'market';
+type DropdownCategory = 'wine' | 'spirits' | 'beer' | 'gin' | 'bourbon' | 'vodka' | 'rum' | 'tequila' | 'cider' | 'cognac' | 'cream-liquers' | 'market';
 
 const Navbar = () => {
   const { totalItems } = useCartStore();
@@ -20,6 +20,10 @@ const Navbar = () => {
     gin: false,
     bourbon: false,
     vodka: false,
+    rum: false,
+    tequila: false,
+    cider: false,
+    cognac: false,
     'cream-liquers': false,
     market: false
   });
@@ -70,15 +74,35 @@ const Navbar = () => {
       key: 'gin' as DropdownCategory,
       href: '/gin',
     },
-          {
-        name: 'Whisky',
-        key: 'bourbon' as DropdownCategory,
-        href: '/bourbon',
-      },
+    {
+      name: 'Whisky',
+      key: 'bourbon' as DropdownCategory,
+      href: '/bourbon',
+    },
     {
       name: 'Vodka',
       key: 'vodka' as DropdownCategory,
       href: '/vodka',
+    },
+    {
+      name: 'Rum',
+      key: 'rum' as DropdownCategory,
+      href: '/rum',
+    },
+    {
+      name: 'Tequila',
+      key: 'tequila' as DropdownCategory,
+      href: '/tequila',
+    },
+    {
+      name: 'Cider',
+      key: 'cider' as DropdownCategory,
+      href: '/cider',
+    },
+    {
+      name: 'Cognac',
+      key: 'cognac' as DropdownCategory,
+      href: '/cognac',
     },
     {
       name: 'Cream Liquers',
@@ -94,7 +118,8 @@ const Navbar = () => {
         { name: 'Nicotine pouches', href: '/market/nicotine-pouches' },
         { name: 'Vapes', href: '/market/vapes' },
         { name: 'Lighters', href: '/market/lighters' },
-        { name: 'Cigars', href: '/market/cigars' }
+        { name: 'Cigars', href: '/market/cigars' },
+        { name: 'Soft Drinks', href: '/market/soft-drinks' }
       ]
     },
   ];

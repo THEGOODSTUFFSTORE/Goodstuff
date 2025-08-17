@@ -28,7 +28,39 @@ const categories = [
     description: 'Premium spirits and exotic liqueurs',
     icon: <GiBottleCap className="w-12 h-12" />,
     color: 'from-blue-500 to-blue-600',
-    subcategories: ['Vodka', 'Gin', 'Rum', 'Tequila', 'Liqueurs']
+    subcategories: ['Vodka', 'Gin', 'Liqueurs']
+  },
+  {
+    id: 'rum',
+    name: 'Rum',
+    description: 'Premium rums from the Caribbean and beyond',
+    icon: <GiBottleCap className="w-12 h-12" />,
+    color: 'from-amber-600 to-yellow-500',
+    subcategories: ['White Rum', 'Dark Rum', 'Spiced Rum', 'Premium Aged']
+  },
+  {
+    id: 'tequila',
+    name: 'Tequila',
+    description: 'Authentic Mexican tequilas and mezcals',
+    icon: <GiMartini className="w-12 h-12" />,
+    color: 'from-yellow-500 to-orange-400',
+    subcategories: ['Blanco', 'Reposado', 'Añejo', 'Mezcal']
+  },
+  {
+    id: 'cider',
+    name: 'Cider',
+    description: 'Refreshing apple ciders and fruit beverages',
+    icon: <GiBottleCap className="w-12 h-12" />,
+    color: 'from-green-400 to-yellow-300',
+    subcategories: ['Traditional Cider', 'Flavored Cider', 'Sparkling Cider']
+  },
+  {
+    id: 'cognac',
+    name: 'Cognac',
+    description: 'Exceptional French cognacs and brandies',
+    icon: <GiWineBottle className="w-12 h-12" />,
+    color: 'from-amber-700 to-orange-600',
+    subcategories: ['VS', 'VSOP', 'XO', 'Premium Blends']
   },
   {
     id: 'beer',
@@ -39,20 +71,12 @@ const categories = [
     subcategories: ['Lager', 'IPA', 'Stout', 'Pilsner', 'Wheat Beer']
   },
   {
-    id: 'champagne',
-    name: 'Champagne & Sparkling',
-    description: 'Celebrate with premium bubbles',
-    icon: <FaGlassCheers className="w-12 h-12" />,
-    color: 'from-purple-500 to-purple-600',
-    subcategories: ['Champagne', 'Prosecco', 'Cava', 'Sparkling Wine', 'Moscato']
-  },
-  {
-    id: 'cocktails',
-    name: 'Cocktail Essentials',
-    description: 'Everything for the perfect cocktail',
-    icon: <GiMartini className="w-12 h-12" />,
-    color: 'from-green-500 to-green-600',
-    subcategories: ['Mixers', 'Bitters', 'Syrups', 'Garnishes', 'Bar Tools']
+    id: 'market',
+    name: 'Market',
+    description: 'Diverse selection of specialty products',
+    icon: <GiCampfire className="w-12 h-12" />,
+    color: 'from-blue-500 to-green-500',
+    subcategories: ['Merchandise', 'Nicotine Pouches', 'Vapes', 'Lighters', 'Cigars', 'Soft Drinks']
   }
 ];
 

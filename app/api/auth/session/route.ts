@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       isAdmin: customClaims.admin || false,
+      isSuperAdmin: customClaims.superadmin || false,
       user: {
         uid: user.uid,
         email: user.email,
@@ -55,6 +56,27 @@ export async function POST(request: NextRequest) {
       path: '/'
     });
 
+    // Track admin login sessions (only when enabled by settings)
+    try {
+      if ((customClaims.admin || customClaims.superadmin) && (process.env.TRACK_ADMIN_LOGINS === 'true')) {
+        const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+        const ua = request.headers.get('user-agent') || 'unknown';
+        const { adminDb } = await import('@/lib/firebase-admin');
+        if (adminDb) {
+          await adminDb.collection('admin_sessions').add({
+            uid: user.uid,
+            email: user.email,
+            createdAt: new Date().toISOString(),
+            ip,
+            userAgent: ua,
+            type: 'login'
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to log admin session', e);
+    }
+
     return response;
   } catch (error: any) {
     console.error('Session creation error:', error);
@@ -70,6 +92,7 @@ export async function DELETE() {
     // Create response and clear the cookie
     const response = NextResponse.json({ status: 'success' }, { status: 200 });
     response.cookies.delete('session');
+    // Best-effort logout tracking is handled client-side by clearing session; server log optional
     return response;
   } catch (error) {
     console.error('Session deletion error:', error);

@@ -86,6 +86,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
     { value: 'gin', label: 'Gin' },
     { value: 'bourbon', label: 'Whisky' },
     { value: 'vodka', label: 'Vodka' },
+    { value: 'rum', label: 'Rum' },
+    { value: 'tequila', label: 'Tequila' },
+    { value: 'cider', label: 'Cider' },
+    { value: 'cognac', label: 'Cognac' },
     { value: 'cream-liquers', label: 'Cream Liquers' },
     { value: 'market', label: 'Market' },
   ];
@@ -105,7 +109,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
       { id: 'nicotine-pouches', name: 'Nicotine pouches' },
       { id: 'vapes', name: 'Vapes' },
       { id: 'lighters', name: 'Lighters' },
-      { id: 'cigars', name: 'Cigars' }
+      { id: 'cigars', name: 'Cigars' },
+      { id: 'soft-drinks', name: 'Soft Drinks' }
     ]
   };
 
