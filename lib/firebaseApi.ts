@@ -68,6 +68,13 @@ const convertOrderData = (doc: any): Order => {
     trackingNumber: data.trackingNumber,
     pesapalOrderTrackingId: data.pesapalOrderTrackingId,
     pesapalPaymentStatus: data.pesapalPaymentStatus,
+    adminNote: data.adminNote,
+    lastSyncAt: data.lastSyncAt,
+    callbackProcessedAt: data.callbackProcessedAt,
+    linkedToUser: data.linkedToUser,
+    linkedAt: data.linkedAt,
+    inventoryReduced: data.inventoryReduced,
+    inventoryReducedAt: data.inventoryReducedAt,
   };
 };
 

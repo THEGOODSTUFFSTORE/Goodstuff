@@ -146,21 +146,52 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, isOpen, on
                 Shipping Address
               </h3>
               <div className="space-y-2">
-                <p className="text-gray-900">
-                  <span className="font-medium">City:</span> {order.shippingAddress.city}
-                </p>
-                <p className="text-gray-900">
-                  <span className="font-medium">Area:</span> {order.shippingAddress.area}
-                </p>
+                {/* Show GPS-based delivery address if available */}
+                {order.shippingAddress.deliveryAddress && (
+                  <p className="text-gray-900">
+                    <span className="font-medium">Delivery Address:</span> {order.shippingAddress.deliveryAddress}
+                  </p>
+                )}
+                
+                {/* Show GPS coordinates if available */}
+                {order.shippingAddress.latitude && order.shippingAddress.longitude && (
+                  <p className="text-gray-900">
+                    <span className="font-medium">GPS Coordinates:</span> {order.shippingAddress.latitude.toFixed(6)}, {order.shippingAddress.longitude.toFixed(6)}
+                  </p>
+                )}
+                
+                {/* Show distance if available */}
+                {order.shippingAddress.distance && (
+                  <p className="text-gray-900">
+                    <span className="font-medium">Distance from Store:</span> {order.shippingAddress.distance.toFixed(2)} km
+                  </p>
+                )}
+                
+                {/* Fallback to structured address fields if available */}
+                {order.shippingAddress.city && (
+                  <p className="text-gray-900">
+                    <span className="font-medium">City:</span> {order.shippingAddress.city}
+                  </p>
+                )}
+                {order.shippingAddress.area && (
+                  <p className="text-gray-900">
+                    <span className="font-medium">Area:</span> {order.shippingAddress.area}
+                  </p>
+                )}
                 {order.shippingAddress.exactLocation && (
                   <p className="text-gray-900">
-                    <span className="font-medium">Location:</span> {order.shippingAddress.exactLocation}
+                    <span className="font-medium">Exact Location:</span> {order.shippingAddress.exactLocation}
                   </p>
                 )}
                 {order.shippingAddress.customLocation && (
                   <p className="text-gray-900">
                     <span className="font-medium">Custom Location:</span> {order.shippingAddress.customLocation}
                   </p>
+                )}
+                
+                {/* If no address info is available, show a message */}
+                {!order.shippingAddress.deliveryAddress && !order.shippingAddress.city && (
+                  <p className="text-gray-500 italic">No detailed address information available</p>
                 )}
               </div>
             </div>

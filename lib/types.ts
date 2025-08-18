@@ -72,10 +72,14 @@ export interface Order {
     name: string;
     email: string;
     phone: string;
-    city: string;
-    area: string;
-    exactLocation: string;
-    customLocation: string;
+    city?: string;
+    area?: string;
+    exactLocation?: string;
+    customLocation?: string;
+    latitude?: number;
+    longitude?: number;
+    deliveryAddress?: string;
+    distance?: number;
   };
   paymentMethod?: string;
   paymentStatus?: 'pending' | 'paid' | 'failed';
