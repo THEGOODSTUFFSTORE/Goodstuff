@@ -104,7 +104,6 @@ export default function SearchSection() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Find Your Perfect Drink</h2>
-            <p className="text-lg text-gray-600">Search through our extensive collection of premium wines, spirits, and more</p>
           </div>
           
           <div className="relative">

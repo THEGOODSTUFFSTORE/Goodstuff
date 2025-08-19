@@ -70,7 +70,7 @@ export default function AgeVerificationModal() {
         {!denied ? (
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Are you 18 years or older?</h2>
-            <p className="text-sm text-gray-600 mb-6">You must be of legal drinking age to enter this site.</p>
+            <p className="text-sm text-gray-600 mb-6">You must be of legal drinking age to access this site.</p>
             <div className="flex gap-3">
               <button
                 onClick={handleAccept}
