@@ -4,6 +4,7 @@ import { FaArrowLeft } from 'react-icons/fa';
 import { GiBottleCap } from 'react-icons/gi';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import ProductImage from '@/app/components/ProductImage';
 import { getProductsByCategory } from '@/lib/api';
 
 export default async function RumPage() {
@@ -61,11 +62,14 @@ export default async function RumPage() {
               <Link key={product.id} href={`/products/${product.id}`}>
                 <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
                   {/* Product Image */}
-                  <div className="aspect-square overflow-hidden bg-gray-100">
-                    <img 
-                      src={product.productImage || '/placeholder.jpg'}
+                  <div className="aspect-square overflow-hidden bg-gray-100 flex items-center justify-center">
+                    <ProductImage
+                      src={product.productImage || '/wine.webp'}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      width={200}
+                      height={200}
+                      className="group-hover:scale-110 transition-transform duration-500"
+                      style={{ objectFit: 'contain' }}
                     />
                   </div>
                   
@@ -79,7 +83,7 @@ export default async function RumPage() {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-amber-600">
-                        ${product.price}
+                        Ksh {product.price.toLocaleString()}/-
                       </span>
                       <span className="text-sm text-gray-500">
                         {product.volume}

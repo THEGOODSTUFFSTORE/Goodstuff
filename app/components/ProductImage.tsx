@@ -1,40 +1,51 @@
-'use client';
-
+'use client'
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useState } from 'react';
 
 interface ProductImageProps {
   src: string;
   alt: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   className?: string;
-  fallbackSrc?: string;
+  style?: React.CSSProperties;
 }
 
-export default function ProductImage({ 
-  src, 
-  alt, 
-  width, 
-  height, 
+const ProductImage = React.memo(function ProductImage({
+  src,
+  alt,
+  width = 150,
+  height = 150,
   className = '',
-  fallbackSrc = '/wine.webp'
+  style = { objectFit: 'contain' }
 }: ProductImageProps) {
   const [imageSrc, setImageSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setImageSrc(src);
+    setHasError(false);
+  }, [src]);
 
   const handleError = () => {
-    setImageSrc(fallbackSrc);
+    if (!hasError) {
+      setImageSrc('/wine.webp');
+      setHasError(true);
+    }
   };
 
   return (
     <Image
-      src={imageSrc || fallbackSrc}
+      src={imageSrc}
       alt={alt}
       width={width}
       height={height}
       className={className}
-      style={{ objectFit: 'contain' }}
+      style={style}
       onError={handleError}
+      priority={false}
     />
   );
-} 
+});
+
+export default ProductImage;

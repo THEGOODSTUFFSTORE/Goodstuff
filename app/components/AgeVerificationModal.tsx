@@ -17,10 +17,14 @@ export default function AgeVerificationModal() {
         : null;
       if (stored === 'true') {
         setShowPrompt(false);
-      } else if (stored === 'denied') {
-        setDenied(true);
-        setShowPrompt(false);
       } else {
+        // Clear any old 'denied' values from localStorage to fix the issue
+        // where users were permanently blocked
+        if (stored === 'denied') {
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
+        // If not verified or denied was stored before, show the prompt again
+        // This gives users a fresh chance each visit
         setShowPrompt(true);
       }
     } catch {
@@ -51,9 +55,8 @@ export default function AgeVerificationModal() {
   };
 
   const handleDeny = () => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, 'denied');
-    } catch {}
+    // Don't persist the denial - just show denied state for this session
+    // This allows users to try again when they visit the site again
     setDenied(true);
     setShowPrompt(false);
   };
@@ -87,12 +90,23 @@ export default function AgeVerificationModal() {
           <div className="text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Access denied</h2>
             <p className="text-sm text-gray-600 mb-6">Sorry, you must be at least 18 years old to use this site.</p>
-            <a
-              href="https://www.google.com"
-              className="inline-block rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300"
-            >
-              Leave site
-            </a>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => {
+                  setDenied(false);
+                  setShowPrompt(true);
+                }}
+                className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+              >
+                Try Again
+              </button>
+              <a
+                href="https://www.google.com"
+                className="inline-block rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300"
+              >
+                Leave site
+              </a>
+            </div>
           </div>
         )}
       </div>

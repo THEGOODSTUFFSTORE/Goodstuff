@@ -1,11 +1,10 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { FaBeer } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import AddToBasketButton from '@/app/components/AddToBasketButton';
+import ProductImage from '@/app/components/ProductImage';
 import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
 
@@ -61,43 +60,32 @@ export default async function BeerPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {beerProducts.map((product: Product) => (
-            <Link 
-              key={product.id} 
-              href={`/products/${product.id}`}
-              className="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105"
-            >
-              <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
-                <Image
-                  src={product.productImage || '/wine.webp'}
-                  alt={product.name}
-                  width={150}
-                  height={150}
-                  style={{ objectFit: 'contain' }}
-                  onError={(e: any) => {
-                    e.currentTarget.src = '/wine.webp';
-                  }}
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
-                  {product.name}
-                </h3>
-                <div className="flex items-baseline mt-2">
-                  <span className="text-xl font-bold text-[#A76545]">
-                    Ksh {product.price.toLocaleString()}/-
-                  </span>
+            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+              <Link href={`/products/${product.id}`} className="block">
+                <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
+                  <ProductImage
+                    src={product.productImage || '/wine.webp'}
+                    alt={product.name}
+                    width={150}
+                    height={150}
+                    style={{ objectFit: 'contain' }}
+                  />
                 </div>
-                <button 
-                  className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    // Add to cart functionality will be handled by the cart store
-                  }}
-                >
-                  Add to basket
-                </button>
+                <div className="p-4">
+                  <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
+                    {product.name}
+                  </h3>
+                  <div className="flex items-baseline mt-2">
+                    <span className="text-xl font-bold text-[#A76545]">
+                      Ksh {product.price.toLocaleString()}/-
+                    </span>
+                  </div>
+                </div>
+              </Link>
+              <div className="px-4 pb-4">
+                <AddToBasketButton productId={product.id} />
               </div>
-            </Link>
+            </div>
           ))}
         </div>
 

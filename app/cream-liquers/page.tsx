@@ -68,7 +68,7 @@ export default async function CreamLiqueursPage() {
                     alt={product.name}
                     width={150}
                     height={150}
-                    fallbackSrc="/wine.webp"
+                    style={{ objectFit: 'contain' }}
                   />
                 </div>
                 <div className="p-4">
