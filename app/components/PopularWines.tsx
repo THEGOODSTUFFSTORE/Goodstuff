@@ -49,16 +49,16 @@ const PopularWines = React.memo(() => {
         className="relative bg-gradient-to-br from-white via-gray-50 to-white rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 group border border-gray-100 hover:border-purple-200"
         onClick={() => handleWineClick(wine.id)}
       >
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-transparent to-red-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+        {/* Subtle overlay */}
+        <div className="absolute inset-0 bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
         
         {/* Popular badge */}
-        <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-purple-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+        <div className="absolute top-3 left-3 z-10 bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
           POPULAR
         </div>
         
-        <div className="relative h-48 w-full flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent group-hover:from-purple-50/20 group-hover:to-red-50/20 transition-all duration-500"></div>
+        <div className="relative h-48 w-full flex items-center justify-center bg-gray-50 overflow-hidden">
+          <div className="absolute inset-0 bg-gray-100/30 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
           <Image
             src={wine.productImage || '/wine.webp'}
             alt={wine.name}
@@ -74,22 +74,22 @@ const PopularWines = React.memo(() => {
             }}
           />
         </div>
-        <div className="relative p-4 bg-gradient-to-br from-white via-gray-50/30 to-white">
+        <div className="relative p-4 bg-white">
           <div className="mb-2">
-            <span className="inline-block bg-gradient-to-r from-purple-100 to-purple-50 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full border border-purple-200 shadow-sm">
+            <span className="inline-block bg-gray-100 text-gray-700 text-xs font-semibold px-3 py-1 rounded-full border border-gray-200 shadow-sm">
               Top Choice
             </span>
           </div>
-          <h3 className="text-base font-bold text-gray-800 h-12 overflow-hidden capitalize mb-2 group-hover:text-purple-700 transition-colors leading-tight">
+          <h3 className="text-base font-bold text-gray-800 h-12 overflow-hidden capitalize mb-2 group-hover:text-gray-600 transition-colors leading-tight">
             {wine.name}
           </h3>
           <div className="flex items-baseline mt-2 mb-4">
-            <span className="text-lg font-bold bg-gradient-to-r from-red-600 to-purple-600 bg-clip-text text-transparent lowercase">
+            <span className="text-lg font-bold text-gray-900 lowercase">
               KES {wine.price.toLocaleString()}
             </span>
           </div>
           <button 
-            className="mt-4 w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+            className="mt-4 w-full bg-gray-800 text-white py-2 rounded-xl font-semibold hover:bg-gray-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
             onClick={(e) => handleAddToCart(wine, e)}
           >
             Add to basket

@@ -133,16 +133,16 @@ const ProductsList = React.memo(() => {
           className="relative bg-gradient-to-br from-white via-gray-50 to-white rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 group border border-gray-100 hover:border-red-200"
           onClick={() => handleProductClick(product.id)}
         >
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-red-50/30 via-transparent to-amber-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+          {/* Subtle overlay */}
+          <div className="absolute inset-0 bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
           
           {/* Premium badge */}
-          <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+          <div className="absolute top-3 left-3 z-10 bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
             PREMIUM
           </div>
           
-          <div className="relative h-48 md:h-56 w-full flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent group-hover:from-red-50/20 group-hover:to-amber-50/20 transition-all duration-500"></div>
+          <div className="relative h-48 md:h-56 w-full flex items-center justify-center bg-gray-50 overflow-hidden">
+            <div className="absolute inset-0 bg-gray-100/30 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <Image
               src={product.productImage || '/wine.webp'}
               alt={product.name}
@@ -158,22 +158,22 @@ const ProductsList = React.memo(() => {
               }}
             />
           </div>
-          <div className="relative p-4 md:p-6 bg-gradient-to-br from-white via-gray-50/30 to-white">
+          <div className="relative p-4 md:p-6 bg-white">
             <div className="mb-3">
-              <span className="inline-block bg-gradient-to-r from-red-100 to-red-50 text-red-700 text-xs font-semibold px-3 py-1 rounded-full border border-red-200 shadow-sm">
+              <span className="inline-block bg-gray-100 text-gray-700 text-xs font-semibold px-3 py-1 rounded-full border border-gray-200 shadow-sm">
                 {product.category}
               </span>
             </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 h-12 md:h-14 overflow-hidden leading-tight capitalize group-hover:text-red-700 transition-colors">
+            <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 h-12 md:h-14 overflow-hidden leading-tight capitalize group-hover:text-gray-600 transition-colors">
               {product.name}
             </h3>
             <div className="flex items-baseline mb-4">
-              <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent lowercase">
+              <span className="text-lg md:text-xl font-bold text-gray-900 lowercase">
                 KES {product.price.toLocaleString()}
               </span>
             </div>
             <button 
-              className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2.5 md:py-3 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+              className="w-full bg-gray-800 text-white py-2.5 md:py-3 rounded-xl font-semibold hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
               onClick={(e) => handleAddToCart(product, e)}
             >
               Add to basket
