@@ -155,7 +155,7 @@ const ProductsList = React.memo(() => {
                 {product.category}
               </span>
             </div>
-            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 h-12 md:h-14 overflow-hidden leading-tight">
+            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 h-12 md:h-14 overflow-hidden leading-tight capitalize">
               {product.name}
             </h3>
             <div className="flex items-baseline mb-4">

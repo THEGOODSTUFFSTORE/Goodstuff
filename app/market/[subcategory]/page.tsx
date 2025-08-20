@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FaStore, FaArrowLeft } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import AddToBasketButton from '@/app/components/AddToBasketButton';
 import { getProducts } from '@/lib/api';
 
 interface MarketSubcategoryPageProps {
@@ -150,23 +151,20 @@ export default async function MarketSubcategoryPage({ params }: MarketSubcategor
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors capitalize">
                         {product.name}
                       </h3>
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-green-600">
-                          Ksh {product.price.toLocaleString()}
+                        <span className="text-xl font-bold text-green-600 lowercase">
+                          {product.price.toLocaleString()}
                         </span>
                       </div>
-                      <button 
-                        className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // Add to cart functionality will be handled by the cart store
-                        }}
-                      >
-                        Add to basket
-                      </button>
+                      <div className="mt-4">
+                        <AddToBasketButton 
+                          productId={product.id} 
+                          className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                        />
+                      </div>
                     </div>
                   </div>
                 </Link>

@@ -92,7 +92,7 @@ export default async function MixersTypePage({ params }: MixersTypePageProps) {
                     />
                   </div>
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{product.name}</h3>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 capitalize">{product.name}</h3>
                     <p className="text-gray-600 text-sm mb-3">{product.description}</p>
                     <div className="text-xl font-bold text-blue-600 lowercase">{product.price.toLocaleString()}</div>
                   </div>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FaWineGlassAlt, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import AddToBasketButton from '@/app/components/AddToBasketButton';
 import { getProducts } from '@/lib/api';
 
 interface WineSubcategoryPageProps {
@@ -12,6 +13,35 @@ interface WineSubcategoryPageProps {
 }
 
 const subcategoryInfo: { [key: string]: any } = {
+  red: {
+    name: 'Red Wine',
+    description: 'Bold and rich red wines from around the world'
+  },
+  white: {
+    name: 'White Wine',
+    description: 'Crisp and refreshing white wines'
+  },
+  rose: {
+    name: 'Rosé Wine',
+    description: 'Elegant pink wines perfect for any occasion'
+  },
+  'cabernet-sauvignon': {
+    name: 'Cabernet Sauvignon',
+    description: 'Full-bodied red wine with rich dark fruit flavors'
+  },
+  'sauvignon-blanc': {
+    name: 'Sauvignon Blanc',
+    description: 'Crisp white wine with citrus and herbal notes'
+  },
+  merlot: {
+    name: 'Merlot',
+    description: 'Smooth and medium-bodied red wine'
+  },
+  champagne: {
+    name: 'Champagne',
+    description: 'Premium sparkling wine from the Champagne region'
+  },
+  // Legacy support for old routes
   redwine: {
     name: 'Red Wine',
     description: 'Bold and rich red wines from around the world'
@@ -39,11 +69,31 @@ export default async function WineSubcategoryPage({ params }: WineSubcategoryPag
   
   // Get all wine products and filter by subcategory
   const allProducts = await getProducts();
-  const subcategoryProducts = allProducts.filter(product => 
-    product.category.toLowerCase() === 'wine' &&
-    (product.subcategory.toLowerCase().includes(subcategory.toLowerCase()) ||
-     product.subcategory.toLowerCase().replace(/\s+/g, '').includes(subcategory.toLowerCase()))
-  );
+  const subcategoryProducts = allProducts.filter(product => {
+    if (product.category.toLowerCase() !== 'wine') return false;
+    
+    const productSubcategory = product.subcategory?.toLowerCase() || '';
+    const searchSubcategory = subcategory.toLowerCase();
+    
+    // Direct match
+    if (productSubcategory === searchSubcategory) return true;
+    
+    // Match without spaces/hyphens
+    if (productSubcategory.replace(/[\s-]/g, '') === searchSubcategory.replace(/[\s-]/g, '')) return true;
+    
+    // Match for specific wine types
+    if (searchSubcategory === 'red' && productSubcategory.includes('red')) return true;
+    if (searchSubcategory === 'white' && productSubcategory.includes('white')) return true;
+    if (searchSubcategory === 'rose' && (productSubcategory.includes('rose') || productSubcategory.includes('rosé'))) return true;
+    if (searchSubcategory === 'champagne' && productSubcategory.includes('champagne')) return true;
+    
+    // Match for specific varietals
+    if (searchSubcategory === 'cabernet-sauvignon' && productSubcategory.includes('cabernet')) return true;
+    if (searchSubcategory === 'sauvignon-blanc' && productSubcategory.includes('sauvignon blanc')) return true;
+    if (searchSubcategory === 'merlot' && productSubcategory.includes('merlot')) return true;
+    
+    return false;
+  });
 
   const subcategoryData = subcategoryInfo[subcategory] || {
     name: subcategory.charAt(0).toUpperCase() + subcategory.slice(1),
@@ -139,23 +189,20 @@ export default async function WineSubcategoryPage({ params }: WineSubcategoryPag
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#A76545] transition-colors">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#A76545] transition-colors capitalize">
                         {product.name}
                       </h3>
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-[#A76545]">
-                          Ksh {product.price.toLocaleString()}
+                        <span className="text-xl font-bold text-[#A76545] lowercase">
+                          {product.price.toLocaleString()}
                         </span>
                       </div>
-                      <button 
-                        className="mt-4 w-full bg-[#A76545] hover:bg-[#8B543A] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // Add to cart functionality will be handled by the cart store
-                        }}
-                      >
-                        Add to basket
-                      </button>
+                      <div className="mt-4">
+                        <AddToBasketButton 
+                          productId={product.id} 
+                          className="w-full bg-[#A76545] hover:bg-[#8B543A] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                        />
+                      </div>
                     </div>
                   </div>
                 </Link>

@@ -72,7 +72,7 @@ export default async function BeerPage() {
                   />
                 </div>
                 <div className="p-4">
-                  <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
+                  <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden capitalize">
                     {product.name}
                   </h3>
                   <div className="flex items-baseline mt-2">

@@ -79,7 +79,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 {product.brand && (
                   <p className="text-red-600 font-semibold text-base uppercase tracking-wide">{product.brand}</p>
                 )}
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{product.name}</h1>
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight capitalize">{product.name}</h1>
               </div>
 
               {/* Price Section */}

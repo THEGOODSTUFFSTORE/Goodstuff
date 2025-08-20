@@ -75,7 +75,7 @@ export default async function RumPage() {
                   
                   {/* Product Info */}
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-amber-600 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-amber-600 transition-colors capitalize">
                       {product.name}
                     </h3>
                     <p className="text-gray-600 mb-4 line-clamp-2">
