@@ -103,20 +103,22 @@ export interface DeliveryTier {
 }
 
 export const DEFAULT_DELIVERY_TIERS: DeliveryTier[] = [
-  { maxDistance: 5, fee: 200, label: "Within 5km" },
-  { maxDistance: 10, fee: 400, label: "5-10km" },
-  { maxDistance: 20, fee: 600, label: "10-20km" },
-  { maxDistance: 50, fee: 1000, label: "20-50km" },
-  { maxDistance: Infinity, fee: 1500, label: "Beyond 50km" }
+  { maxDistance: 1, fee: 70, label: "Within 1km" },
+  { maxDistance: 5, fee: 350, label: "1-5km" },
+  { maxDistance: 10, fee: 700, label: "5-10km" },
+  { maxDistance: 20, fee: 1400, label: "10-20km" },
+  { maxDistance: 50, fee: 3500, label: "20-50km" },
+  { maxDistance: Infinity, fee: 7000, label: "Beyond 50km" }
 ];
 
+// Calculate delivery fee: 70 KES per kilometer from store to user address
+// Minimum delivery fee: 70 KES (for distances less than 1km)
 export function calculateDeliveryFee(distance: number, tiers: DeliveryTier[] = DEFAULT_DELIVERY_TIERS): number {
-  // TESTING MODE: Return 1 KES for all delivery locations
-  return 1;
+  // Calculate delivery fee: 70 KES per kilometer
+  const deliveryFee = Math.round(distance * 70);
   
-  // Original calculation (commented out for testing):
-  // const tier = tiers.find(tier => distance <= tier.maxDistance);
-  // return tier ? tier.fee : tiers[tiers.length - 1].fee;
+  // Ensure minimum delivery fee of 70 KES (for distances less than 1km)
+  return Math.max(deliveryFee, 70);
 }
 
 // Format distance for display
@@ -125,6 +127,15 @@ export function formatDistance(distance: number): string {
     return `${Math.round(distance * 1000)}m`;
   }
   return `${distance.toFixed(1)}km`;
+}
+
+// Format delivery fee calculation for display
+export function formatDeliveryFeeCalculation(distance: number): string {
+  const fee = calculateDeliveryFee(distance);
+  if (distance < 1) {
+    return `Minimum delivery fee: Ksh 70`;
+  }
+  return `${distance.toFixed(1)}km × Ksh 70/km = Ksh ${fee.toLocaleString()}`;
 }
 
 // Example usage with Google Maps API (commented out)

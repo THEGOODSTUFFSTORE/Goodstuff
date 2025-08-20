@@ -232,7 +232,10 @@ const AdminSettings = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Shipping Fee</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Additional Shipping Fee</label>
+          <p className="text-sm text-gray-500 mb-2">
+            Additional fee on top of the base 70 KES per kilometer rate (e.g., rush delivery, priority handling)
+          </p>
           <input
             type="number"
             value={settings.orders.shippingFee}

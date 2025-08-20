@@ -125,7 +125,7 @@ export default function ShippingPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Delivery Times</h3>
                   <div className="overflow-x-auto">
-                    <table className="w-full border-collapse border border-gray-300">
+                    <table className="min-w-full border border-gray-300">
                       <thead>
                         <tr className="bg-gray-100">
                           <th className="border border-gray-300 px-4 py-2 text-left">Delivery Option</th>
@@ -137,24 +137,26 @@ export default function ShippingPage() {
                         <tr>
                           <td className="border border-gray-300 px-4 py-2">Same Day Delivery</td>
                           <td className="border border-gray-300 px-4 py-2">Within 2-4 hours</td>
-                          <td className="border border-gray-300 px-4 py-2">KES 500</td>
+                          <td className="border border-gray-300 px-4 py-2">70 KES/km + 200 KES rush fee</td>
                         </tr>
                         <tr className="bg-gray-50">
                           <td className="border border-gray-300 px-4 py-2">Next Day Delivery</td>
                           <td className="border border-gray-300 px-4 py-2">Next business day</td>
-                          <td className="border border-gray-300 px-4 py-2">KES 300</td>
+                          <td className="border border-gray-300 px-4 py-2">70 KES/km + 100 KES priority fee</td>
                         </tr>
                         <tr>
                           <td className="border border-gray-300 px-4 py-2">Standard Delivery</td>
                           <td className="border border-gray-300 px-4 py-2">2-3 business days</td>
-                          <td className="border border-gray-300 px-4 py-2">KES 200</td>
+                          <td className="border border-gray-300 px-4 py-2">70 KES/km (base rate)</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
-                  <p className="text-sm text-gray-600 mt-3">
-                    * Free delivery on orders over KES 5,000 within Nairobi
-                  </p>
+                  <div className="text-sm text-gray-600 mt-3 space-y-2">
+                    <p>* Delivery fee: 70 KES per kilometer from our store to your address</p>
+                    <p>* Minimum delivery fee: 70 KES (for distances less than 1km)</p>
+                    <p>* Free delivery on orders over KES 5,000 within 5km of our store</p>
+                  </div>
                 </div>
 
                 <div>

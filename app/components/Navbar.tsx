@@ -117,10 +117,10 @@ const Navbar = () => {
                   className="h-8 w-auto sm:h-10 md:h-12 group-hover:scale-110 transition-transform duration-300 drop-shadow-sm"
                 />
                 <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 hover:text-red-500 transition-colors duration-300 hidden xs:block">
-                  The Goodstuff
+                  The Good Stuff
                 </span>
                 <span className="text-sm font-bold text-gray-900 hover:text-red-500 transition-colors duration-300 block xs:hidden">
-                  The Goodstuff
+                  The Good Stuff
                 </span>
               </Link>
             </div>

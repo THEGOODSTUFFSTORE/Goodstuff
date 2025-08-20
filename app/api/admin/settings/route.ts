@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
         settings: {
           orders: {
             minimumOrderAmount: 0,
-            shippingFee: 300,
+            shippingFee: 0,
             freeShippingThreshold: 5000,
             allowPartialFulfillment: true,
             autoConfirmOrders: false,
