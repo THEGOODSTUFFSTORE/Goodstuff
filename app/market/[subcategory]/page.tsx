@@ -156,7 +156,7 @@ export default async function MarketSubcategoryPage({ params }: MarketSubcategor
                       </h3>
                       <div className="flex items-center justify-between">
                         <span className="text-xl font-bold text-green-600 lowercase">
-                          {product.price.toLocaleString()}
+                          {product.price.toLocaleString()}/=
                         </span>
                       </div>
                       <div className="mt-4">

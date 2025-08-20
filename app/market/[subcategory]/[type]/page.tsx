@@ -112,7 +112,9 @@ export default async function MarketTypePage({ params }: MarketTypePageProps) {
                   <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-2 capitalize">{product.name}</h3>
                     <p className="text-gray-600 text-sm mb-3">{product.description}</p>
-                    <div className="text-xl font-bold text-green-600 lowercase">{product.price.toLocaleString()}</div>
+                    <div className="text-xl font-bold text-green-600 lowercase">
+                      {product.price.toLocaleString()}/=
+                    </div>
                   </div>
                 </div>
               </Link>

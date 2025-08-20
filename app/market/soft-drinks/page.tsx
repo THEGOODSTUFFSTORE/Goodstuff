@@ -118,7 +118,7 @@ export default async function SoftDrinksPage() {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-cyan-600">
-                        ${product.price}
+                        {product.price.toLocaleString()}/=
                       </span>
                       <span className="text-sm text-gray-500">
                         {product.volume}

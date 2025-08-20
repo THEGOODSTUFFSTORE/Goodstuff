@@ -90,7 +90,7 @@ export default async function CognacPage() {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-xl font-bold text-gray-900 lowercase">
-                        KES {product.price.toLocaleString()}
+                        {product.price.toLocaleString()}/=
                       </span>
                       <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
                         {product.volume}
