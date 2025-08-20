@@ -45,10 +45,19 @@ const TrendingDeals = React.memo(() => {
     return products.map((product) => (
       <div
         key={product.id}
-        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition duration-300 hover:scale-105"
+        className="relative bg-gradient-to-br from-white via-gray-50 to-white rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 group border border-gray-100 hover:border-red-200"
         onClick={() => handleProductClick(product.id)}
       >
-        <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-red-50/30 via-transparent to-amber-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+        
+        {/* Trending badge */}
+        <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+          TRENDING
+        </div>
+        
+        <div className="relative h-48 w-full flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent group-hover:from-red-50/20 group-hover:to-amber-50/20 transition-all duration-500"></div>
           {product.productImage ? (
             <Image
               src={product.productImage}
@@ -58,7 +67,7 @@ const TrendingDeals = React.memo(() => {
               style={{ objectFit: 'contain' }}
               priority={false}
               loading="lazy"
-              className="p-2"
+              className="p-2 transition-all duration-500 group-hover:scale-110 drop-shadow-sm group-hover:drop-shadow-xl z-10 relative"
             />
           ) : (
             <div className="flex items-center justify-center h-full w-full">
@@ -66,17 +75,22 @@ const TrendingDeals = React.memo(() => {
             </div>
           )}
         </div>
-        <div className="p-4">
-          <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden capitalize">
+        <div className="relative p-4 bg-gradient-to-br from-white via-gray-50/30 to-white">
+          <div className="mb-2">
+            <span className="inline-block bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full border border-amber-200 shadow-sm">
+              Hot Deal
+            </span>
+          </div>
+          <h3 className="text-base font-bold text-gray-800 h-12 overflow-hidden capitalize mb-2 group-hover:text-red-700 transition-colors leading-tight">
             {product.name}
           </h3>
-          <div className="flex items-baseline mt-2">
-            <span className="text-lg font-bold text-red-600 lowercase">
-              {product.price.toLocaleString()}
+          <div className="flex items-baseline mt-2 mb-4">
+            <span className="text-lg font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent lowercase">
+              KES {product.price.toLocaleString()}
             </span>
           </div>
           <button 
-            className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300"
+            className="mt-4 w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
             onClick={(e) => handleAddToCart(product, e)}
           >
             Add to basket

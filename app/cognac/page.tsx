@@ -59,29 +59,43 @@ export default async function CognacPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {cognacProducts.map((product) => (
               <Link key={product.id} href={`/products/${product.id}`}>
-                <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
+                <div className="relative group bg-gradient-to-br from-white via-gray-50 to-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 overflow-hidden border border-gray-100 hover:border-amber-200">
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-50/30 via-transparent to-orange-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                  
+                  {/* Premium badge */}
+                  <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    PREMIUM
+                  </div>
+                  
                   {/* Product Image */}
-                  <div className="aspect-square overflow-hidden bg-gray-100">
+                  <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50">
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent group-hover:from-amber-50/20 group-hover:to-orange-50/20 transition-all duration-500"></div>
                     <img 
                       src={product.productImage || '/placeholder.jpg'}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 drop-shadow-sm group-hover:drop-shadow-xl"
                     />
                   </div>
                   
                   {/* Product Info */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-amber-600 transition-colors capitalize">
+                  <div className="relative p-6 bg-gradient-to-br from-white via-gray-50/30 to-white">
+                    <div className="mb-3">
+                      <span className="inline-block bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full border border-amber-200 shadow-sm">
+                        Premium Cognac
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-amber-700 transition-colors capitalize leading-tight">
                       {product.name}
                     </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
+                    <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
                       {product.description}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-amber-600 lowercase">
-                        {product.price.toLocaleString()}
+                      <span className="text-xl font-bold bg-gradient-to-r from-red-600 to-amber-600 bg-clip-text text-transparent lowercase">
+                        KES {product.price.toLocaleString()}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
                         {product.volume}
                       </span>
                     </div>
