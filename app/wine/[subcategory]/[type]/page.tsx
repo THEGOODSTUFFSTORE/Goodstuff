@@ -94,7 +94,7 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
                   <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-[#A76545] transition-colors">{product.name}</h3>
                     <p className="text-gray-600 text-sm mb-3">{product.description}</p>
-                    <div className="text-2xl font-bold text-[#A76545]">Ksh {product.price.toLocaleString()}</div>
+                    <div className="text-xl font-bold text-[#A76545] lowercase">{product.price.toLocaleString()}</div>
                   </div>
                 </div>
               </Link>

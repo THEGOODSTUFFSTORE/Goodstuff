@@ -159,8 +159,8 @@ const ProductsList = React.memo(() => {
               {product.name}
             </h3>
             <div className="flex items-baseline mb-4">
-              <span className="text-xl md:text-2xl font-bold text-red-600">
-                Ksh {product.price.toLocaleString()}/-
+              <span className="text-lg md:text-xl font-bold text-red-600 lowercase">
+                {product.price.toLocaleString()}
               </span>
             </div>
             <button 

@@ -120,7 +120,7 @@ const Navbar = () => {
                   The Goodstuff
                 </span>
                 <span className="text-sm font-bold text-gray-900 hover:text-red-500 transition-colors duration-300 block xs:hidden">
-                  Goodstuff
+                  The Goodstuff
                 </span>
               </Link>
             </div>

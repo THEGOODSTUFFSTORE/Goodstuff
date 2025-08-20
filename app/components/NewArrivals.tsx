@@ -68,8 +68,8 @@ const NewArrivals = React.memo(() => {
             {product.name}
           </h3>
           <div className="flex items-baseline mt-2">
-            <span className="text-xl font-bold text-red-600">
-              KES {product.price.toLocaleString()}/-
+            <span className="text-lg font-bold text-red-600 lowercase">
+              {product.price.toLocaleString()}
             </span>
           </div>
           <button 

@@ -76,8 +76,8 @@ export default async function CreamLiqueursPage() {
                     {product.name}
                   </h3>
                   <div className="flex items-baseline mt-2">
-                    <span className="text-xl font-bold text-[#A76545]">
-                      Ksh {product.price.toLocaleString()}/-
+                    <span className="text-lg font-bold text-[#A76545] lowercase">
+                      {product.price.toLocaleString()}
                     </span>
                   </div>
                 </div>

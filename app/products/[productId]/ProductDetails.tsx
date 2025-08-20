@@ -85,7 +85,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               {/* Price Section */}
               <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-5">
                 <div className="flex items-baseline space-x-3 flex-wrap">
-                  <span className="text-3xl font-bold text-red-600">Ksh {product.price.toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-red-600 lowercase">{product.price.toLocaleString()}</span>
                 </div>
               </div>
 

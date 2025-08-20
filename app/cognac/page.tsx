@@ -78,8 +78,8 @@ export default async function CognacPage() {
                       {product.description}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-amber-600">
-                        ${product.price}
+                      <span className="text-xl font-bold text-amber-600 lowercase">
+                        {product.price.toLocaleString()}
                       </span>
                       <span className="text-sm text-gray-500">
                         {product.volume}

@@ -155,8 +155,8 @@ export default function SearchSection() {
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-900 truncate">{product.name}</h4>
                           <p className="text-sm text-gray-500 capitalize">{product.category}</p>
-                          <p className="text-sm font-medium text-red-600">
-                            Ksh {product.price.toLocaleString()}/-
+                          <p className="text-xs font-medium text-red-600 lowercase">
+                            {product.price.toLocaleString()}
                           </p>
                         </div>
                       </div>

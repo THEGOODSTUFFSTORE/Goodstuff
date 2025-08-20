@@ -69,8 +69,8 @@ const PopularWines = React.memo(() => {
             {wine.name}
           </h3>
           <div className="flex items-baseline mt-2">
-            <span className="text-xl font-bold text-red-600">
-              KES {wine.price.toLocaleString()}/-
+            <span className="text-lg font-bold text-red-600 lowercase">
+              {wine.price.toLocaleString()}
             </span>
           </div>
           <button 
