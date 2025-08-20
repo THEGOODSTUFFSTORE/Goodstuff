@@ -51,10 +51,7 @@ const TrendingDeals = React.memo(() => {
         {/* Subtle overlay */}
         <div className="absolute inset-0 bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
         
-        {/* Trending badge */}
-        <div className="absolute top-3 left-3 z-10 bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-          TRENDING
-        </div>
+
         
         <div className="relative h-48 w-full flex items-center justify-center bg-gray-50 overflow-hidden">
           <div className="absolute inset-0 bg-gray-100/30 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -89,10 +86,10 @@ const TrendingDeals = React.memo(() => {
               KES {product.price.toLocaleString()}
             </span>
           </div>
-          <button 
-            className="mt-4 w-full bg-gray-800 text-white py-2 rounded-xl font-semibold hover:bg-gray-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-            onClick={(e) => handleAddToCart(product, e)}
-          >
+                      <button 
+              className="mt-4 w-full bg-green-600 text-white py-2 rounded-xl font-semibold hover:bg-green-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+              onClick={(e) => handleAddToCart(product, e)}
+            >
             Add to basket
           </button>
         </div>

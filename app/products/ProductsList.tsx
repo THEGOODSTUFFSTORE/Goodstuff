@@ -136,10 +136,7 @@ const ProductsList = React.memo(() => {
           {/* Subtle overlay */}
           <div className="absolute inset-0 bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
           
-          {/* Premium badge */}
-          <div className="absolute top-3 left-3 z-10 bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-            PREMIUM
-          </div>
+
           
           <div className="relative h-48 md:h-56 w-full flex items-center justify-center bg-gray-50 overflow-hidden">
             <div className="absolute inset-0 bg-gray-100/30 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -173,7 +170,7 @@ const ProductsList = React.memo(() => {
               </span>
             </div>
             <button 
-              className="w-full bg-gray-800 text-white py-2.5 md:py-3 rounded-xl font-semibold hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+              className="w-full bg-green-600 text-white py-2.5 md:py-3 rounded-xl font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
               onClick={(e) => handleAddToCart(product, e)}
             >
               Add to basket

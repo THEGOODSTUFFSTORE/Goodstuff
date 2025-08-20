@@ -63,10 +63,7 @@ export default async function CognacPage() {
                   {/* Subtle overlay */}
                   <div className="absolute inset-0 bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                   
-                  {/* Premium badge */}
-                  <div className="absolute top-3 left-3 z-10 bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                    PREMIUM
-                  </div>
+
                   
                   {/* Product Image */}
                   <div className="relative aspect-square overflow-hidden bg-gray-50">
