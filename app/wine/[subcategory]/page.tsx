@@ -5,6 +5,7 @@ import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import AddToBasketButton from '@/app/components/AddToBasketButton';
 import { getProducts } from '@/lib/api';
+import { capitalizeProductName } from '@/lib/utils';
 
 interface WineSubcategoryPageProps {
   params: Promise<{
@@ -189,8 +190,8 @@ export default async function WineSubcategoryPage({ params }: WineSubcategoryPag
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#A76545] transition-colors capitalize">
-                        {product.name}
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#A76545] transition-colors">
+                        {capitalizeProductName(product.name)}
                       </h3>
                       <div className="flex items-center justify-between">
                         <span className="text-xl font-bold text-[#A76545] lowercase">

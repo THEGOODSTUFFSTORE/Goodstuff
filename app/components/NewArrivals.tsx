@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
 import { useCartStore } from '@/lib/store';
+import { capitalizeProductName } from '@/lib/utils';
 import React from 'react';
 
 const NewArrivals = React.memo(() => {
@@ -76,8 +77,8 @@ const NewArrivals = React.memo(() => {
               Fresh Arrival
             </span>
           </div>
-          <h3 className="text-base font-bold text-gray-800 h-12 overflow-hidden capitalize mb-2 group-hover:text-gray-600 transition-colors leading-tight">
-            {product.name}
+          <h3 className="text-base font-bold text-gray-800 h-12 overflow-hidden mb-2 group-hover:text-gray-600 transition-colors leading-tight">
+            {capitalizeProductName(product.name)}
           </h3>
           <div className="flex items-baseline mt-2 mb-4">
             <span className="text-lg font-bold text-gray-900 lowercase">

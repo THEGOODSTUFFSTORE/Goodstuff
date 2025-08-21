@@ -6,6 +6,7 @@ import { MdOutlineDeliveryDining, MdLocalShipping, MdSecurity } from "react-icon
 import { BiHeart } from 'react-icons/bi';
 import { Product } from '@/lib/types';
 import { useCartStore } from '@/lib/store';
+import { capitalizeProductName } from '@/lib/utils';
 import Image from 'next/image';
 
 interface ProductDetailsProps {
@@ -40,7 +41,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               <a href="/Categories" className="text-gray-500 hover:text-red-600 transition-colors">{product.category}</a>
               <span className="mx-2 text-gray-400">/</span>
             </li>
-            <li className="text-gray-700 font-medium">{product.name}</li>
+            <li className="text-gray-700 font-medium">{capitalizeProductName(product.name)}</li>
           </ol>
         </nav>
       </div>
@@ -79,7 +80,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 {product.brand && (
                   <p className="text-red-600 font-semibold text-base uppercase tracking-wide">{product.brand}</p>
                 )}
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight capitalize">{product.name}</h1>
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{capitalizeProductName(product.name)}</h1>
               </div>
 
               {/* Price Section */}

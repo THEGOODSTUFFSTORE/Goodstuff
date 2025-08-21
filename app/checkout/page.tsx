@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/lib/store';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { toast } from 'react-toastify';
+import { capitalizeProductName } from '@/lib/utils';
 import ShippingAddressForm from '@/app/components/ShippingAddressForm';
 import SimpleLocationPicker from '@/app/components/SimpleLocationPicker';
 import Footer from '@/app/components/Footer';
@@ -150,7 +151,7 @@ export default function CheckoutPage() {
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4">
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">{item.product.name}</p>
+                        <p className="font-medium text-gray-900">{capitalizeProductName(item.product.name)}</p>
                         <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                       </div>
                       <p className="font-semibold text-gray-900">

@@ -7,6 +7,7 @@ import AddToBasketButton from '@/app/components/AddToBasketButton';
 import ProductImage from '@/app/components/ProductImage';
 import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
+import { capitalizeProductName } from '@/lib/utils';
 
 export default async function BeerPage() {
   // Get all beer products
@@ -72,8 +73,8 @@ export default async function BeerPage() {
                   />
                 </div>
                 <div className="p-4">
-                  <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden capitalize">
-                    {product.name}
+                  <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
+                    {capitalizeProductName(product.name)}
                   </h3>
                   <div className="flex items-baseline mt-2">
                     <span className="text-xl font-bold text-[#A76545]">

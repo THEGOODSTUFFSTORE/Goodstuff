@@ -3,6 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/lib/store';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { capitalizeProductName } from '@/lib/utils';
 import { toast } from 'react-toastify';
 import Footer from '@/app/components/Footer';
 
@@ -43,7 +44,7 @@ export default function BasketPage() {
                 <div key={item.id} className="bg-white rounded-2xl shadow-lg p-6">
                   <div className="flex items-center space-x-4">
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900">{item.product.name}</h3>
+                      <h3 className="text-lg font-bold text-gray-900">{capitalizeProductName(item.product.name)}</h3>
                       <p className="text-gray-600">Ksh {item.product.price.toLocaleString()}</p>
                     </div>
                     <div className="flex items-center space-x-4">

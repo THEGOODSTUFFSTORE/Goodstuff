@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Product } from '@/lib/types';
 import { useCartStore } from '@/lib/store';
+import { capitalizeProductName } from '@/lib/utils';
 import React from 'react';
 
 const ProductsList = React.memo(() => {
@@ -161,8 +162,8 @@ const ProductsList = React.memo(() => {
                 {product.category}
               </span>
             </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 h-12 md:h-14 overflow-hidden leading-tight capitalize group-hover:text-gray-600 transition-colors">
-              {product.name}
+            <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 h-12 md:h-14 overflow-hidden leading-tight group-hover:text-gray-600 transition-colors">
+              {capitalizeProductName(product.name)}
             </h3>
             <div className="flex items-baseline mb-4">
               <span className="text-lg md:text-xl font-bold text-gray-900 lowercase">
