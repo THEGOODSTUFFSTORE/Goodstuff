@@ -56,7 +56,7 @@ export default async function CiderPage() {
         </div>
 
         {ciderProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {ciderProducts.map((product) => (
               <Link key={product.id} href={`/products/${product.id}`}>
                 <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden">

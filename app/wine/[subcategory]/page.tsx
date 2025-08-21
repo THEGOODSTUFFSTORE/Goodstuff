@@ -174,7 +174,7 @@ export default async function WineSubcategoryPage({ params }: WineSubcategoryPag
           </div>
 
           {subcategoryProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {subcategoryProducts.map((product) => (
                 <Link key={product.id} href={`/products/${product.id}`}>
                   <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">

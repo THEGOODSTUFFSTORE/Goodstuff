@@ -15,7 +15,7 @@ const NewArrivals = dynamic(() => import('./components/NewArrivals'), {
       <div className="flex justify-between items-center mb-6">
         <div className="h-8 bg-gray-200 rounded w-32 animate-pulse"></div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {[...Array(6)].map((_, index) => (
           <div key={index} className="bg-gray-200 rounded-lg h-64 animate-pulse"></div>
         ))}
@@ -30,7 +30,7 @@ const TrendingDeals = dynamic(() => import('./components/TrendingDeals'), {
       <div className="flex justify-between items-center mb-6">
         <div className="h-8 bg-gray-200 rounded w-32 animate-pulse"></div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {[...Array(6)].map((_, index) => (
           <div key={index} className="bg-gray-200 rounded-lg h-64 animate-pulse"></div>
         ))}
@@ -45,7 +45,7 @@ const PopularWines = dynamic(() => import('./components/PopularWines'), {
       <div className="flex justify-between items-center mb-6">
         <div className="h-8 bg-gray-200 rounded w-32 animate-pulse"></div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {[...Array(6)].map((_, index) => (
           <div key={index} className="bg-gray-200 rounded-lg h-64 animate-pulse"></div>
         ))}
