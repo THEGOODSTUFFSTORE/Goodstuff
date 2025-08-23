@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { getProductsBySection } from '@/lib/api';
 import { Product } from '@/lib/types';
 import { capitalizeProductName } from '@/lib/utils';
-import AddToBasketButton from '@/app/components/AddToBasketButton';
+import ProductCard from '@/app/components/ProductCard';
 import Footer from '@/app/components/Footer';
 
 export const metadata: Metadata = {
@@ -76,41 +76,12 @@ export default async function TrendingDealsPage() {
         {trendingProducts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {trendingProducts.map((product: Product) => (
-              <div key={product.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
-                <Link href={`/products/${product.id}`}>
-                  <div className="relative bg-gray-50 p-6 h-64 flex items-center justify-center">
-                    <Image
-                      src={product.productImage || '/wine.webp'}
-                      alt={product.name}
-                      width={200}
-                      height={200}
-                      style={{ objectFit: 'contain' }}
-                      priority={false}
-                      loading="lazy"
-                      className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      Hot Deal
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors capitalize">
-                      {capitalizeProductName(product.name)}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-red-600 lowercase">
-                        {product.price.toLocaleString()}/=
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-                <div className="px-6 pb-6">
-                  <AddToBasketButton 
-                    productId={product.id} 
-                    className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-                  />
-                </div>
-              </div>
+              <ProductCard
+                key={product.id}
+                product={product}
+                categoryLabel="Hot Deal"
+                categoryColor="bg-red-600"
+              />
             ))}
           </div>
         ) : (

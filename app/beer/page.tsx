@@ -3,11 +3,9 @@ import Link from 'next/link';
 import { FaBeer } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import AddToBasketButton from '@/app/components/AddToBasketButton';
-import ProductImage from '@/app/components/ProductImage';
+import ProductCard from '@/app/components/ProductCard';
 import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
-import { capitalizeProductName } from '@/lib/utils';
 
 export default async function BeerPage() {
   // Get all beer products
@@ -61,32 +59,12 @@ export default async function BeerPage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {beerProducts.map((product: Product) => (
-            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
-              <Link href={`/products/${product.id}`} className="block">
-                <div className="relative h-48 w-full flex items-center justify-center bg-gray-50">
-                  <ProductImage
-                    src={product.productImage || '/wine.webp'}
-                    alt={product.name}
-                    width={150}
-                    height={150}
-                    style={{ objectFit: 'contain' }}
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-base font-semibold text-gray-800 line-clamp-2">
-                    {capitalizeProductName(product.name)}
-                  </h3>
-                  <div className="flex items-baseline mt-2">
-                    <span className="text-xl font-bold text-[#A76545]">
-                      Ksh {product.price.toLocaleString()}/-
-                    </span>
-                  </div>
-                </div>
-              </Link>
-              <div className="px-4 pb-4">
-                <AddToBasketButton productId={product.id} />
-              </div>
-            </div>
+            <ProductCard
+              key={product.id}
+              product={product}
+              categoryLabel="Beer"
+              categoryColor="bg-[#A76545]"
+            />
           ))}
         </div>
 

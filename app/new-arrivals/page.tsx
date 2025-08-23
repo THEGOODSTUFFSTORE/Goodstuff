@@ -1,11 +1,9 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getProductsBySection } from '@/lib/api';
 import { Product } from '@/lib/types';
-import { capitalizeProductName } from '@/lib/utils';
-import AddToBasketButton from '@/app/components/AddToBasketButton';
+import ProductCard from '@/app/components/ProductCard';
 import Footer from '@/app/components/Footer';
 
 export const metadata: Metadata = {
@@ -26,23 +24,23 @@ export default async function NewArrivalsPage() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               New Arrivals
             </h1>
-            <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8">
-              Be the first to discover our latest products and fresh arrivals
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/products"
-                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                View All Products
-              </Link>
-              <Link
-                href="/products"
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
-              >
-                Browse Products
-              </Link>
-            </div>
+                            <p className="text-xl md:text-2xl text-red-100 max-w-3xl mx-auto mb-8">
+                  Be the first to discover our latest products and fresh arrivals
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    href="/products"
+                    className="bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                  >
+                    View All Products
+                  </Link>
+                  <Link
+                    href="/products"
+                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-red-600 transition-colors"
+                  >
+                    Browse Products
+                  </Link>
+                </div>
           </div>
         </div>
       </div>
@@ -53,7 +51,7 @@ export default async function NewArrivalsPage() {
           <nav className="text-sm">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-blue-600 transition-colors">Home</Link>
+                <Link href="/" className="text-gray-500 hover:text-red-600 transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="text-gray-700 font-medium">New Arrivals</li>
@@ -76,41 +74,12 @@ export default async function NewArrivalsPage() {
         {newArrivalProducts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {newArrivalProducts.map((product: Product) => (
-              <div key={product.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
-                <Link href={`/products/${product.id}`}>
-                  <div className="relative bg-gray-50 p-6 h-64 flex items-center justify-center">
-                    <Image
-                      src={product.productImage || '/wine.webp'}
-                      alt={product.name}
-                      width={200}
-                      height={200}
-                      style={{ objectFit: 'contain' }}
-                      priority={false}
-                      loading="lazy"
-                      className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      Fresh Arrival
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors capitalize">
-                      {capitalizeProductName(product.name)}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-blue-600 lowercase">
-                        {product.price.toLocaleString()}/=
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-                <div className="px-6 pb-6">
-                  <AddToBasketButton 
-                    productId={product.id} 
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-                  />
-                </div>
-              </div>
+              <ProductCard
+                key={product.id}
+                product={product}
+                categoryLabel="Fresh Arrival"
+                categoryColor="bg-blue-600"
+              />
             ))}
           </div>
         ) : (

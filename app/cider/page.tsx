@@ -4,7 +4,9 @@ import { FaArrowLeft } from 'react-icons/fa';
 import { GiBottleCap } from 'react-icons/gi';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import ProductCard from '@/app/components/ProductCard';
 import { getProductsByCategory } from '@/lib/api';
+import { Product } from '@/lib/types';
 
 export default async function CiderPage() {
   // Get all cider products
@@ -57,37 +59,13 @@ export default async function CiderPage() {
 
         {ciderProducts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {ciderProducts.map((product) => (
-              <Link key={product.id} href={`/products/${product.id}`}>
-                <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
-                  {/* Product Image */}
-                  <div className="aspect-square overflow-hidden bg-gray-100">
-                    <img 
-                      src={product.productImage || '/placeholder.jpg'}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  </div>
-                  
-                  {/* Product Info */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors capitalize">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-green-600 lowercase">
-                        {product.price.toLocaleString()}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {product.volume}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+            {ciderProducts.map((product: Product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                categoryLabel="Cider"
+                categoryColor="bg-green-400"
+              />
             ))}
           </div>
         ) : (

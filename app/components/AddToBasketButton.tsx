@@ -7,7 +7,7 @@ interface AddToBasketButtonProps {
   className?: string;
 }
 
-export default function AddToBasketButton({ productId, className = "mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-300" }: AddToBasketButtonProps) {
+export default function AddToBasketButton({ productId, className }: AddToBasketButtonProps) {
   const handleAddToBasket = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -15,9 +15,12 @@ export default function AddToBasketButton({ productId, className = "mt-4 w-full 
     console.log('Adding product to basket:', productId);
   };
 
+  // Standardized button styling - this will be consistent across all product cards
+  const defaultClassName = "w-full bg-[#A76545] text-white py-3 px-4 rounded-xl font-semibold hover:bg-[#8B543A] focus:outline-none focus:ring-2 focus:ring-[#A76545] focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl";
+
   return (
     <button 
-      className={className}
+      className={className || defaultClassName}
       onClick={handleAddToBasket}
     >
       Add to basket

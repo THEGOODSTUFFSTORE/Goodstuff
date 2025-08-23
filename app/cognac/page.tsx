@@ -4,7 +4,9 @@ import { FaArrowLeft } from 'react-icons/fa';
 import { GiWineBottle } from 'react-icons/gi';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import ProductCard from '@/app/components/ProductCard';
 import { getProductsByCategory } from '@/lib/api';
+import { Product } from '@/lib/types';
 
 export default async function CognacPage() {
   // Get all cognac products
@@ -57,48 +59,13 @@ export default async function CognacPage() {
 
         {cognacProducts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {cognacProducts.map((product) => (
-              <Link key={product.id} href={`/products/${product.id}`}>
-                <div className="relative group bg-gradient-to-br from-white via-gray-50 to-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 overflow-hidden border border-gray-100 hover:border-amber-200">
-                  {/* Subtle overlay */}
-                  <div className="absolute inset-0 bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                  
-
-                  
-                  {/* Product Image */}
-                  <div className="relative aspect-square overflow-hidden bg-gray-50">
-                    <div className="absolute inset-0 bg-gray-100/30 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                    <img 
-                      src={product.productImage || '/placeholder.jpg'}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 drop-shadow-sm group-hover:drop-shadow-xl"
-                    />
-                  </div>
-                  
-                  {/* Product Info */}
-                  <div className="relative p-6 bg-white">
-                    <div className="mb-3">
-                      <span className="inline-block bg-gray-100 text-gray-700 text-xs font-semibold px-3 py-1 rounded-full border border-gray-200 shadow-sm">
-                        Premium Cognac
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-gray-600 transition-colors capitalize leading-tight">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
-                      {product.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-gray-900 lowercase">
-                        {product.price.toLocaleString()}/=
-                      </span>
-                      <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
-                        {product.volume}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+            {cognacProducts.map((product: Product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                categoryLabel="Premium Cognac"
+                categoryColor="bg-amber-700"
+              />
             ))}
           </div>
         ) : (

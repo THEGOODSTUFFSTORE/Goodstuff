@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { FaCocktail, FaArrowLeft } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import AddToBasketButton from '@/app/components/AddToBasketButton';
+import ProductCard from '@/app/components/ProductCard';
 import { getProducts } from '@/lib/api';
 
 interface MixersSubcategoryPageProps {
@@ -133,36 +133,12 @@ export default async function MixersSubcategoryPage({ params }: MixersSubcategor
           {subcategoryProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {subcategoryProducts.map((product) => (
-                <Link key={product.id} href={`/products/${product.id}`}>
-                  <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
-                    <div className="relative bg-gray-50 p-6 h-64 flex items-center justify-center">
-                      <img 
-                        src={product.productImage} 
-                        alt={product.name}
-                        className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className="absolute top-4 right-4 bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                        Premium
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors capitalize">
-                        {product.name}
-                      </h3>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xl font-bold text-blue-600 lowercase">
-                          {product.price.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="mt-4">
-                        <AddToBasketButton 
-                          productId={product.id} 
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  categoryLabel="Premium"
+                  categoryColor="bg-blue-500"
+                />
               ))}
             </div>
           ) : (
