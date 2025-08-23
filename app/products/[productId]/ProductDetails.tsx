@@ -38,7 +38,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               <span className="mx-2 text-gray-400">/</span>
             </li>
             <li className="flex items-center">
-              <a href="/Categories" className="text-gray-500 hover:text-red-600 transition-colors">{product.category}</a>
+              <a href="/products" className="text-gray-500 hover:text-red-600 transition-colors">{product.category}</a>
               <span className="mx-2 text-gray-400">/</span>
             </li>
             <li className="text-gray-700 font-medium">{capitalizeProductName(product.name)}</li>
