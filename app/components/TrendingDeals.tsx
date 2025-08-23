@@ -79,7 +79,7 @@ const TrendingDeals = React.memo(() => {
               Hot Deal
             </span>
           </div>
-          <h3 className="text-base font-bold text-gray-800 h-12 overflow-hidden mb-2 group-hover:text-gray-600 transition-colors leading-tight">
+          <h3 className="text-base font-bold text-gray-800 mb-2 group-hover:text-gray-600 transition-colors leading-tight line-clamp-2">
             {capitalizeProductName(product.name)}
           </h3>
           <div className="flex items-baseline mt-2 mb-4">

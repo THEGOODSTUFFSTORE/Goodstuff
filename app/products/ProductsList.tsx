@@ -46,11 +46,15 @@ const ProductsList = React.memo(() => {
         setProducts(prev => [...prev, ...data]);
       } else {
         setProducts(data);
+        console.log(`Initial products loaded: ${data.length}`);
       }
       
       // If we got fewer products than expected, we've reached the end
       if (data.length < 1000) {
         setHasMore(false);
+        if (loadMore) {
+          console.log(`All products loaded. Total: ${products.length + data.length}`);
+        }
       }
       
       if (categoryParam) {
@@ -162,7 +166,7 @@ const ProductsList = React.memo(() => {
                 {product.category}
               </span>
             </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 h-12 md:h-14 overflow-hidden leading-tight group-hover:text-gray-600 transition-colors">
+            <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 leading-tight group-hover:text-gray-600 transition-colors line-clamp-2">
               {capitalizeProductName(product.name)}
             </h3>
             <div className="flex items-baseline mb-4">
@@ -207,14 +211,13 @@ const ProductsList = React.memo(() => {
         <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 md:mb-12 space-y-4 md:space-y-0">
           <div>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Our Products
+              Available Products
             </h2>
             <p className="text-gray-600 text-sm md:text-base">
               {loading ? 'Loading products...' : (
                 <>
                   Showing {filteredProducts.length} products
                   {selectedCategory !== 'all' && ` in ${selectedCategory}`}
-                  {!hasMore && filteredProducts.length > 0 && ' (All products loaded)'}
                 </>
               )}
             </p>
@@ -252,7 +255,7 @@ const ProductsList = React.memo(() => {
                   
                   {/* Load More Button */}
                   {hasMore && selectedCategory === 'all' && (
-                    <div className="mt-8 md:mt-12 text-center">
+                    <div className="mt-8 md:pt-12 text-center">
                       <button
                         onClick={handleLoadMore}
                         disabled={loadingMore}
@@ -262,16 +265,6 @@ const ProductsList = React.memo(() => {
                       </button>
                     </div>
                   )}
-                  
-                  {/* Results Count */}
-                  <div className="mt-8 md:mt-12 text-center">
-                    <p className="text-gray-600 text-sm md:text-base">
-                      {!hasMore && selectedCategory === 'all' 
-                        ? `All ${filteredProducts.length} products loaded` 
-                        : `Showing ${filteredProducts.length} products`
-                      }
-                    </p>
-                  </div>
                 </>
               ) : (
                 /* No Products Found */

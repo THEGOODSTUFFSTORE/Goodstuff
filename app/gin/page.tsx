@@ -73,7 +73,7 @@ export default async function GinPage() {
                   />
                 </div>
                 <div className="p-4">
-                  <h3 className="text-base font-semibold text-gray-800 h-12 overflow-hidden">
+                  <h3 className="text-base font-semibold text-gray-800 line-clamp-2">
                     {capitalizeProductName(product.name)}
                   </h3>
                   <div className="flex items-baseline mt-2">
