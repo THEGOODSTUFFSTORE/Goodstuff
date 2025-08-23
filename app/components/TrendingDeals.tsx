@@ -121,7 +121,7 @@ const TrendingDeals = React.memo(() => {
     <section className="container mx-auto px-4 py-6 -mt-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-light text-gray-800">Trending Deals</h2>
-        <a href="/products" className="text-orange-600 font-medium hover:underline flex items-center">
+        <a href="/trending-deals" className="text-orange-600 font-medium hover:underline flex items-center">
           VIEW ALL »
         </a>
       </div>

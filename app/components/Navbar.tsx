@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useCartStore, useUserStore } from '@/lib/store';
 import { ShoppingBag, User, ChevronDown } from 'lucide-react';
 
-type DropdownCategory = 'categories' | 'spirits' | 'market';
+type DropdownCategory = 'categories' | 'spirits' | 'market' | 'product-sections';
 
 const Navbar = () => {
   const { totalItems } = useCartStore();
@@ -16,7 +16,8 @@ const Navbar = () => {
   const [mobileDropdowns, setMobileDropdowns] = useState<Record<DropdownCategory, boolean>>({
     categories: false,
     spirits: false,
-    market: false
+    market: false,
+    'product-sections': false
   });
 
   // Handle scroll effect
@@ -71,6 +72,17 @@ const Navbar = () => {
         { name: 'Lighters', href: '/market/lighters', description: 'Luxury & Collectible' },
         { name: 'Cigars', href: '/market/cigars', description: 'Premium Cigars' },
         { name: 'Soft Drinks', href: '/market/soft-drinks', description: 'Mixers & Beverages' }
+      ]
+    },
+    {
+      name: 'Product Sections',
+      key: 'product-sections' as DropdownCategory,
+      href: '/products',
+      items: [
+        { name: 'Trending Deals', href: '/trending-deals', description: 'Hot Deals & Trending Products' },
+        { name: 'Popular Products', href: '/popular-products', description: 'Customer Favorites & Best Sellers' },
+        { name: 'New Arrivals', href: '/new-arrivals', description: 'Latest & Fresh Products' },
+        { name: 'All Products', href: '/products', description: 'Complete Product Catalog' }
       ]
     }
   ];

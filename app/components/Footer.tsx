@@ -122,6 +122,34 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Product Sections */}
+          <div className="space-y-6">
+            <div className="group">
+              <h3 className="text-white text-lg font-semibold mb-6 relative">
+                Product Sections
+                <div className="absolute -bottom-2 left-0 w-8 h-0.5 bg-gradient-to-r from-orange-500 to-orange-600 group-hover:w-full transition-all duration-300"></div>
+              </h3>
+            </div>
+            <ul className="space-y-3">
+              {[
+                { name: 'Trending Deals', href: '/trending-deals' },
+                { name: 'Popular Products', href: '/popular-products' },
+                { name: 'New Arrivals', href: '/new-arrivals' },
+                { name: 'All Products', href: '/products' }
+              ].map((section) => (
+                <li key={section.name}>
+                  <Link 
+                    href={section.href} 
+                    className="group flex items-center text-gray-400 hover:text-white transition-all duration-300 hover:translate-x-2"
+                  >
+                    <span className="w-0 group-hover:w-2 h-0.5 bg-orange-500 mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                    {section.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Newsletter */}
           <div className="space-y-6">
             <div className="group">

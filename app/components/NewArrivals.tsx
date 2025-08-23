@@ -119,7 +119,7 @@ const NewArrivals = React.memo(() => {
     <section className="container mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-light text-gray-800">New Arrivals</h2>
-        <a href="/products" className="text-orange-600 font-medium hover:underline flex items-center">
+        <a href="/new-arrivals" className="text-orange-600 font-medium hover:underline flex items-center">
           VIEW ALL »
         </a>
       </div>
