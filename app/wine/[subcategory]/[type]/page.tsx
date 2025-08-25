@@ -35,10 +35,10 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
       
-      <div className="bg-[#A76545] text-white py-16">
+      <div className="bg-white text-black py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center mb-6">
-            <Link href={`/wine/${subcategory}`} className="flex items-center text-white/80 hover:text-white transition-colors mr-4">
+            <Link href={`/wine/${subcategory}`} className="flex items-center text-black/80 hover:text-black transition-colors mr-4">
               <FaArrowLeft className="w-5 h-5 mr-2" />
               Back to {subcategory}
             </Link>
@@ -47,28 +47,29 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
             <FaWineGlassAlt className="w-12 h-12 mr-6" />
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold mb-4">{wineTypeName}</h1>
-              <p className="text-xl text-white/90">Premium {type.replace(/-/g, ' ')} wines</p>
-              <div className="mt-4 text-lg text-white/80">{typeProducts.length} wines available</div>
+              <p className="text-xl text-black/90">Premium {type.replace(/-/g, ' ')} wines</p>
+              <div className="mt-4 text-lg text-black/80">{typeProducts.length} wines available</div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <nav className="text-sm">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-[#A76545] transition-colors">Home</Link>
+                <Link href="/" className="text-gray-500 hover:text-black transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="flex items-center">
-                <Link href="/wine" className="text-gray-500 hover:text-[#A76545] transition-colors">Wine</Link>
+                <Link href="/wine" className="text-gray-500 hover:text-black transition-colors">Wine</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="flex items-center">
-                <Link href={`/wine/${subcategory}`} className="text-gray-500 hover:text-[#A76545] transition-colors">
-                  {subcategory}
+                <Link href={`/wine/${subcategory}`} className="text-gray-500 hover:text-black transition-colors">
+                  {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
                 </Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
@@ -78,39 +79,74 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Products Grid */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">{wineTypeName} Collection</h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Premium {type.replace(/-/g, ' ')} wines from renowned vineyards
+          </p>
+        </div>
+
         {typeProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {typeProducts.map((product) => (
-              <Link key={product.id} href={`/products/${product.id}`}>
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
-                  <div className="relative bg-gray-50 p-6 h-64 flex items-center justify-center">
-                    <img 
-                      src={product.productImage} 
-                      alt={product.name}
-                      className="max-w-full max-h-full object-contain hover:scale-110 transition-transform duration-300"
-                    />
+              <div key={product.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <div className="h-48 bg-gray-100 relative overflow-hidden">
+                  <img 
+                    src={product.image || '/default-wine.jpg'} 
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-black transition-colors capitalize">{product.name}</h3>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+                  <div className="text-xl font-bold text-black lowercase">{product.price.toLocaleString()}</div>
+                  <div className="mt-4">
+                    <span className="inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+                      {product.subcategory}
+                    </span>
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-[#A76545] transition-colors capitalize">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mb-3">{product.description}</p>
-                    <div className="text-xl font-bold text-[#A76545] lowercase">{product.price.toLocaleString()}</div>
+                  <div className="mt-4">
+                    <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                      Add to Cart
+                    </button>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-16">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">No {wineTypeName} Available</h3>
-            <p className="text-gray-600 mb-8">We don't have any {wineTypeName.toLowerCase()} wines in stock right now.</p>
-            <Link href={`/wine/${subcategory}`}>
-              <button className="bg-[#A76545] hover:bg-[#8B543A] text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                Browse Other Types
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No {wineTypeName} Found</h3>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              We don't have any {wineTypeName.toLowerCase()} in stock right now, but we're constantly adding new wines to our collection.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href={`/wine/${subcategory}`}>
+                <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                  Browse Other {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)} Wines
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Access to All Wines */}
+        <div className="mt-16 text-center">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Browse All Wines</h3>
+            <p className="text-gray-600 mb-6">
+              Can't find what you're looking for? Browse our complete wine collection
+            </p>
+            <Link href="/wine">
+              <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                View All Wines
               </button>
             </Link>
           </div>
-        )}
+        </div>
       </div>
 
       <Footer />

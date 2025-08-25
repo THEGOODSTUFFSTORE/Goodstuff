@@ -65,17 +65,17 @@ export default async function MarketPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-20">
+      <div className="bg-gradient-to-r from-white to-gray-100 text-black py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <FaStore className="w-16 h-16 mx-auto mb-6 text-white/80" />
+            <FaStore className="w-16 h-16 mx-auto mb-6 text-black/80" />
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
               The Goodstuff 
             </h1>
-            <p className="text-xl sm:text-2xl text-green-100 max-w-3xl mx-auto">
+            <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
             Discover exclusive market finds, gourmet treats, and unique lifestyle essentials—handpicked just for you!
             </p>
-            <div className="mt-8 text-lg text-green-200">
+            <div className="mt-8 text-lg text-black/80">
               {marketProducts.length} products available
             </div>
           </div>
@@ -88,7 +88,7 @@ export default async function MarketPage() {
           <nav className="text-sm">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-green-600 transition-colors">Home</Link>
+                <Link href="/" className="text-gray-500 hover:text-black transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="text-gray-700 font-medium">Market</li>

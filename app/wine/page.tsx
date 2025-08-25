@@ -69,17 +69,17 @@ export default async function WinePage() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-[#A76545] text-white py-20">
+      <div className="bg-white text-black py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <FaWineGlassAlt className="w-16 h-16 mx-auto mb-6 text-white/80" />
+            <FaWineGlassAlt className="w-16 h-16 mx-auto mb-6 text-black/80" />
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
               Wine Collection
             </h1>
-            <p className="text-xl sm:text-2xl text-white/90 max-w-3xl mx-auto">
+            <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
               Discover our curated selection of premium wines from renowned vineyards around the world
             </p>
-            <div className="mt-8 text-lg text-white/80">
+            <div className="mt-8 text-lg text-black/80">
               {wineProducts.length} wines available • Free delivery  for orders above Ksh. 5000
             </div>
           </div>
@@ -92,7 +92,7 @@ export default async function WinePage() {
           <nav className="text-sm">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-[#A76545] transition-colors">Home</Link>
+                <Link href="/" className="text-gray-500 hover:text-black transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="text-gray-700 font-medium">Wine</li>
@@ -152,7 +152,7 @@ export default async function WinePage() {
               Can't find what you're looking for? Browse our complete wine collection
             </p>
             <Link href="/products?category=wine">
-              <button className="bg-[#A76545] hover:bg-[#8B543A] text-white font-semibold py-3 px-8 rounded-xl transition-colors">
+              <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-8 rounded-xl transition-colors">
                 View All {wineProducts.length} Wines
               </button>
             </Link>

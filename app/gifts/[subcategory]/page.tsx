@@ -67,10 +67,10 @@ export default async function GiftsSubcategoryPage({ params }: GiftsSubcategoryP
       <Navbar />
       
       {/* Hero Section */}
-      <div className={`bg-gradient-to-r ${subcategoryData.color} text-white py-16`}>
+      <div className="bg-gradient-to-r from-white to-gray-100 text-black py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center mb-6">
-            <Link href="/gifts" className="flex items-center text-white/80 hover:text-white transition-colors mr-4">
+            <Link href="/gifts" className="flex items-center text-black/80 hover:text-black transition-colors mr-4">
               <FaArrowLeft className="w-5 h-5 mr-2" />
               Back to Gifts
             </Link>
@@ -80,15 +80,9 @@ export default async function GiftsSubcategoryPage({ params }: GiftsSubcategoryP
               <FaGift className="w-12 h-12" />
             </div>
             <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
-                {subcategoryData.name}
-              </h1>
-              <p className="text-xl sm:text-2xl text-white/90 max-w-3xl">
-                {subcategoryData.description}
-              </p>
-              <div className="mt-4 text-lg text-white/80">
-                {subcategoryProducts.length} gifts available
-              </div>
+              <h1 className="text-4xl sm:text-5xl font-bold mb-4">{subcategoryData.name}</h1>
+              <p className="text-xl text-black/90">{subcategoryData.description}</p>
+              <div className="mt-4 text-lg text-black/80">{subcategoryProducts.length} gifts available</div>
             </div>
           </div>
         </div>
@@ -100,11 +94,11 @@ export default async function GiftsSubcategoryPage({ params }: GiftsSubcategoryP
           <nav className="text-sm">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-purple-600 transition-colors">Home</Link>
+                <Link href="/" className="text-gray-500 hover:text-black transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="flex items-center">
-                <Link href="/gifts" className="text-gray-500 hover:text-purple-600 transition-colors">Gifts</Link>
+                <Link href="/gifts" className="text-gray-500 hover:text-black transition-colors">Gifts</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="text-gray-700 font-medium">{subcategoryData.name}</li>
@@ -113,57 +107,54 @@ export default async function GiftsSubcategoryPage({ params }: GiftsSubcategoryP
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        {/* Products Grid */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 sm:mb-0">
-              All {subcategoryData.name} ({subcategoryProducts.length})
-            </h2>
-            <div className="flex items-center space-x-4">
-              <label htmlFor="sort" className="text-gray-700 font-medium">Sort by:</label>
-              <select 
-                id="sort" 
-                className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              >
-                <option value="name">Name A-Z</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="newest">Newest First</option>
-              </select>
+      {/* Products Grid */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">{subcategoryData.name} Collection</h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            {subcategoryData.description}
+          </p>
+        </div>
+
+        {subcategoryProducts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {subcategoryProducts.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                categoryColor="bg-black"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No gifts found</h3>
+            <p className="text-gray-600 mb-8">
+              We don't have any {subcategoryData.name.toLowerCase()} in stock right now, but we're constantly adding new gifts to our collection.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/gifts">
+                <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                  Browse Other Gift Categories
+                </button>
+              </Link>
             </div>
           </div>
+        )}
 
-          {subcategoryProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {subcategoryProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  categoryLabel="Premium"
-                  categoryColor="bg-purple-600"
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <div className="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                <FaGift className="w-12 h-12 text-gray-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">No {subcategoryData.name} Found</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                We don't have any {subcategoryData.name.toLowerCase()} in stock right now, but we're constantly adding new gifts to our collection.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/gifts">
-                  <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                    Browse Other Gift Types
-                  </button>
-                </Link>
-              </div>
-            </div>
-          )}
+        {/* Quick Access to All Gifts */}
+        <div className="mt-16 text-center">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Browse All Gifts</h3>
+            <p className="text-gray-600 mb-6">
+              Can't find what you're looking for? Browse our complete gift collection
+            </p>
+            <Link href="/gifts">
+              <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                View All Gifts
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
 

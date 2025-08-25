@@ -18,25 +18,25 @@ export default async function PopularProductsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+      <div className="bg-gradient-to-r from-white to-gray-100 text-black">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Popular Products
             </h1>
-            <p className="text-xl md:text-2xl text-purple-100 max-w-3xl mx-auto mb-8">
-              Discover our most loved and best-selling products that customers can't get enough of
+            <p className="text-xl md:text-2xl text-black/90 max-w-3xl mx-auto mb-8">
+              Discover our most loved and bestselling products
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/products"
-                className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                className="bg-black text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
               >
                 View All Products
               </Link>
               <Link
                 href="/products"
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors"
+                className="border-2 border-black text-black px-8 py-3 rounded-lg font-semibold hover:bg-black hover:text-white transition-colors"
               >
                 Browse Products
               </Link>

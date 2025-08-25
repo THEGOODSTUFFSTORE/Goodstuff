@@ -9,13 +9,13 @@ export default function ProductsPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-red-600 to-red-800 text-white py-12 md:py-16 lg:py-20">
+      <div className="bg-gradient-to-r from-white to-gray-100 text-black py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               Premium Products Collection
             </h1>
-            <p className="text-lg md:text-xl text-red-100 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-black/90 max-w-2xl mx-auto">
               Discover our curated selection of premium wines, spirits, and specialty beverages
             </p>
           </div>

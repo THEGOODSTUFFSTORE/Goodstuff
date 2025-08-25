@@ -16,7 +16,7 @@ export default function AddToBasketButton({ productId, className }: AddToBasketB
   };
 
   // Standardized button styling - this will be consistent across all product cards
-  const defaultClassName = "w-full bg-[#A76545] text-white py-3 px-4 rounded-xl font-semibold hover:bg-[#8B543A] focus:outline-none focus:ring-2 focus:ring-[#A76545] focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl";
+  const defaultClassName = "w-full bg-[#000000] text-white py-3 px-4 rounded-xl font-semibold hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-[#000000] focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl";
 
   return (
     <button 

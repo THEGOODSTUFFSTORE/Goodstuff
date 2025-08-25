@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { FaCocktail } from 'react-icons/fa';
+import { FaGlassWhiskey } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import ProductCard from '@/app/components/ProductCard';
@@ -16,17 +16,17 @@ export default async function GinPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[#A76545] to-[#8B4513] text-white py-20">
+      <div className="bg-gradient-to-r from-white to-gray-100 text-black py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <FaCocktail className="w-16 h-16 mx-auto mb-6 text-white/80" />
+            <FaGlassWhiskey className="w-16 h-16 mx-auto mb-6 text-black/80" />
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
               Gin Collection
             </h1>
-            <p className="text-xl sm:text-2xl text-[#F5DEB3] max-w-3xl mx-auto">
-              Explore our curated selection of botanical and craft gins
+            <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
+              Discover premium gins with unique botanical profiles
             </p>
-            <div className="mt-8 text-lg text-[#F5DEB3]">
+            <div className="mt-8 text-lg text-black/80">
               {ginProducts.length} gins available • Free delivery for products above Ksh. 5000
             </div>
           </div>
@@ -39,7 +39,7 @@ export default async function GinPage() {
           <nav className="text-sm">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-[#A76545] transition-colors">Home</Link>
+                <Link href="/" className="text-gray-500 hover:text-black transition-colors">Home</Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
               <li className="text-gray-700 font-medium">Gin</li>
@@ -51,57 +51,55 @@ export default async function GinPage() {
       {/* Products Grid */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Gin Collection</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Premium Gin Selection</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            From London Dry to contemporary craft gins, discover your new favorite
+            From London Dry to Contemporary styles, explore our curated gin collection
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {ginProducts.map((product: Product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              categoryLabel="Gin"
-              categoryColor="bg-[#A76545]"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {ginProducts.map((product) => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              categoryColor="bg-black"
             />
           ))}
         </div>
 
-        {/* No products found */}
-        {ginProducts.length === 0 && (
-          <div className="text-center py-16">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No gins available</h3>
-            <p className="text-gray-600 mb-8">
-              Please check back later for our gin collection.
+        {/* Quick Access to All Gins */}
+        <div className="mt-16 text-center">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Browse All Gins</h3>
+            <p className="text-gray-600 mb-6">
+              Can't find what you're looking for? Browse our complete gin collection
             </p>
-            <Link
-              href="/products"
-              className="bg-[#A76545] text-white px-6 py-3 rounded-lg hover:bg-[#8B4513] transition-colors"
-            >
-              Browse All Products
+            <Link href="/products?category=gin">
+              <button className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                View All {ginProducts.length} Gins
+              </button>
             </Link>
           </div>
-        )}
+        </div>
 
         {/* Gin Education */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <h4 className="text-xl font-bold text-[#A76545] mb-3">Perfect G&T</h4>
+          <div className="bg-white rounded-xl p-6 shadow-lg">
+            <h4 className="text-xl font-bold text-black mb-3">Perfect G&T</h4>
             <p className="text-gray-600 text-sm">
-              Master the art of making the perfect Gin & Tonic with our expert tips.
+              Learn the art of crafting the perfect gin and tonic with our expert guide.
             </p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <h4 className="text-xl font-bold text-[#A76545] mb-3">Botanicals Guide</h4>
+          <div className="bg-white rounded-xl p-6 shadow-lg">
+            <h4 className="text-xl font-bold text-black mb-3">Botanicals Guide</h4>
             <p className="text-gray-600 text-sm">
-              Explore the unique botanical profiles that make each gin special.
+              Discover the key botanicals that give each gin its unique character and flavor.
             </p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <h4 className="text-xl font-bold text-[#A76545] mb-3">Cocktail Ideas</h4>
+          <div className="bg-white rounded-xl p-6 shadow-lg">
+            <h4 className="text-xl font-bold text-black mb-3">Cocktail Ideas</h4>
             <p className="text-gray-600 text-sm">
-              Discover classic and contemporary gin cocktail recipes.
+              Explore creative gin cocktail recipes beyond the classic G&T.
             </p>
           </div>
         </div>

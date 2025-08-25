@@ -16,16 +16,16 @@ export default function ShippingPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-green-600 to-green-800 text-white py-20">
+      <div className="bg-gradient-to-r from-white to-gray-100 text-black py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <FaTruck className="w-20 h-20" />
+              <FaTruck className="w-20 h-20 text-black" />
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
               Shipping & Returns
             </h1>
-            <p className="text-xl sm:text-2xl text-green-100 max-w-3xl mx-auto">
+            <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
               Fast, reliable delivery and hassle-free returns
             </p>
           </div>

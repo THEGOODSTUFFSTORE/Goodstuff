@@ -17,16 +17,16 @@ export default function AboutPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-red-600 to-red-800 text-white py-20">
+      <div className="bg-gradient-to-r from-white to-gray-100 text-black py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <GiWineBottle className="w-20 h-20" />
+              <GiWineBottle className="w-20 h-20 text-black" />
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
               About The Goodstuff
             </h1>
-            <p className="text-xl sm:text-2xl text-red-100 max-w-3xl mx-auto">
+            <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
               Your premier destination for fine wines, spirits, and exceptional beverages
             </p>
           </div>
