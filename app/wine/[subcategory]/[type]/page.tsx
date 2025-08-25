@@ -94,7 +94,7 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
               <div key={product.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                 <div className="h-48 bg-gray-100 relative overflow-hidden">
                   <img 
-                    src={product.image || '/default-wine.jpg'} 
+                    src={product.productImage || '/default-wine.jpg'} 
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
