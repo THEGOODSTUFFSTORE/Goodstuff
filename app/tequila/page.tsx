@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaGlassWhiskey } from 'react-icons/fa';
 import { GiMartini } from 'react-icons/gi';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
