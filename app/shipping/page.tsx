@@ -252,7 +252,7 @@ export default function ShippingPage() {
                       <span className="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">1</span>
                       <div>
                         <strong className="text-gray-900">Contact Us:</strong>
-                        <span className="text-gray-700"> Call us within 24 hours of delivery at +254 700 000 000</span>
+                        <span className="text-gray-700"> Call us within 24 hours of delivery at 0742829072</span>
                       </div>
                     </li>
                     <li className="flex items-start">
@@ -304,21 +304,21 @@ export default function ShippingPage() {
                       <FaPhoneAlt className="w-5 h-5 text-green-600 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">Phone Support</p>
-                        <p className="text-gray-700">+254 700 000 000</p>
+                        <p className="text-gray-700">0742829072</p>
                       </div>
                     </div>
                     <div className="flex items-center">
                       <FaBox className="w-5 h-5 text-green-600 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">Email Support</p>
-                        <p className="text-gray-700">support@thegoodstuff.co.ke</p>
+                        <p className="text-gray-700">tgsliquorstore@gmail.com</p>
                       </div>
                     </div>
                     <div className="flex items-center">
                       <FaMapMarkerAlt className="w-5 h-5 text-green-600 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">WhatsApp</p>
-                        <p className="text-gray-700">+254 700 000 000</p>
+                        <p className="text-gray-700">0742829072</p>
                       </div>
                     </div>
                   </div>

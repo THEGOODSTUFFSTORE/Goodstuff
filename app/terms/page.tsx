@@ -220,8 +220,8 @@ export default function TermsPage() {
                     If you have any questions about these Terms and Conditions, please contact us:
                   </p>
                   <ul className="space-y-2">
-                    <li><strong>Email:</strong> legal@thegoodstuff.co.ke</li>
-                    <li><strong>Phone:</strong> +254 700 000 000</li>
+                    <li><strong>Email:</strong> tgsliquorstore@gmail.com</li>
+                    <li><strong>Phone:</strong> 0742829072</li>
                     <li><strong>Address:</strong> Nairobi, Kenya</li>
                   </ul>
                 </div>

@@ -153,12 +153,12 @@ export default function AboutPage() {
               <div className="flex flex-col items-center">
                 <FaPhone className="w-8 h-8 text-red-600 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Phone</h3>
-                <p className="text-gray-700">+254 700 000 000</p>
+                <p className="text-gray-700">0742829072</p>
               </div>
               <div className="flex flex-col items-center">
                 <FaEnvelope className="w-8 h-8 text-red-600 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Email</h3>
-                <p className="text-gray-700">info@thegoodstuff.co.ke</p>
+                <p className="text-gray-700">tgsliquorstore@gmail.com</p>
               </div>
             </div>
           </div>
