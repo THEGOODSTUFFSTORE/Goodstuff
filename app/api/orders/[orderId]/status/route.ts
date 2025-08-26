@@ -70,12 +70,14 @@ export async function PATCH(
 
     await updateOrderServer(orderId, updateData);
 
-    // Send appropriate WhatsApp notifications
+    // Send appropriate email notifications (non-blocking)
     if (status === 'shipped') {
+      // Fire and forget - don't wait for email to send
       sendOrderNotifications(orderData as any, 'shipped', driverNumber).catch((error: unknown) => {
         console.error('Failed to send shipping notification:', error);
       });
     } else if (status === 'delivered' || status === 'completed') {
+      // Fire and forget - don't wait for email to send
       sendOrderNotifications(orderData as any, 'delivered').catch((error: unknown) => {
         console.error('Failed to send delivery notification:', error);
       });

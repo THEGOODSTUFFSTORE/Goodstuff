@@ -466,6 +466,21 @@ const AdminDashboard = () => {
 
   const handleUpdateOrderStatus = async (orderId: string, status: string, trackingNumber?: string) => {
     try {
+      // OPTIMISTIC UPDATE: Update UI immediately
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { 
+                ...order, 
+                status: status as Order['status'], 
+                trackingNumber: trackingNumber || order.trackingNumber,
+                updatedAt: new Date().toISOString()
+              } as Order
+            : order
+        )
+      );
+
+      // API call in background (non-blocking)
       const response = await fetch(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
@@ -478,17 +493,21 @@ const AdminDashboard = () => {
         throw new Error('Failed to update order status');
       }
 
-      // Refresh orders list
-      if (activeTab === 'orders') {
-        const response = await fetch('/api/orders');
-        if (!response.ok) {
-          throw new Error('Failed to fetch orders');
-        }
-        const fetchedOrders = await response.json();
-        setOrders(fetchedOrders);
-      }
+      // Success - no need to refresh, UI is already updated
+      console.log('Order status updated successfully');
+
     } catch (error) {
       console.error('Error updating order status:', error);
+      
+      // REVERT OPTIMISTIC UPDATE on error
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: order.status } // Revert to original status
+            : order
+        )
+      );
+      
       alert('Error updating order status. Please try again.');
     }
   };
@@ -1197,6 +1216,7 @@ const AdminDashboard = () => {
     const OrderStatusDropdown = ({ order }: { order: Order }) => {
       const [isOpen, setIsOpen] = useState(false);
       const [driverNumber, setDriverNumber] = useState(order.trackingNumber || '');
+      const [isUpdating, setIsUpdating] = useState(false);
 
       const statuses = [
         { value: 'pending', label: 'Pending' },
@@ -1208,28 +1228,54 @@ const AdminDashboard = () => {
       ];
 
       const handleStatusUpdate = (newStatus: string) => {
+        // Close dropdown immediately for better UX
+        setIsOpen(false);
+        
+        // Set loading state
+        setIsUpdating(true);
+        
         if (newStatus === 'shipped' && !driverNumber.trim()) {
           const driver = prompt('Please enter driver number:');
           if (driver) {
             setDriverNumber(driver);
-            handleUpdateOrderStatus(order.id, newStatus, driver);
+            handleUpdateOrderStatus(order.id, newStatus, driver).finally(() => {
+              setIsUpdating(false);
+            });
+          } else {
+            setIsUpdating(false);
           }
         } else {
-          handleUpdateOrderStatus(order.id, newStatus, driverNumber);
+          handleUpdateOrderStatus(order.id, newStatus, driverNumber).finally(() => {
+            setIsUpdating(false);
+          });
         }
-        setIsOpen(false);
       };
 
       return (
         <div className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)} hover:opacity-80`}
+            disabled={isUpdating}
+            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)} hover:opacity-80 ${
+              isUpdating ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-            <svg className="ml-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+            {isUpdating ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-1 h-3 w-3" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Updating...
+              </>
+            ) : (
+              <>
+                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                <svg className="ml-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </>
+            )}
           </button>
 
           {isOpen && (
