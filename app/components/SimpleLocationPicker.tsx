@@ -13,11 +13,11 @@ interface SimpleLocationPickerProps {
   }) => void;
 }
 
-// Store location - PW6X+PX Nairobi Plus Code (Exact coordinates)
+// Store location - The Good Stuff Liquor Store Limited, Naivas, Eastern Bypass, Nairobi
 const STORE_LOCATION = {
-  latitude: -1.2879348337458791, // PW6X+PX Nairobi - Exact coordinates
-  longitude: 36.950018116573766, // PW6X+PX Nairobi - Exact coordinates
-  name: "Goodstuff Store"
+  latitude: -1.2879348337458791, // PW6X+GXH Eastern Bypass, Nairobi
+  longitude: 36.950018116573766, // PW6X+GXH Eastern Bypass, Nairobi
+  name: "The Good Stuff Liquor Store Limited"
 };
 
 // Load Google Maps script

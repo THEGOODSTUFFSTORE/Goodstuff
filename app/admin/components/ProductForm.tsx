@@ -51,7 +51,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
         alcoholContent: product.alcoholContent || '',
         volume: product.volume || '',
         brand: product.brand || '',
-        status: 'active',
+        status: product.status || 'active',
         sections: product.sections || [],
         image: null as File | null,
       });
@@ -158,6 +158,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
     setIsLoading(true);
 
     try {
+      // Automatically determine status based on stock and user selection
+      const stockQuantity = parseInt(formData.stockQuantity as string) || 0;
+      let finalStatus = formData.status;
+      
+      // Override status if stock is 0 and user hasn't explicitly set it to discontinued
+      if (stockQuantity === 0 && formData.status !== 'discontinued') {
+        finalStatus = 'out_of_stock';
+      }
+      
       const productData = {
         name: formData.name,
         slug: formData.name.toLowerCase().replace(/\s+/g, '-'),
@@ -166,7 +175,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
         type: formData.type,
         productImage: product?.productImage || '',
         price: parseFloat(formData.price as string) || 0,
-        stockQuantity: parseInt(formData.stockQuantity as string) || 0,
+        stockQuantity: stockQuantity,
         description: formData.description,
         detailedDescription: formData.detailedDescription,
         tastingNotes: formData.tastingNotes,
@@ -175,7 +184,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
         alcoholContent: formData.alcoholContent,
         volume: formData.volume,
         brand: formData.brand,
-        status: 'active',
+        status: finalStatus,
         sections: formData.sections,
         updatedAt: new Date().toISOString(),
       };
@@ -360,6 +369,37 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
               placeholder="Enter stock quantity"
             />
+            {parseInt(formData.stockQuantity) === 0 && (
+              <p className="mt-1 text-sm text-red-600">
+                ⚠️ Product will be marked as "Out of Stock" when saved
+              </p>
+            )}
+          </div>
+
+          {/* Product Status */}
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+              Product Status *
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
+            >
+              <option value="active">Active (Visible to customers)</option>
+              <option value="inactive">Inactive (Hidden from customers)</option>
+              <option value="out_of_stock">Out of Stock (Hidden from customers)</option>
+              <option value="discontinued">Discontinued</option>
+            </select>
+            <p className="mt-1 text-sm text-gray-600">
+              {formData.status === 'active' && 'Product will be visible to customers'}
+              {formData.status === 'inactive' && 'Product will be hidden from customers'}
+              {formData.status === 'out_of_stock' && 'Product will be hidden until restocked'}
+              {formData.status === 'discontinued' && 'Product will be permanently hidden'}
+            </p>
           </div>
 
           {/* Price and Brand */}

@@ -53,6 +53,8 @@ interface Tab {
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
+  const [stockFilter, setStockFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -491,11 +493,37 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(product => {
+    // Text search filter
+    const matchesSearch = 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Stock filter
+    let matchesStock = true;
+    if (stockFilter === 'in_stock') {
+      matchesStock = product.stockQuantity > 0;
+    } else if (stockFilter === 'low_stock') {
+      matchesStock = product.stockQuantity > 0 && product.stockQuantity <= 10;
+    } else if (stockFilter === 'out_of_stock') {
+      matchesStock = product.stockQuantity === 0;
+    }
+    
+    // Status filter
+    let matchesStatus = true;
+    if (statusFilter === 'active') {
+      matchesStatus = product.status === 'active';
+    } else if (statusFilter === 'inactive') {
+      matchesStatus = product.status === 'inactive';
+    } else if (statusFilter === 'out_of_stock') {
+      matchesStatus = product.status === 'out_of_stock';
+    } else if (statusFilter === 'discontinued') {
+      matchesStatus = product.status === 'discontinued';
+    }
+    
+    return matchesSearch && matchesStock && matchesStatus;
+  });
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -521,6 +549,38 @@ const AdminDashboard = () => {
             </div>
             <div className="p-2 md:p-3 bg-gray-50 rounded-xl">
               <ShoppingCart className="h-5 w-5 md:h-6 md:w-6 text-gray-600" />
+            </div>
+          </div>
+        </div>
+
+        {/* Stock Summary Card */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 transition-all duration-200 hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Stock Status</p>
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">In Stock:</span>
+                  <span className="text-lg font-bold text-green-600">
+                    {products.filter(p => p.stockQuantity > 0 && p.status === 'active').length}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Low Stock:</span>
+                  <span className="text-lg font-bold text-orange-600">
+                    {products.filter(p => p.stockQuantity > 0 && p.stockQuantity <= 10 && p.status === 'active').length}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Out of Stock:</span>
+                  <span className="text-lg font-bold text-red-600">
+                    {products.filter(p => p.stockQuantity === 0 || p.status === 'out_of_stock').length}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="p-2 md:p-3 bg-gray-50 rounded-xl">
+              <Package className="h-5 w-5 md:h-6 md:w-6 text-gray-600" />
             </div>
           </div>
         </div>
@@ -619,6 +679,37 @@ const AdminDashboard = () => {
             <Download className="h-4 w-4" />
             <span>Export</span>
           </button>
+          
+          {/* Quick Stock Actions */}
+          <button
+            onClick={() => {
+              const lowStockProducts = products.filter(p => p.stockQuantity <= 10 && p.stockQuantity > 0);
+              if (lowStockProducts.length > 0) {
+                alert(`Low stock alert! ${lowStockProducts.length} products have 10 or fewer items remaining.`);
+              } else {
+                alert('All products have sufficient stock!');
+              }
+            }}
+            className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-xl hover:bg-orange-100 transition-all duration-200"
+          >
+            <Package className="h-4 w-4" />
+            <span>Check Low Stock</span>
+          </button>
+          
+          <button
+            onClick={() => {
+              const outOfStockProducts = products.filter(p => p.stockQuantity === 0);
+              if (outOfStockProducts.length > 0) {
+                alert(`Out of stock alert! ${outOfStockProducts.length} products need restocking.`);
+              } else {
+                alert('All products are in stock!');
+              }
+            }}
+            className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-all duration-200"
+          >
+            <Package className="h-4 w-4" />
+            <span>Check Out of Stock</span>
+          </button>
         </div>
       </div>
 
@@ -635,10 +726,31 @@ const AdminDashboard = () => {
           />
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200">
-            <Filter className="h-4 w-4" />
-            <span>Filters</span>
-          </button>
+          {/* Stock Filter */}
+          <select
+            value={stockFilter}
+            onChange={(e) => setStockFilter(e.target.value)}
+            className="px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
+          >
+            <option value="all">All Stock Levels</option>
+            <option value="in_stock">In Stock</option>
+            <option value="low_stock">Low Stock (1-10)</option>
+            <option value="out_of_stock">Out of Stock</option>
+          </select>
+          
+          {/* Status Filter */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
+          >
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="out_of_stock">Out of Stock</option>
+            <option value="discontinued">Discontinued</option>
+          </select>
+          
           <div className="flex rounded-xl border border-gray-200 overflow-hidden">
             <button
               onClick={() => setViewMode('table')}
@@ -734,15 +846,42 @@ const AdminDashboard = () => {
                         KES {product.price.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          product.stockQuantity > 10
-                            ? 'bg-green-100 text-green-800'
-                            : product.stockQuantity > 0
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {product.stockQuantity} in stock
-                        </span>
+                        <div className="space-y-1">
+                          {/* Stock Quantity */}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            product.stockQuantity > 10
+                              ? 'bg-green-100 text-green-800'
+                              : product.stockQuantity > 0
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {product.stockQuantity} in stock
+                          </span>
+                          
+                          {/* Status Badge */}
+                          <div className="flex items-center space-x-1">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              product.status === 'active' ? 'bg-blue-100 text-blue-800' :
+                              product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                              product.status === 'out_of_stock' ? 'bg-red-100 text-red-800' :
+                              product.status === 'discontinued' ? 'bg-gray-100 text-gray-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {product.status === 'active' ? 'Active' :
+                               product.status === 'inactive' ? 'Inactive' :
+                               product.status === 'out_of_stock' ? 'Out of Stock' :
+                               product.status === 'discontinued' ? 'Discontinued' :
+                               'Unknown'}
+                            </span>
+                            
+                            {/* Low Stock Alert */}
+                            {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                                Low Stock!
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
@@ -828,19 +967,46 @@ const AdminDashboard = () => {
                       </span>
                     )}
                   </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">
-                      KES {product.price.toFixed(2)}
-                    </span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      product.stockQuantity > 10
-                        ? 'bg-green-100 text-green-800'
-                        : product.stockQuantity > 0
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {product.stockQuantity} in stock
-                    </span>
+                  <div className="mt-2 space-y-2">
+                    {/* Price and Stock */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">
+                        KES {product.price.toFixed(2)}
+                      </span>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        product.stockQuantity > 10
+                          ? 'bg-green-100 text-green-800'
+                          : product.stockQuantity > 0
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {product.stockQuantity} in stock
+                      </span>
+                    </div>
+                    
+                    {/* Status and Alerts */}
+                    <div className="flex items-center space-x-1">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        product.status === 'active' ? 'bg-blue-100 text-blue-800' :
+                        product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                        product.status === 'out_of_stock' ? 'bg-red-100 text-red-800' :
+                        product.status === 'discontinued' ? 'bg-gray-100 text-gray-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {product.status === 'active' ? 'Active' :
+                         product.status === 'inactive' ? 'Inactive' :
+                         product.status === 'out_of_stock' ? 'Out of Stock' :
+                         product.status === 'discontinued' ? 'Discontinued' :
+                         'Unknown'}
+                      </span>
+                      
+                      {/* Low Stock Alert */}
+                      {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                          Low Stock!
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

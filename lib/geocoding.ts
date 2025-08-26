@@ -103,22 +103,24 @@ export interface DeliveryTier {
 }
 
 export const DEFAULT_DELIVERY_TIERS: DeliveryTier[] = [
-  { maxDistance: 1, fee: 70, label: "Within 1km" },
-  { maxDistance: 5, fee: 350, label: "1-5km" },
-  { maxDistance: 10, fee: 700, label: "5-10km" },
-  { maxDistance: 20, fee: 1400, label: "10-20km" },
-  { maxDistance: 50, fee: 3500, label: "20-50km" },
-  { maxDistance: Infinity, fee: 7000, label: "Beyond 50km" }
+  { maxDistance: 3, fee: 100, label: "0-3km" },
+  { maxDistance: 5, fee: 200, label: "3-5km" }
 ];
 
-// Calculate delivery fee: 70 KES per kilometer from store to user address
-// Minimum delivery fee: 70 KES (for distances less than 1km)
+
 export function calculateDeliveryFee(distance: number, tiers: DeliveryTier[] = DEFAULT_DELIVERY_TIERS): number {
-  // Calculate delivery fee: 70 KES per kilometer
-  const deliveryFee = Math.round(distance * 70);
+  // For distances 0-3km: 100 KES
+  if (distance <= 3) {
+    return 100;
+  }
   
-  // Ensure minimum delivery fee of 70 KES (for distances less than 1km)
-  return Math.max(deliveryFee, 70);
+  // For distances 3-5km: 200 KES
+  if (distance <= 5) {
+    return 200;
+  }
+  
+  // For distances above 5km: 35 KES per km
+  return 200 + Math.round((distance - 5) * 35);
 }
 
 // Format distance for display
@@ -132,10 +134,16 @@ export function formatDistance(distance: number): string {
 // Format delivery fee calculation for display
 export function formatDeliveryFeeCalculation(distance: number): string {
   const fee = calculateDeliveryFee(distance);
-  if (distance < 1) {
-    return `Minimum delivery fee: Ksh 70`;
+  
+  if (distance <= 3) {
+    return `0-3km: Ksh 100`;
+  } else if (distance <= 5) {
+    return `3-5km: Ksh 200`;
+  } else {
+    const additionalKm = distance - 5;
+    const additionalFee = Math.round(additionalKm * 35);
+    return `5km base (Ksh 200) + ${additionalKm.toFixed(1)}km × Ksh 35/km = Ksh ${fee.toLocaleString()}`;
   }
-  return `${distance.toFixed(1)}km × Ksh 70/km = Ksh ${fee.toLocaleString()}`;
 }
 
 // Example usage with Google Maps API (commented out)

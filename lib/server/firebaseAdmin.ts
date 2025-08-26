@@ -224,8 +224,17 @@ export const reduceProductInventory = async (orderItems: any[]): Promise<void> =
         
         console.log(`Reducing inventory for product ${item.productId}: ${currentStock} - ${orderedQuantity} = ${newStock}`);
         
+        // Automatically update product status based on stock
+        let newStatus = productData?.status || 'active';
+        if (newStock === 0) {
+          newStatus = 'out_of_stock';
+        } else if (newStock <= 10 && newStatus === 'out_of_stock') {
+          newStatus = 'active'; // Reactivate if stock is restored
+        }
+        
         batch.update(productRef, {
           stockQuantity: newStock,
+          status: newStatus,
           updatedAt: new Date().toISOString()
         });
       } else {

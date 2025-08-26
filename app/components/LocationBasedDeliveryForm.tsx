@@ -21,11 +21,11 @@ interface LocationBasedDeliveryFormProps {
   }) => void;
 }
 
-// Store location (you should replace with your actual store coordinates)
+// Store location - The Good Stuff Liquor Store Limited, Naivas, Eastern Bypass, Nairobi
 const STORE_LOCATION = {
-  latitude: -1.2921, // Nairobi coordinates - replace with your store's actual location
-  longitude: 36.8219,
-  name: "Goodstuff Store"
+  latitude: -1.2879348337458791, // PW6X+GXH Eastern Bypass, Nairobi
+  longitude: 36.950018116573766, // PW6X+GXH Eastern Bypass, Nairobi
+  name: "The Good Stuff Liquor Store Limited"
 };
 
 // Use delivery tiers from utility functions

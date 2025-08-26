@@ -52,7 +52,7 @@ export const generateOrderConfirmationEmail = (order: Order): EmailTemplate => {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Order Confirmation - ${order.id}</title>
+      <title>Order Confirmation - ${order.orderNumber || order.id}</title>
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
@@ -67,7 +67,7 @@ export const generateOrderConfirmationEmail = (order: Order): EmailTemplate => {
         
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin: 0 0 10px 0; color: #374151;">Order Details</h3>
-          <p style="margin: 5px 0;"><strong>Order ID:</strong> ${order.id}</p>
+          <p style="margin: 5px 0;"><strong>Order Number:</strong> ${order.orderNumber || order.id}</p>
           <p style="margin: 5px 0;"><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
           <p style="margin: 5px 0;"><strong>Status:</strong> ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</p>
           <p style="margin: 5px 0;"><strong>Payment Status:</strong> ${order.paymentStatus ? order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1) : 'Pending'}</p>
@@ -137,7 +137,7 @@ Dear ${order.shippingAddress?.name || 'Valued Customer'},
 Thank you for your order! We've received your order and it's being processed.
 
 Order Details:
-- Order ID: ${order.id}
+- Order Number: ${order.orderNumber || order.id}
 - Order Date: ${new Date(order.createdAt).toLocaleDateString()}
 - Status: ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
 - Payment Status: ${order.paymentStatus ? order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1) : 'Pending'}
@@ -198,12 +198,12 @@ export const generateAdminNewOrderEmail = (order: Order): EmailTemplate => {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>New Order Alert - ${order.id}</title>
+      <title>New Order Alert - ${order.orderNumber || order.id}</title>
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background-color: #dc2626; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
         <h1 style="margin: 0; text-align: center;">🚨 NEW ORDER ALERT</h1>
-        <h2 style="margin: 10px 0; text-align: center;">Order #${order.id}</h2>
+        <h2 style="margin: 10px 0; text-align: center;">Order #${order.orderNumber || order.id}</h2>
       </div>
       
       <div style="background-color: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e5e7eb;">
@@ -265,7 +265,7 @@ export const generateAdminNewOrderEmail = (order: Order): EmailTemplate => {
   const text = `
 NEW ORDER ALERT - ${COMPANY_NAME}
 
-Order #${order.id}
+Order #${order.orderNumber || order.id}
 
 Order Summary:
 - Order Value: KES ${order.totalAmount.toLocaleString()}
@@ -309,12 +309,12 @@ export const generateOrderShippedEmail = (order: Order, trackingNumber?: string)
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Order Shipped - ${order.id}</title>
+      <title>Order Shipped - ${order.orderNumber || order.id}</title>
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background-color: #065f46; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
         <h1 style="margin: 0; text-align: center;">📦 ORDER SHIPPED</h1>
-        <h2 style="margin: 10px 0; text-align: center;">Order #${order.id}</h2>
+        <h2 style="margin: 10px 0; text-align: center;">Order #${order.orderNumber || order.id}</h2>
       </div>
       
       <div style="background-color: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e5e7eb;">
@@ -324,7 +324,7 @@ export const generateOrderShippedEmail = (order: Order, trackingNumber?: string)
         
         <div style="background-color: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
           <h3 style="margin: 0 0 10px 0; color: #065f46;">Shipping Details</h3>
-          <p style="margin: 5px 0;"><strong>Order ID:</strong> ${order.id}</p>
+          <p style="margin: 5px 0;"><strong>Order Number:</strong> ${order.orderNumber || order.id}</p>
           <p style="margin: 5px 0;"><strong>Shipping Date:</strong> ${new Date().toLocaleDateString()}</p>
           ${trackingNumber ? `<p style="margin: 5px 0;"><strong>Tracking Number:</strong> ${trackingNumber}</p>` : ''}
         </div>
@@ -333,7 +333,7 @@ export const generateOrderShippedEmail = (order: Order, trackingNumber?: string)
           <h3 style="margin: 0 0 10px 0; color: #1e40af;">Delivery Information</h3>
           <p style="margin: 0; color: #1e3a8a;">
             Your order will be delivered to the address you provided during checkout.
-            Expected delivery time is typically 1-3 business days within Nairobi and 2-5 business days for other locations.
+            Expected delivery time is typically 30-40 minutes within Nairobi and 2-5 business days for other locations.
           </p>
         </div>
 
@@ -359,13 +359,13 @@ Dear ${order.shippingAddress?.name || 'Valued Customer'},
 Great news! Your order has been shipped and is on its way to you.
 
 Shipping Details:
-- Order ID: ${order.id}
+- Order Number: ${order.orderNumber || order.id}
 - Shipping Date: ${new Date().toLocaleDateString()}
 ${trackingNumber ? `- Tracking Number: ${trackingNumber}` : ''}
 
 Delivery Information:
 Your order will be delivered to the address you provided during checkout.
-Expected delivery time is typically 1-3 business days within Nairobi and 2-5 business days for other locations.
+Expected delivery time is typically 30-40 minutes within Nairobi and 2-5 business days for other locations.
 
 You can track your order status in your dashboard: ${COMPANY_WEBSITE}/dashboard
 
@@ -388,12 +388,12 @@ export const generateOrderDeliveredEmail = (order: Order): EmailTemplate => {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Order Delivered - ${order.id}</title>
+      <title>Order Delivered - ${order.orderNumber || order.id}</title>
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background-color: #059669; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
         <h1 style="margin: 0; text-align: center;">✅ ORDER DELIVERED</h1>
-        <h2 style="margin: 10px 0; text-align: center;">Order #${order.id}</h2>
+        <h2 style="margin: 10px 0; text-align: center;">Order #${order.orderNumber || order.id}</h2>
       </div>
       
       <div style="background-color: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e5e7eb;">
@@ -403,7 +403,7 @@ export const generateOrderDeliveredEmail = (order: Order): EmailTemplate => {
         
         <div style="background-color: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
           <h3 style="margin: 0 0 10px 0; color: #065f46;">Delivery Confirmation</h3>
-          <p style="margin: 5px 0;"><strong>Order ID:</strong> ${order.id}</p>
+          <p style="margin: 5px 0;"><strong>Order Number:</strong> ${order.orderNumber || order.id}</p>
           <p style="margin: 5px 0;"><strong>Delivery Date:</strong> ${new Date().toLocaleDateString()}</p>
           <p style="margin: 5px 0;"><strong>Order Total:</strong> KES ${order.totalAmount.toLocaleString()}</p>
         </div>
@@ -444,7 +444,7 @@ Dear ${order.shippingAddress?.name || 'Valued Customer'},
 Your order has been successfully delivered! We hope you enjoy your purchase.
 
 Delivery Confirmation:
-- Order ID: ${order.id}
+- Order Number: ${order.orderNumber || order.id}
 - Delivery Date: ${new Date().toLocaleDateString()}
 - Order Total: KES ${order.totalAmount.toLocaleString()}
 

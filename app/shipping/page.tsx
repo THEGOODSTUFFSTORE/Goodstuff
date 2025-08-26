@@ -137,25 +137,33 @@ export default function ShippingPage() {
                         <tr>
                           <td className="border border-gray-300 px-4 py-2">Same Day Delivery</td>
                           <td className="border border-gray-300 px-4 py-2">Within 2-4 hours</td>
-                          <td className="border border-gray-300 px-4 py-2">70 KES/km + 200 KES rush fee</td>
+                          <td className="border border-gray-300 px-4 py-2">Base delivery fee + 200 KES rush fee</td>
                         </tr>
                         <tr className="bg-gray-50">
                           <td className="border border-gray-300 px-4 py-2">Next Day Delivery</td>
                           <td className="border border-gray-300 px-4 py-2">Next business day</td>
-                          <td className="border border-gray-300 px-4 py-2">70 KES/km + 100 KES priority fee</td>
+                          <td className="border border-gray-300 px-4 py-2">Base delivery fee + 100 KES priority fee</td>
                         </tr>
                         <tr>
-                          <td className="border border-gray-300 px-4 py-2">Standard Delivery</td>
+                          <td className="border border-gray-300 px-4 py-2">Standard Delivery (Nairobi)</td>
+                          <td className="border border-gray-300 px-4 py-2">30-40 minutes</td>
+                          <td className="border border-gray-300 px-4 py-2">Base delivery fee only</td>
+                        </tr>
+                        <tr className="bg-gray-50">
+                          <td className="border border-gray-300 px-4 py-2">Standard Delivery (Other Cities)</td>
                           <td className="border border-gray-300 px-4 py-2">2-3 business days</td>
-                          <td className="border border-gray-300 px-4 py-2">70 KES/km (base rate)</td>
+                          <td className="border border-gray-300 px-4 py-2">Base delivery fee only</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                   <div className="text-sm text-gray-600 mt-3 space-y-2">
-                    <p>* Delivery fee: 70 KES per kilometer from our store to your address</p>
-                    <p>* Minimum delivery fee: 70 KES (for distances less than 1km)</p>
+                    <p>* <strong>0-3km:</strong> KES 100 delivery fee</p>
+                    <p>* <strong>3-5km:</strong> KES 200 delivery fee</p>
+                    <p>* <strong>5km and above:</strong> KES 200 base + KES 35 per additional km</p>
                     <p>* Free delivery on orders over KES 5,000 within 5km of our store</p>
+                    <p>* <strong>Nairobi delivery:</strong> 30-40 minutes for standard orders</p>
+                    <p>* <strong>Other cities:</strong> 2-3 business days for standard delivery</p>
                   </div>
                 </div>
 
@@ -167,6 +175,63 @@ export default function ShippingPage() {
                       Valid government-issued photo ID will be required. If no one of legal age is available, 
                       the delivery will not be completed and may be rescheduled.
                     </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Delivery Pricing */}
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex items-center mb-6">
+                <FaMapMarkerAlt className="w-8 h-8 text-green-600 mr-4" />
+                <h2 className="text-2xl font-bold text-gray-900">Delivery Pricing</h2>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Distance-Based Pricing</h3>
+                  <p className="text-gray-700 mb-4">
+                    Our delivery fees are calculated based on the distance from our store to your location:
+                  </p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p className="text-blue-800 text-sm">
+                      <strong>Store Location:</strong> The Good Stuff Liquor Store Limited<br/>
+                      <strong>Address:</strong> Naivas, Eastern Bypass, Nairobi<br/>
+          
+                    </p>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full border border-gray-300">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="border border-gray-300 px-4 py-2 text-left">Distance Range</th>
+                          <th className="border border-gray-300 px-4 py-2 text-left">Delivery Fee</th>
+                          <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="border border-gray-300 px-4 py-2 font-medium">0 - 3 km</td>
+                          <td className="border border-gray-300 px-4 py-2 font-semibold text-green-600">KES 100</td>
+                          <td className="border border-gray-300 px-4 py-2">Standard delivery within close proximity</td>
+                        </tr>
+                        <tr className="bg-gray-50">
+                          <td className="border border-gray-300 px-4 py-2 font-medium">3 - 5 km</td>
+                          <td className="border border-gray-300 px-4 py-2 font-semibold text-green-600">KES 200</td>
+                          <td className="border border-gray-300 px-4 py-2">Extended delivery range</td>
+                        </tr>
+                        <tr>
+                          <td className="border border-gray-300 px-4 py-2 font-medium">5+ km</td>
+                          <td className="border border-gray-300 px-4 py-2 font-semibold text-green-600">KES 200 + KES 35/km</td>
+                          <td className="border border-gray-300 px-4 py-2">Base fee + per kilometer charge</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="text-sm text-gray-600 mt-3 space-y-2">
+                    <p>* <strong>Example:</strong> For a 7km delivery: KES 200 + (2km × KES 35) = KES 270</p>
+                    <p>* <strong>Free delivery:</strong> Available on orders over KES 5,000 within 5km of our store</p>
+                    <p>* <strong>Rush fees:</strong> Additional charges apply for same-day and next-day delivery</p>
                   </div>
                 </div>
               </div>
