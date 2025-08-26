@@ -303,6 +303,35 @@ const Navbar = () => {
               >
                 All Products
               </Link>
+              
+              {/* Authentication Links */}
+              {!isAuthenticated && (
+                <>
+                  <Link
+                    href="/login"
+                    className="block px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-red-500 hover:bg-gray-50 min-h-[40px] flex items-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="block px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-red-500 hover:bg-gray-50 min-h-[40px] flex items-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Create Account
+                  </Link>
+                </>
+              )}
+              {isAuthenticated && (
+                <Link
+                  href="/dashboard"
+                  className="block px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-red-500 hover:bg-gray-50 min-h-[40px] flex items-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
             </div>
           </div>
         </div>

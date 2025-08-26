@@ -254,8 +254,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           )}
 
           {resetSent && (
-            <div className="text-green-600 text-sm text-center">
-              Password reset email sent! Check your inbox.
+            <div className="text-green-600 text-sm text-center bg-green-50 border border-green-200 rounded-md p-3">
+              <div className="font-medium mb-1">✓ Password reset email sent!</div>
+              <div className="text-xs text-green-700">
+                Check your inbox and follow the instructions in the email to reset your password.
+              </div>
             </div>
           )}
 
