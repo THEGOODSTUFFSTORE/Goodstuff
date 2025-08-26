@@ -83,7 +83,7 @@ export interface Order {
   };
   paymentMethod?: string;
   paymentStatus?: 'pending' | 'paid' | 'failed';
-  trackingNumber?: string;
+  trackingNumber?: string; // Stores the driver number for local delivery tracking
   pesapalOrderTrackingId?: string;
   pesapalPaymentStatus?: PesapalPaymentStatus;
   adminNote?: string; // Added for admin debugging and notes

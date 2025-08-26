@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { X, Package, MapPin, CreditCard, Clock, CheckCircle, Truck, User, Mail, Phone } from 'lucide-react';
+import { X, Package, MapPin, CreditCard, Clock, CheckCircle, Truck, User, Mail, Phone, Copy } from 'lucide-react';
 import { Order } from '@/lib/types';
 import Image from 'next/image';
 
@@ -46,6 +46,93 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, isOpen, on
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
+  };
+
+  const formatShippingAddress = (shippingAddress: any) => {
+    const parts = [];
+    
+    // Add exact location first (most specific) - but clean up Plus Codes
+    if (shippingAddress.exactLocation) {
+      let location = shippingAddress.exactLocation;
+      // If it's a Plus Code, try to make it more readable
+      if (location.includes('+') && location.includes(',')) {
+        // Extract the readable part before the Plus Code
+        const readablePart = location.split(',')[0].trim();
+        if (readablePart && !readablePart.includes('+')) {
+          parts.push(readablePart);
+        }
+      } else if (!location.includes('+')) {
+        parts.push(location);
+      }
+    }
+    
+    // Add custom location if available
+    if (shippingAddress.customLocation) {
+      parts.push(shippingAddress.customLocation);
+    }
+    
+    // Add area/neighborhood
+    if (shippingAddress.area) {
+      parts.push(shippingAddress.area);
+    }
+    
+    // Add city
+    if (shippingAddress.city) {
+      parts.push(shippingAddress.city);
+    }
+    
+    // Add delivery address if it's different and not a Plus Code
+    if (shippingAddress.deliveryAddress && 
+        shippingAddress.deliveryAddress !== shippingAddress.exactLocation &&
+        !shippingAddress.deliveryAddress.includes('+')) {
+      parts.push(shippingAddress.deliveryAddress);
+    }
+    
+    // Filter out duplicates, empty values, and Plus Codes
+    const uniqueParts = [...new Set(parts.filter(part => 
+      part && 
+      part.trim() && 
+      !part.includes('+') && 
+      !part.match(/^-?\d+\.\d+,\s*-?\d+\.\d+$/) // Exclude coordinate strings
+    ))];
+    
+    // If we have no readable parts, try to create a basic address
+    if (uniqueParts.length === 0) {
+      if (shippingAddress.area) {
+        uniqueParts.push(shippingAddress.area);
+      }
+      if (shippingAddress.city) {
+        uniqueParts.push(shippingAddress.city);
+      }
+      if (shippingAddress.deliveryAddress && !shippingAddress.deliveryAddress.includes('+')) {
+        uniqueParts.push(shippingAddress.deliveryAddress);
+      }
+    }
+    
+    // If still no readable parts, show a fallback
+    if (uniqueParts.length === 0) {
+      return 'Address location available (GPS coordinates)';
+    }
+    
+    return uniqueParts.join(', ');
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+      alert('Address copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('Address copied to clipboard!');
+    }
   };
 
   return (
@@ -145,67 +232,64 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, isOpen, on
                 <MapPin className="h-5 w-5 mr-2" />
                 Shipping Address
               </h3>
-              <div className="space-y-2">
-                {/* Show GPS-based delivery address if available */}
-                {order.shippingAddress.deliveryAddress && (
-                  <p className="text-gray-900">
-                    <span className="font-medium">Delivery Address:</span> {order.shippingAddress.deliveryAddress}
-                  </p>
-                )}
-                
-                {/* Show GPS coordinates if available */}
-                {order.shippingAddress.latitude && order.shippingAddress.longitude && (
-                  <p className="text-gray-900">
-                    <span className="font-medium">GPS Coordinates:</span> {order.shippingAddress.latitude.toFixed(6)}, {order.shippingAddress.longitude.toFixed(6)}
-                  </p>
-                )}
-                
+              
+              {/* Clean, Copyable Address for Uber/Bolt */}
+              <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">📍 Delivery Address (Copy for Uber/Bolt)</h4>
+                    <p className="text-gray-900 font-medium text-lg leading-relaxed">
+                      {formatShippingAddress(order.shippingAddress) || 'No address available'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(formatShippingAddress(order.shippingAddress))}
+                    className="ml-4 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span>Copy</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Additional Address Details */}
+              <div className="space-y-3">
                 {/* Show distance if available */}
                 {order.shippingAddress.distance && (
-                  <p className="text-gray-900">
-                    <span className="font-medium">Distance from Store:</span> {order.shippingAddress.distance.toFixed(2)} km
-                  </p>
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <span className="text-sm font-medium text-blue-700">Distance from Store:</span>
+                    <span className="text-sm font-bold text-blue-900">{order.shippingAddress.distance.toFixed(2)} km</span>
+                  </div>
                 )}
                 
-                {/* Fallback to structured address fields if available */}
-                {order.shippingAddress.city && (
-                  <p className="text-gray-900">
-                    <span className="font-medium">City:</span> {order.shippingAddress.city}
-                  </p>
-                )}
-                {order.shippingAddress.area && (
-                  <p className="text-gray-900">
-                    <span className="font-medium">Area:</span> {order.shippingAddress.area}
-                  </p>
-                )}
-                {order.shippingAddress.exactLocation && (
-                  <p className="text-gray-900">
-                    <span className="font-medium">Exact Location:</span> {order.shippingAddress.exactLocation}
-                  </p>
-                )}
-                {order.shippingAddress.customLocation && (
-                  <p className="text-gray-900">
-                    <span className="font-medium">Custom Location:</span> {order.shippingAddress.customLocation}
-                  </p>
+                {/* Show GPS coordinates if available (for reference only) */}
+                {order.shippingAddress.latitude && order.shippingAddress.longitude && (
+                  <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
+                    <span className="font-medium">GPS Reference:</span> {order.shippingAddress.latitude.toFixed(6)}, {order.shippingAddress.longitude.toFixed(6)}
+                  </div>
                 )}
                 
-                {/* If no address info is available, show a message */}
-                {!order.shippingAddress.deliveryAddress && !order.shippingAddress.city && (
-                  <p className="text-gray-500 italic">No detailed address information available</p>
+                {/* Show Plus Code if available (for reference only) */}
+                {order.shippingAddress.deliveryAddress && order.shippingAddress.deliveryAddress.includes('+') && (
+                  <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
+                    <span className="font-medium">Plus Code:</span> {order.shippingAddress.deliveryAddress}
+                  </div>
                 )}
               </div>
             </div>
           )}
 
-          {/* Tracking Information */}
+          {/* Driver Information */}
           {order.trackingNumber && (
             <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
               <h3 className="text-lg font-semibold text-blue-900 mb-2 flex items-center">
                 <Truck className="h-5 w-5 mr-2" />
-                Tracking Information
+                Driver Information
               </h3>
               <p className="text-blue-800">
-                <span className="font-medium">Tracking Number:</span> {order.trackingNumber}
+                <span className="font-medium">Driver Number:</span> {order.trackingNumber}
               </p>
             </div>
           )}

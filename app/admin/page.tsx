@@ -1196,7 +1196,7 @@ const AdminDashboard = () => {
 
     const OrderStatusDropdown = ({ order }: { order: Order }) => {
       const [isOpen, setIsOpen] = useState(false);
-      const [trackingNumber, setTrackingNumber] = useState(order.trackingNumber || '');
+      const [driverNumber, setDriverNumber] = useState(order.trackingNumber || '');
 
       const statuses = [
         { value: 'pending', label: 'Pending' },
@@ -1208,14 +1208,14 @@ const AdminDashboard = () => {
       ];
 
       const handleStatusUpdate = (newStatus: string) => {
-        if (newStatus === 'shipped' && !trackingNumber.trim()) {
-          const tracking = prompt('Please enter tracking number:');
-          if (tracking) {
-            setTrackingNumber(tracking);
-            handleUpdateOrderStatus(order.id, newStatus, tracking);
+        if (newStatus === 'shipped' && !driverNumber.trim()) {
+          const driver = prompt('Please enter driver number:');
+          if (driver) {
+            setDriverNumber(driver);
+            handleUpdateOrderStatus(order.id, newStatus, driver);
           }
         } else {
-          handleUpdateOrderStatus(order.id, newStatus, trackingNumber);
+          handleUpdateOrderStatus(order.id, newStatus, driverNumber);
         }
         setIsOpen(false);
       };

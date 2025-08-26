@@ -28,7 +28,7 @@ export async function PATCH(
 
     // Get the request body
     const body = await request.json();
-    const { status, trackingNumber } = body;
+    const { status, trackingNumber: driverNumber } = body;
 
     if (!status) {
       return NextResponse.json(
@@ -63,16 +63,16 @@ export async function PATCH(
       updatedAt: new Date().toISOString()
     };
 
-    // Add tracking number if provided
-    if (trackingNumber) {
-      updateData.trackingNumber = trackingNumber;
+    // Add driver number if provided
+    if (driverNumber) {
+      updateData.trackingNumber = driverNumber;
     }
 
     await updateOrderServer(orderId, updateData);
 
     // Send appropriate WhatsApp notifications
     if (status === 'shipped') {
-      sendOrderNotifications(orderData as any, 'shipped', trackingNumber).catch((error: unknown) => {
+      sendOrderNotifications(orderData as any, 'shipped', driverNumber).catch((error: unknown) => {
         console.error('Failed to send shipping notification:', error);
       });
     } else if (status === 'delivered' || status === 'completed') {
@@ -86,7 +86,7 @@ export async function PATCH(
       message: 'Order status updated successfully',
       orderId,
       status,
-      ...(trackingNumber && { trackingNumber })
+      ...(driverNumber && { driverNumber })
     });
 
   } catch (error) {

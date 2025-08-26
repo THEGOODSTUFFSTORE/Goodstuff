@@ -303,7 +303,7 @@ This is an automated notification from ${COMPANY_NAME} Order Management System
   };
 };
 
-export const generateOrderShippedEmail = (order: Order, trackingNumber?: string): EmailTemplate => {
+export const generateOrderShippedEmail = (order: Order, driverNumber?: string): EmailTemplate => {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -326,7 +326,7 @@ export const generateOrderShippedEmail = (order: Order, trackingNumber?: string)
           <h3 style="margin: 0 0 10px 0; color: #065f46;">Shipping Details</h3>
           <p style="margin: 5px 0;"><strong>Order Number:</strong> ${order.orderNumber || order.id}</p>
           <p style="margin: 5px 0;"><strong>Shipping Date:</strong> ${new Date().toLocaleDateString()}</p>
-          ${trackingNumber ? `<p style="margin: 5px 0;"><strong>Tracking Number:</strong> ${trackingNumber}</p>` : ''}
+          ${driverNumber ? `<p style="margin: 5px 0;"><strong>Driver Number:</strong> ${driverNumber}</p>` : ''}
         </div>
 
         <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
@@ -361,7 +361,7 @@ Great news! Your order has been shipped and is on its way to you.
 Shipping Details:
 - Order Number: ${order.orderNumber || order.id}
 - Shipping Date: ${new Date().toLocaleDateString()}
-${trackingNumber ? `- Tracking Number: ${trackingNumber}` : ''}
+${driverNumber ? `- Driver Number: ${driverNumber}` : ''}
 
 Delivery Information:
 Your order will be delivered to the address you provided during checkout.
@@ -585,8 +585,8 @@ export const sendAdminNewOrderEmail = async (order: Order): Promise<boolean> => 
   return await sendEmail(ADMIN_EMAIL, template);
 };
 
-export const sendOrderShippedEmail = async (order: Order, trackingNumber?: string): Promise<boolean> => {
-  const template = generateOrderShippedEmail(order, trackingNumber);
+export const sendOrderShippedEmail = async (order: Order, driverNumber?: string): Promise<boolean> => {
+  const template = generateOrderShippedEmail(order, driverNumber);
   return await sendEmail(order.userEmail, template);
 };
 
@@ -601,7 +601,7 @@ export const sendPaymentConfirmationEmail = async (order: Order): Promise<boolea
 };
 
 // Utility function to send multiple emails
-export const sendOrderNotifications = async (order: Order, type: 'created' | 'paid' | 'shipped' | 'delivered', trackingNumber?: string): Promise<void> => {
+export const sendOrderNotifications = async (order: Order, type: 'created' | 'paid' | 'shipped' | 'delivered', driverNumber?: string): Promise<void> => {
   try {
     if (DISABLE_ORDER_EMAILS) {
       console.log(`Emails disabled by DISABLE_ORDER_EMAILS. Skipping ${type} email notifications for order ${order.orderNumber || order.id}`);
@@ -618,7 +618,7 @@ export const sendOrderNotifications = async (order: Order, type: 'created' | 'pa
         await sendPaymentConfirmationEmail(order);
         break;
       case 'shipped':
-        await sendOrderShippedEmail(order, trackingNumber);
+        await sendOrderShippedEmail(order, driverNumber);
         break;
       case 'delivered':
         await sendOrderDeliveredEmail(order);
