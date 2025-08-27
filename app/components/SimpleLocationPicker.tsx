@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { calculateDistance, calculateDeliveryFee, DEFAULT_DELIVERY_TIERS, formatDeliveryFeeCalculation } from '@/lib/geocoding';
+import { calculateDistance, calculateDeliveryFee, DEFAULT_DELIVERY_TIERS } from '@/lib/geocoding';
 
 interface SimpleLocationPickerProps {
   onDeliveryFeeChange: (fee: number) => void;
@@ -51,7 +51,6 @@ export default function SimpleLocationPicker({
   const [selectedAddress, setSelectedAddress] = useState<string>('');
   const [isUsingCurrentLocation, setIsUsingCurrentLocation] = useState(false);
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
-  const [deliveryFeeDetails, setDeliveryFeeDetails] = useState<string>('');
 
   // Initialize Google Maps
   useEffect(() => {
@@ -187,7 +186,6 @@ export default function SimpleLocationPicker({
         try {
           const reverseResponse = await geocoder.geocode({
             location: { lat, lng },
-            result_type: ['street_address', 'route', 'sublocality', 'locality', 'administrative_area_level_1'],
             language: 'en'
           });
           
@@ -242,7 +240,6 @@ export default function SimpleLocationPicker({
         try {
           const areaResponse = await geocoder.geocode({
             location: { lat, lng },
-            result_type: ['locality', 'administrative_area_level_1'],
             language: 'en'
           });
           
@@ -278,7 +275,6 @@ export default function SimpleLocationPicker({
       // Calculate distance and delivery fee
       const distance = calculateDistance(lat, lng, STORE_LOCATION.latitude, STORE_LOCATION.longitude);
       const deliveryFee = calculateDeliveryFee(distance, DEFAULT_DELIVERY_TIERS);
-      const deliveryFeeDetails = formatDeliveryFeeCalculation(distance);
 
       // Update parent components
       onDeliveryFeeChange(deliveryFee);
@@ -290,7 +286,6 @@ export default function SimpleLocationPicker({
       });
 
       setDeliveryFee(deliveryFee);
-      setDeliveryFeeDetails(deliveryFeeDetails);
 
       toast.success('Location selected successfully!');
     } catch (error) {
@@ -478,7 +473,7 @@ export default function SimpleLocationPicker({
       {deliveryFee > 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
           <p className="text-sm font-medium text-yellow-800">Delivery Fee:</p>
-          <p className="text-sm text-yellow-700">{deliveryFeeDetails}</p>
+          <p className="text-sm text-yellow-700">Ksh {deliveryFee.toLocaleString()}</p>
         </div>
       )}
     </div>
