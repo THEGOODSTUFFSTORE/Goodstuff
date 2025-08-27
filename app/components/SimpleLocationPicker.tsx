@@ -121,18 +121,161 @@ export default function SimpleLocationPicker({
   // Handle location selection
   const handleLocationSelect = async (lat: number, lng: number) => {
     try {
-      // Get address from coordinates
+      // Get address from coordinates using Google Maps Geocoder
       const geocoder = new google.maps.Geocoder();
-      const response = await geocoder.geocode({ location: { lat, lng } });
-      
-      let address = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-      if (response.results && response.results.length > 0) {
-        address = response.results[0].formatted_address;
+      let address = '';
+      let humanReadableAddress = '';
+
+      // First attempt: Get detailed address
+      try {
+        const response = await geocoder.geocode({ 
+          location: { lat, lng },
+          language: 'en' // Ensure English language
+        });
+        
+        if (response.results && response.results.length > 0) {
+          const result = response.results[0];
+          
+          // Try to get the most readable address format
+          if (result.formatted_address) {
+            address = result.formatted_address;
+            
+            // Extract human-readable parts from the address
+            const addressComponents = result.address_components;
+            const readableParts = [];
+            
+            // Look for street number, route, sublocality, locality, administrative_area_level_1, country
+            const streetNumber = addressComponents.find(comp => comp.types.includes('street_number'));
+            const route = addressComponents.find(comp => comp.types.includes('route'));
+            const sublocality = addressComponents.find(comp => comp.types.includes('sublocality'));
+            const locality = addressComponents.find(comp => comp.types.includes('locality'));
+            const area = addressComponents.find(comp => comp.types.includes('administrative_area_level_1'));
+            const country = addressComponents.find(comp => comp.types.includes('country'));
+            
+            // Build human-readable address
+            if (streetNumber && route) {
+              readableParts.push(`${streetNumber.long_name} ${route.long_name}`);
+            } else if (route) {
+              readableParts.push(route.long_name);
+            }
+            
+            if (sublocality) {
+              readableParts.push(sublocality.long_name);
+            }
+            
+            if (locality) {
+              readableParts.push(locality.long_name);
+            }
+            
+            if (area) {
+              readableParts.push(area.long_name);
+            }
+            
+            if (country) {
+              readableParts.push(country.long_name);
+            }
+            
+            humanReadableAddress = readableParts.join(', ');
+          }
+        }
+      } catch (geocodeError) {
+        console.warn('Primary geocoding failed:', geocodeError);
       }
 
-      setSelectedAddress(address);
+      // Second attempt: If first attempt failed or returned plus codes, try reverse geocoding with different parameters
+      if (!humanReadableAddress || humanReadableAddress.includes('+')) {
+        try {
+          const reverseResponse = await geocoder.geocode({
+            location: { lat, lng },
+            result_type: ['street_address', 'route', 'sublocality', 'locality', 'administrative_area_level_1'],
+            language: 'en'
+          });
+          
+          if (reverseResponse.results && reverseResponse.results.length > 0) {
+            const result = reverseResponse.results[0];
+            
+            // Build address from components
+            const addressComponents = result.address_components;
+            const readableParts = [];
+            
+            const streetNumber = addressComponents.find(comp => comp.types.includes('street_number'));
+            const route = addressComponents.find(comp => comp.types.includes('route'));
+            const sublocality = addressComponents.find(comp => comp.types.includes('sublocality'));
+            const locality = addressComponents.find(comp => comp.types.includes('locality'));
+            const area = addressComponents.find(comp => comp.types.includes('administrative_area_level_1'));
+            const country = addressComponents.find(comp => comp.types.includes('country'));
+            
+            if (streetNumber && route) {
+              readableParts.push(`${streetNumber.long_name} ${route.long_name}`);
+            } else if (route) {
+              readableParts.push(route.long_name);
+            }
+            
+            if (sublocality) {
+              readableParts.push(sublocality.long_name);
+            }
+            
+            if (locality) {
+              readableParts.push(locality.long_name);
+            }
+            
+            if (area) {
+              readableParts.push(area.long_name);
+            }
+            
+            if (country) {
+              readableParts.push(country.long_name);
+            }
+            
+            if (readableParts.length > 0) {
+              humanReadableAddress = readableParts.join(', ');
+            }
+          }
+        } catch (reverseError) {
+          console.warn('Reverse geocoding failed:', reverseError);
+        }
+      }
 
-      // Calculate distance and delivery fee (hidden from user)
+      // Fallback: If all geocoding attempts fail, create a descriptive location
+      if (!humanReadableAddress) {
+        // Try to get at least the area name
+        try {
+          const areaResponse = await geocoder.geocode({
+            location: { lat, lng },
+            result_type: ['locality', 'administrative_area_level_1'],
+            language: 'en'
+          });
+          
+          if (areaResponse.results && areaResponse.results.length > 0) {
+            const result = areaResponse.results[0];
+            const locality = result.address_components.find(comp => comp.types.includes('locality'));
+            const area = result.address_components.find(comp => comp.types.includes('administrative_area_level_1'));
+            
+            if (locality && area) {
+              humanReadableAddress = `${locality.long_name}, ${area.long_name}`;
+            } else if (locality) {
+              humanReadableAddress = locality.long_name;
+            } else if (area) {
+              humanReadableAddress = area.long_name;
+            }
+          }
+        } catch (areaError) {
+          console.warn('Area geocoding failed:', areaError);
+        }
+      }
+
+      // Final fallback: Create a descriptive location with coordinates
+      if (!humanReadableAddress) {
+        const distance = calculateDistance(lat, lng, STORE_LOCATION.latitude, STORE_LOCATION.longitude);
+        const direction = getDirection(lat, lng, STORE_LOCATION.latitude, STORE_LOCATION.longitude);
+        humanReadableAddress = `${direction} of ${STORE_LOCATION.name} (${distance.toFixed(1)}km away)`;
+      }
+
+      // Use the human-readable address as the primary address
+      const finalAddress = humanReadableAddress || address;
+      setSelectedAddress(finalAddress);
+
+      // Calculate distance and delivery fee
       const distance = calculateDistance(lat, lng, STORE_LOCATION.latitude, STORE_LOCATION.longitude);
       const deliveryFee = calculateDeliveryFee(distance, DEFAULT_DELIVERY_TIERS);
       const deliveryFeeDetails = formatDeliveryFeeCalculation(distance);
@@ -142,7 +285,7 @@ export default function SimpleLocationPicker({
       onLocationChange({
         latitude: lat,
         longitude: lng,
-        address,
+        address: finalAddress,
         distance
       });
 
@@ -153,6 +296,18 @@ export default function SimpleLocationPicker({
     } catch (error) {
       console.error('Error getting address:', error);
       toast.error('Could not get address for this location');
+    }
+  };
+
+  // Helper function to get direction from store
+  const getDirection = (lat1: number, lng1: number, lat2: number, lng2: number): string => {
+    const deltaLat = lat1 - lat2;
+    const deltaLng = lng1 - lng2;
+    
+    if (Math.abs(deltaLat) > Math.abs(deltaLng)) {
+      return deltaLat > 0 ? 'North' : 'South';
+    } else {
+      return deltaLng > 0 ? 'East' : 'West';
     }
   };
 

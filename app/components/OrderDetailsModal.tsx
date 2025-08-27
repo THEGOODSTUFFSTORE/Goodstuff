@@ -3,6 +3,7 @@ import React from 'react';
 import { X, Package, MapPin, CreditCard, Clock, CheckCircle, Truck, User, Mail, Phone, Copy } from 'lucide-react';
 import { Order } from '@/lib/types';
 import Image from 'next/image';
+import { formatShippingAddress } from '@/lib/utils';
 
 interface OrderDetailsModalProps {
   order: Order | null;
@@ -46,137 +47,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, isOpen, on
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
-  };
-
-  const formatShippingAddress = (shippingAddress: any) => {
-    const parts = [];
-    
-    // Debug: Log what we're working with
-    console.log('Formatting shipping address:', shippingAddress);
-    
-    // Add exact location first (most specific) - but clean up Plus Codes
-    if (shippingAddress.exactLocation) {
-      let location = shippingAddress.exactLocation;
-      // If it's a Plus Code, try to make it more readable
-      if (location.includes('+') && location.includes(',')) {
-        // Extract the readable part before the Plus Code
-        const readablePart = location.split(',')[0].trim();
-        if (readablePart && !readablePart.includes('+')) {
-          parts.push(readablePart);
-        }
-        // Also try to extract readable parts after the Plus Code
-        const afterPlusCode = location.split('+')[1];
-        if (afterPlusCode && afterPlusCode.includes(',')) {
-          const readableAfter = afterPlusCode.split(',')[1]?.trim();
-          if (readableAfter && !readableAfter.includes('+')) {
-            parts.push(readableAfter);
-          }
-        }
-      } else if (!location.includes('+')) {
-        parts.push(location);
-      }
-    }
-    
-    // Add delivery address - this often contains the most readable information
-    if (shippingAddress.deliveryAddress) {
-      let delivery = shippingAddress.deliveryAddress;
-      // If it's a Plus Code like "QWJ5+XQX, Nairobi, Kenya"
-      if (delivery.includes('+') && delivery.includes(',')) {
-        // Split by comma and extract readable parts
-        const deliveryParts = delivery.split(',').map((part: string) => part.trim());
-        for (const part of deliveryParts) {
-          // Skip Plus Codes but keep readable parts
-          if (part && !part.includes('+') && !part.match(/^[A-Z0-9]{4}\+[A-Z0-9]{3}$/)) {
-            parts.push(part);
-          }
-        }
-      } else if (!delivery.includes('+')) {
-        parts.push(delivery);
-      }
-    }
-    
-    // Add custom location if available
-    if (shippingAddress.customLocation) {
-      parts.push(shippingAddress.customLocation);
-    }
-    
-    // Add area/neighborhood
-    if (shippingAddress.area) {
-      parts.push(shippingAddress.area);
-    }
-    
-    // Add city
-    if (shippingAddress.city) {
-      parts.push(shippingAddress.city);
-    }
-    
-    // Note: delivery address is now handled above with better Plus Code parsing
-    
-    // Filter out duplicates, empty values, and Plus Codes
-    const uniqueParts = [...new Set(parts.filter(part => 
-      part && 
-      part.trim() && 
-      !part.includes('+') && 
-      !part.match(/^-?\d+\.\d+,\s*-?\d+\.\d+$/) // Exclude coordinate strings
-    ))];
-    
-    // If we have no readable parts, try to create a basic address
-    if (uniqueParts.length === 0) {
-      if (shippingAddress.area) {
-        uniqueParts.push(shippingAddress.area);
-      }
-      if (shippingAddress.city) {
-        uniqueParts.push(shippingAddress.city);
-      }
-      if (shippingAddress.deliveryAddress && !shippingAddress.deliveryAddress.includes('+')) {
-        uniqueParts.push(shippingAddress.deliveryAddress);
-      }
-      
-      // Try to extract readable parts from Plus Codes
-      if (shippingAddress.deliveryAddress && shippingAddress.deliveryAddress.includes('+')) {
-        const plusCodeParts = shippingAddress.deliveryAddress.split(',');
-        for (const part of plusCodeParts) {
-          const cleanPart = part.trim();
-          if (cleanPart && !cleanPart.includes('+') && !cleanPart.match(/^-?\d+\.\d+$/)) {
-            uniqueParts.push(cleanPart);
-          }
-        }
-      }
-      
-      // Try to extract readable parts from exact location
-      if (shippingAddress.exactLocation && shippingAddress.exactLocation.includes(',')) {
-        const exactParts = shippingAddress.exactLocation.split(',');
-        for (const part of exactParts) {
-          const cleanPart = part.trim();
-          if (cleanPart && !cleanPart.includes('+') && !cleanPart.match(/^-?\d+\.\d+$/)) {
-            uniqueParts.push(cleanPart);
-          }
-        }
-      }
-    }
-    
-    // If still no readable parts, show a fallback
-    if (uniqueParts.length === 0) {
-      // Try to create a basic address from any available data
-      const fallbackParts = [];
-      if (shippingAddress.area) fallbackParts.push(shippingAddress.area);
-      if (shippingAddress.city) fallbackParts.push(shippingAddress.city);
-      if (shippingAddress.deliveryAddress) {
-        // Even if it's a Plus Code, try to extract readable parts
-        const cleanDelivery = shippingAddress.deliveryAddress.replace(/\+[A-Z0-9]+/g, '').replace(/,\s*$/, '');
-        if (cleanDelivery.trim()) {
-          fallbackParts.push(cleanDelivery.trim());
-        }
-      }
-      
-      if (fallbackParts.length > 0) {
-        return fallbackParts.join(', ');
-      }
-      
-      return 'Address location available (GPS coordinates)';
-    }
-    
-    return uniqueParts.join(', ');
   };
 
   const copyToClipboard = async (text: string) => {

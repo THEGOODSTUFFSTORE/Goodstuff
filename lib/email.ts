@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { Order, OrderItem } from './types';
+import { formatShippingAddress } from './utils';
 
 // Email configuration
 const emailConfig = {
@@ -99,10 +100,7 @@ export const generateOrderConfirmationEmail = (order: Order): EmailTemplate => {
           <p style="margin: 5px 0;"><strong>Name:</strong> ${order.shippingAddress.name}</p>
           <p style="margin: 5px 0;"><strong>Email:</strong> ${order.shippingAddress.email}</p>
           <p style="margin: 5px 0;"><strong>Phone:</strong> ${order.shippingAddress.phone}</p>
-          <p style="margin: 5px 0;"><strong>City:</strong> ${order.shippingAddress.city}</p>
-          <p style="margin: 5px 0;"><strong>Area:</strong> ${order.shippingAddress.area}</p>
-          <p style="margin: 5px 0;"><strong>Exact Location:</strong> ${order.shippingAddress.exactLocation}</p>
-          ${order.shippingAddress.customLocation ? `<p style="margin: 5px 0;"><strong>Custom Location:</strong> ${order.shippingAddress.customLocation}</p>` : ''}
+          <p style="margin: 5px 0;"><strong>Delivery Address:</strong> ${formatShippingAddress(order.shippingAddress)}</p>
         </div>
         ` : ''}
 
@@ -153,10 +151,7 @@ Delivery Address:
 Name: ${order.shippingAddress.name}
 Email: ${order.shippingAddress.email}
 Phone: ${order.shippingAddress.phone}
-City: ${order.shippingAddress.city}
-Area: ${order.shippingAddress.area}
-Exact Location: ${order.shippingAddress.exactLocation}
-${order.shippingAddress.customLocation ? `Custom Location: ${order.shippingAddress.customLocation}` : ''}
+Delivery Address: ${formatShippingAddress(order.shippingAddress)}
 ` : ''}
 
 What's Next?
@@ -223,10 +218,7 @@ export const generateAdminNewOrderEmail = (order: Order): EmailTemplate => {
           <p style="margin: 5px 0;"><strong>Name:</strong> ${order.shippingAddress.name}</p>
           <p style="margin: 5px 0;"><strong>Email:</strong> ${order.shippingAddress.email}</p>
           <p style="margin: 5px 0;"><strong>Phone:</strong> ${order.shippingAddress.phone}</p>
-          <p style="margin: 5px 0;"><strong>City:</strong> ${order.shippingAddress.city}</p>
-          <p style="margin: 5px 0;"><strong>Area:</strong> ${order.shippingAddress.area}</p>
-          <p style="margin: 5px 0;"><strong>Exact Location:</strong> ${order.shippingAddress.exactLocation}</p>
-          ${order.shippingAddress.customLocation ? `<p style="margin: 5px 0;"><strong>Custom Location:</strong> ${order.shippingAddress.customLocation}</p>` : ''}
+          <p style="margin: 5px 0;"><strong>Delivery Address:</strong> ${formatShippingAddress(order.shippingAddress)}</p>
           ` : ''}
         </div>
 
@@ -280,10 +272,7 @@ ${order.shippingAddress ? `
 - Name: ${order.shippingAddress.name}
 - Email: ${order.shippingAddress.email}
 - Phone: ${order.shippingAddress.phone}
-- City: ${order.shippingAddress.city}
-- Area: ${order.shippingAddress.area}
-- Exact Location: ${order.shippingAddress.exactLocation}
-${order.shippingAddress.customLocation ? `- Custom Location: ${order.shippingAddress.customLocation}` : ''}
+- Delivery Address: ${formatShippingAddress(order.shippingAddress)}
 ` : ''}
 
 Items Ordered:
