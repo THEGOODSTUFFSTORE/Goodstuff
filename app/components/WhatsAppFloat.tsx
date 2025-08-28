@@ -6,7 +6,7 @@ const WhatsAppFloat = () => {
   const [isHovered, setIsHovered] = useState(false);
   
   // WhatsApp number (replace with actual business number)
-  const whatsappNumber = "+254704567890"; // Replace with your actual WhatsApp business number
+  const whatsappNumber = "+254742829072"; // Replace with your actual WhatsApp business number
   const message = "Hi! I need help placing an order on The Goodstuff website. Can you assist me?";
   
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
