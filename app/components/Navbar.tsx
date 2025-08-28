@@ -40,7 +40,6 @@ const Navbar = () => {
     {
       name: 'Categories',
       key: 'categories' as DropdownCategory,
-      href: '/Categories',
       items: [
         { name: 'Wine', href: '/wine', description: 'Red, White, Rosé & Champagne' },
         { name: 'Beer', href: '/beer', description: 'Craft & Premium Beers' },
