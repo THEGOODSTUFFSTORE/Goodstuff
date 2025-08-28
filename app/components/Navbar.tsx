@@ -90,7 +90,7 @@ const Navbar = () => {
   type NavigationItem = {
     name: string;
     key: DropdownCategory;
-    href: string;
+    href?: string;
     items?: { name: string; href: string; description?: string; }[];
   };
 
@@ -145,17 +145,30 @@ const Navbar = () => {
                   onMouseEnter={() => setActiveDropdown(item.key)}
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <Link 
-                    href={item.href} 
-                    className="relative px-5 py-3 font-semibold transition-all duration-300 flex items-center group rounded-xl text-gray-700 hover:text-red-500 hover:bg-gray-50"
-                  >
-                    <span className="relative z-10 text-sm">{item.name}</span>
-                    {item.items && (
-                      <ChevronDown className={`ml-2 h-4 w-4 transform transition-all duration-300 ${
-                        activeDropdown === item.key ? 'rotate-180 text-red-500' : 'group-hover:rotate-180'
-                      }`} />
-                    )}
-                  </Link>
+                  {item.href ? (
+                    <Link 
+                      href={item.href} 
+                      className="relative px-5 py-3 font-semibold transition-all duration-300 flex items-center group rounded-xl text-gray-700 hover:text-red-500 hover:bg-gray-50"
+                    >
+                      <span className="relative z-10 text-sm">{item.name}</span>
+                      {item.items && (
+                        <ChevronDown className={`ml-2 h-4 w-4 transform transition-all duration-300 ${
+                          activeDropdown === item.key ? 'rotate-180 text-red-500' : 'group-hover:rotate-180'
+                        }`} />
+                      )}
+                    </Link>
+                  ) : (
+                    <button 
+                      className="relative px-5 py-3 font-semibold transition-all duration-300 flex items-center group rounded-xl text-gray-700 hover:text-red-500 hover:bg-gray-50"
+                    >
+                      <span className="relative z-10 text-sm">{item.name}</span>
+                      {item.items && (
+                        <ChevronDown className={`ml-2 h-4 w-4 transform transition-all duration-300 ${
+                          activeDropdown === item.key ? 'rotate-180 text-red-500' : 'group-hover:rotate-180'
+                        }`} />
+                      )}
+                    </button>
+                  )}
 
                   {/* Enhanced Dropdown with descriptions */}
                   {item.items && (
