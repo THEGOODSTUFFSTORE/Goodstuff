@@ -293,8 +293,8 @@ const Navbar = () => {
                       </div>
                     )}
                   </>
-                ) : (
-                  // If item has no subitems, use Link component
+                ) : item.href ? (
+                  // If item has no subitems but has href, use Link component
                   <Link
                     href={item.href}
                     className="block w-full text-left px-4 py-3.5 rounded-lg text-base font-semibold text-gray-700 hover:text-red-500 hover:bg-gray-50 min-h-[44px] flex items-center"
@@ -302,6 +302,13 @@ const Navbar = () => {
                   >
                     {item.name}
                   </Link>
+                ) : (
+                  // If item has no subitems and no href, use button
+                  <button
+                    className="block w-full text-left px-4 py-3.5 rounded-lg text-base font-semibold text-gray-700 hover:text-red-500 hover:bg-gray-50 min-h-[44px] flex items-center"
+                  >
+                    {item.name}
+                  </button>
                 )}
               </div>
             ))}
