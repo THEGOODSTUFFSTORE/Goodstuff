@@ -71,7 +71,7 @@ function page() {
       <div 
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: 'url(/page.jpg)',
+          backgroundImage: 'url(/hero.jpeg)',
         }}
       >
         <div className="bg-black bg-opacity-50 min-h-screen">
