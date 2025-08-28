@@ -69,12 +69,12 @@ function page() {
       <Navbar />
       <Hero />
       <div 
-        className="min-h-screen bg-cover bg-center bg-no-repeat"
+        className="min-h-screen bg-hero-mobile bg-fixed"
         style={{
           backgroundImage: 'url(/hero.jpg)',
         }}
       >
-        <div className="bg-black bg-opacity-50 min-h-screen">
+        <div className="min-h-screen">
           <div className="container mx-auto px-4 py-8">
             <SearchSection />
             <NewArrivals />

@@ -124,3 +124,33 @@
   }
 }
 
+/* Custom background image handling for mobile */
+@layer utilities {
+  .bg-hero-mobile {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  @media (max-width: 768px) {
+    .bg-hero-mobile {
+      background-size: contain;
+      background-position: center top;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .bg-hero-mobile {
+      background-size: cover;
+      background-position: center;
+    }
+  }
+  
+  @media (orientation: landscape) and (max-height: 600px) {
+    .bg-hero-mobile {
+      background-size: cover;
+      background-position: center;
+    }
+  }
+}
+
