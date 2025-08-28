@@ -26,7 +26,8 @@ import {
   X,
   LayoutList,
   LayoutGrid,
-  Loader2
+  Loader2,
+  Activity
 } from 'lucide-react';
 import ProductForm from './components/ProductForm';
 import AdminAuth from './components/AdminAuth';
@@ -80,6 +81,9 @@ const AdminDashboard = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
   const [isOrderDetailsModalOpen, setIsOrderDetailsModalOpen] = useState(false);
+  const [adminSessions, setAdminSessions] = useState<any[]>([]);
+  const [isSessionsLoading, setIsSessionsLoading] = useState(false);
+  const [sessionsError, setSessionsError] = useState('');
 
   // Payment Debug Modal Component
   const PaymentDebugModal = ({ order, isOpen, onClose }: { order: Order | null, isOpen: boolean, onClose: () => void }) => {
@@ -269,6 +273,7 @@ const AdminDashboard = () => {
     { id: 'products', name: 'Products', icon: Package },
     { id: 'orders', name: 'Orders', icon: ShoppingCart },
     { id: 'customers', name: 'Customers', icon: Users },
+    { id: 'sessions', name: 'Sessions', icon: Activity },
     { id: 'settings', name: 'Settings', icon: Settings },
   ];
 
@@ -355,6 +360,38 @@ const AdminDashboard = () => {
     if (activeTab === 'orders') {
       loadOrders();
     }
+  }, [activeTab]);
+
+  // Fetch admin sessions
+  useEffect(() => {
+    const loadSessions = async () => {
+      if (activeTab === 'sessions') {
+        console.log('Loading admin sessions...');
+        setIsSessionsLoading(true);
+        setSessionsError('');
+        try {
+          const response = await fetch('/api/admin/sessions');
+          console.log('Sessions API response status:', response.status);
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Sessions API error:', errorData);
+            throw new Error(errorData.error || 'Failed to fetch sessions');
+          }
+          
+          const data = await response.json();
+          console.log('Sessions API data:', data);
+          setAdminSessions(data.sessions || []);
+        } catch (error) {
+          console.error('Error loading sessions:', error);
+          setSessionsError('Failed to load admin sessions');
+        } finally {
+          setIsSessionsLoading(false);
+        }
+      }
+    };
+
+    loadSessions();
   }, [activeTab]);
 
   // Check authentication status
@@ -1459,6 +1496,137 @@ const AdminDashboard = () => {
     );
   };
 
+  const renderSessions = () => (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Admin Sessions</h2>
+          <p className="text-sm text-gray-500 mt-1">Monitor recent admin login activity</p>
+        </div>
+        <div className="flex space-x-3">
+          <button
+            onClick={async () => {
+              console.log('Manual refresh button clicked');
+              setIsSessionsLoading(true);
+              setSessionsError('');
+              try {
+                console.log('Making API call to /api/admin/sessions...');
+                const response = await fetch('/api/admin/sessions');
+                console.log('Response received:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  console.error('Error response:', errorText);
+                  throw new Error(`Failed to fetch sessions: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Sessions data received:', data);
+                setAdminSessions(data.sessions || []);
+              } catch (error: any) {
+                console.error('Error refreshing sessions:', error);
+                setSessionsError(`Failed to refresh sessions: ${error.message || 'Unknown error'}`);
+              } finally {
+                setIsSessionsLoading(false);
+              }
+            }}
+            disabled={isSessionsLoading}
+            className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
+          >
+            <Activity className="h-4 w-4" />
+            <span>{isSessionsLoading ? 'Refreshing...' : 'Refresh'}</span>
+          </button>
+          
+          <button
+            onClick={async () => {
+              console.log('Testing session validation...');
+              try {
+                const response = await fetch('/api/auth/session/validate');
+                const data = await response.json();
+                console.log('Session validation result:', data);
+                alert(`Session validation: ${JSON.stringify(data, null, 2)}`);
+              } catch (error: any) {
+                console.error('Session validation error:', error);
+                alert(`Session validation error: ${error.message || 'Unknown error'}`);
+              }
+            }}
+            className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl border border-blue-200 hover:bg-blue-100 transition-all duration-200"
+          >
+            Test Auth
+          </button>
+        </div>
+      </div>
+
+      {sessionsError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-700">{sessionsError}</p>
+        </div>
+      )}
+
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Agent</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login Time</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {isSessionsLoading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-4 text-center">
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                      <span className="ml-2">Loading sessions...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : adminSessions.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                    No admin sessions found
+                  </td>
+                </tr>
+              ) : (
+                adminSessions.map((session) => (
+                  <tr key={session.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                      {session.uid}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {session.email || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                      {session.ip || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      <div className="max-w-xs truncate" title={session.userAgent || '-'}>
+                        {session.userAgent || '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {session.createdAt ? new Date(session.createdAt).toLocaleString() : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {session.type || 'login'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderSettings = () => (
     <AdminSettings />
   );
@@ -1473,6 +1641,8 @@ const AdminDashboard = () => {
         return renderOrders();
       case 'customers':
         return renderCustomers();
+      case 'sessions':
+        return renderSessions();
       case 'settings':
         return renderSettings();
       default:

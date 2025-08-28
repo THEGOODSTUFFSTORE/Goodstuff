@@ -56,9 +56,9 @@ export async function POST(request: NextRequest) {
       path: '/'
     });
 
-    // Track admin login sessions (only when enabled by settings)
+    // Track admin login sessions
     try {
-      if ((customClaims.admin || customClaims.superadmin) && (process.env.TRACK_ADMIN_LOGINS === 'true')) {
+      if (customClaims.admin || customClaims.superadmin) {
         const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
         const ua = request.headers.get('user-agent') || 'unknown';
         const { adminDb } = await import('@/lib/firebase-admin');
@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
             userAgent: ua,
             type: 'login'
           });
+          console.log('Admin session logged:', { uid: user.uid, email: user.email, ip, type: 'login' });
         }
       }
     } catch (e) {
