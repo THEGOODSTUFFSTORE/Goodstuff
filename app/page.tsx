@@ -68,10 +68,21 @@ function page() {
     <div>
       <Navbar />
       <Hero />
-      <SearchSection />
-      <NewArrivals />
-      <TrendingDeals />
-      <PopularWines />
+      <div 
+        className="min-h-screen bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(/page.jpg)',
+        }}
+      >
+        <div className="bg-black bg-opacity-50 min-h-screen">
+          <div className="container mx-auto px-4 py-8">
+            <SearchSection />
+            <NewArrivals />
+            <TrendingDeals />
+            <PopularWines />
+          </div>
+        </div>
+      </div>
       <Footer />
     </div>
   )
