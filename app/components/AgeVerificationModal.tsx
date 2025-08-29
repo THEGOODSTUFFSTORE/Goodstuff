@@ -65,46 +65,86 @@ export default function AgeVerificationModal() {
   if (!showPrompt && !denied) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      {/* Vibrant gradient background with blur effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-green-200 via-white to-pink-200 backdrop-blur-3xl"></div>
+      
+      <div className="relative z-10 w-full max-w-2xl mx-4 text-center">
         {!denied ? (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Are you 18 years or older?</h2>
-            <p className="text-sm text-gray-600 mb-6">You must be of legal drinking age to access this site.</p>
-            <div className="flex gap-3">
+          <div className="space-y-8">
+            {/* Main welcome text */}
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-7xl font-black text-gray-800 tracking-tight leading-none">
+                WELCOME!
+              </h1>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-700 tracking-wide">
+                PLEASE CONFIRM YOU ARE OVER 18 TO CONTINUE
+              </h2>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
                 onClick={handleAccept}
-                className="flex-1 rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                className="group relative bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-105 transition-all duration-300 flex items-center gap-3 min-w-[160px]"
               >
-                Yes, I am 18+
+                Yes
+                <span className="text-white group-hover:translate-x-1 transition-transform duration-300">›</span>
               </button>
+              
               <button
                 onClick={handleDeny}
-                className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="bg-black hover:bg-gray-800 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl hover:shadow-black/25 transform hover:scale-105 transition-all duration-300 min-w-[160px]"
               >
                 No
               </button>
             </div>
+
+            {/* Privacy disclaimer */}
+            <div className="mt-12 text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              <p>
+                BY SUBMITTING THIS FORM, YOU AGREE TO THE PRIVACY AND COOKIE POLICY OF THIS WEBSITE. 
+                THIS WEBSITE WILL MAKE USE OF COOKIES. TO LEARN MORE, PLEASE READ OUR{' '}
+                <a href="/privacy" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                  PRIVACY POLICY
+                </a>{' '}
+                AND{' '}
+                <a href="/cookies" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                  COOKIE STATEMENT.
+                </a>
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Access denied</h2>
-            <p className="text-sm text-gray-600 mb-6">Sorry, you must be at least 18 years old to use this site.</p>
-            <div className="flex gap-3 justify-center">
+          <div className="space-y-8">
+            {/* Access denied message */}
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-7xl font-black text-red-600 tracking-tight leading-none">
+                ACCESS DENIED
+              </h1>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-700 tracking-wide">
+                SORRY, YOU MUST BE AT LEAST 18 YEARS OLD TO USE THIS SITE
+              </h2>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
                 onClick={() => {
                   setDenied(false);
                   setShowPrompt(true);
                 }}
-                className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                className="group relative bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl hover:shadow-pink-500/25 transform hover:scale-105 transition-all duration-300 flex items-center gap-3 min-w-[160px]"
               >
                 Try Again
+                <span className="text-white group-hover:translate-x-1 transition-transform duration-300">›</span>
               </button>
+              
               <a
                 href="https://www.google.com"
-                className="inline-block rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="bg-black hover:bg-gray-800 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl hover:shadow-black/25 transform hover:scale-105 transition-all duration-300 min-w-[160px] inline-block"
               >
-                Leave site
+                Leave Site
               </a>
             </div>
           </div>

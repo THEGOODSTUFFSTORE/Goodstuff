@@ -78,49 +78,7 @@ export default function ShippingPage() {
               </div>
               
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Delivery Areas</h3>
-                  <p className="text-gray-700 mb-4">
-                    We currently deliver to the following areas:
-                  </p>
-                  <ul className="grid md:grid-cols-2 gap-2 text-gray-700">
-                    <li className="flex items-center">
-                      <FaMapMarkerAlt className="w-4 h-4 text-green-600 mr-2" />
-                      Nairobi Central Business District
-                    </li>
-                    <li className="flex items-center">
-                      <FaMapMarkerAlt className="w-4 h-4 text-green-600 mr-2" />
-                      Westlands
-                    </li>
-                    <li className="flex items-center">
-                      <FaMapMarkerAlt className="w-4 h-4 text-green-600 mr-2" />
-                      Karen
-                    </li>
-                    <li className="flex items-center">
-                      <FaMapMarkerAlt className="w-4 h-4 text-green-600 mr-2" />
-                      Lavington
-                    </li>
-                    <li className="flex items-center">
-                      <FaMapMarkerAlt className="w-4 h-4 text-green-600 mr-2" />
-                      Kilimani
-                    </li>
-                    <li className="flex items-center">
-                      <FaMapMarkerAlt className="w-4 h-4 text-green-600 mr-2" />
-                      Kileleshwa
-                    </li>
-                    <li className="flex items-center">
-                      <FaMapMarkerAlt className="w-4 h-4 text-green-600 mr-2" />
-                      Parklands
-                    </li>
-                    <li className="flex items-center">
-                      <FaMapMarkerAlt className="w-4 h-4 text-green-600 mr-2" />
-                      South B & South C
-                    </li>
-                  </ul>
-                  <p className="text-gray-700 mt-4">
-                    Don't see your area? Contact us to check if we can deliver to your location.
-                  </p>
-                </div>
+
 
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Delivery Times</h3>
