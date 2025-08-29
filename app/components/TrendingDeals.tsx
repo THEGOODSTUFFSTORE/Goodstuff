@@ -102,7 +102,7 @@ const TrendingDeals = React.memo(() => {
     return (
       <section className="container mx-auto px-4 py-6 -mt-4">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-light text-gray-800">Trending Deals</h2>
+          <h2 className="text-3xl font-light text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-bold">Trending Deals</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {[...Array(6)].map((_, index) => (
@@ -120,8 +120,10 @@ const TrendingDeals = React.memo(() => {
   return (
     <section className="container mx-auto px-4 py-6 -mt-4">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-light text-gray-800">Trending Deals</h2>
-        <a href="/trending-deals" className="text-orange-600 font-medium hover:underline flex items-center">
+        <h2 className="text-3xl font-light text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-bold">
+          Trending Deals
+        </h2>
+        <a href="/trending-deals" className="text-white font-bold hover:text-orange-300 flex items-center bg-black/40 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20 hover:bg-black/60 transition-all duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
           VIEW ALL »
         </a>
       </div>

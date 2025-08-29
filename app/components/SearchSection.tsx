@@ -20,61 +20,61 @@ export default function SearchSection() {
   const beverageCategories = [
     {
       name: 'Wine',
-      icon: '🍷',
+      image: '/wine.webp',
       gradient: 'from-red-500 to-red-300',
       href: '/wine'
     },
     {
       name: 'Gin',
-      icon: '🍸',
+      image: '/gin.webp',
       gradient: 'from-orange-500 to-orange-300',
       href: '/gin'
     },
     {
       name: 'Whisky',
-      icon: '🥃',
+      image: '/whisky.webp',
       gradient: 'from-amber-600 to-yellow-400',
       href: '/bourbon'
     },
     {
       name: 'Vodka',
-      icon: '🍾',
+      image: '/vodka.webp',
       gradient: 'from-lime-500 to-yellow-300',
       href: '/vodka'
     },
     {
       name: 'Beer',
-      icon: '🍺',
+      image: '/beer.webp',
       gradient: 'from-green-500 to-green-300',
       href: '/beer'
     },
     {
       name: 'Brandy',
-      icon: '🥃',
+      image: '/brandy.webp',
       gradient: 'from-yellow-400 to-gray-300',
       href: '/cognac'
     },
     {
       name: 'Tequila',
-      icon: '🍹',
+      image: '/tequila.webp',
       gradient: 'from-yellow-500 to-orange-300',
       href: '/tequila'
     },
     {
       name: 'Rum',
-      icon: '🥃',
+      image: '/rum.webp',
       gradient: 'from-yellow-400 to-gray-300',
       href: '/rum'
     },
     {
       name: 'Liqueur',
-      icon: '🍷',
+      image: '/liqueur.webp',
       gradient: 'from-purple-500 to-pink-400',
       href: '/cream-liquers'
     },
     {
       name: 'Market',
-      icon: '🛒',
+      image: '/market.webp',
       gradient: 'from-blue-500 to-green-500',
       href: '/market'
     }
@@ -254,8 +254,15 @@ export default function SearchSection() {
                 className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 <div className={`bg-gradient-to-br ${category.gradient} rounded-2xl p-6 text-center shadow-md group-hover:shadow-xl transition-shadow duration-300`}>
-                  <div className="text-4xl sm:text-5xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                    {category.icon}
+                  <div className="mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      width={60}
+                      height={60}
+                      className="rounded-full mx-auto"
+                      style={{ objectFit: 'cover' }}
+                    />
                   </div>
                   <h3 className="text-sm sm:text-base font-semibold text-white drop-shadow-sm">
                     {category.name}
