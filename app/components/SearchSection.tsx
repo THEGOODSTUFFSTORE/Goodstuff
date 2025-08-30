@@ -258,8 +258,8 @@ export default function SearchSection() {
                     <Image
                       src={category.image}
                       alt={category.name}
-                      width={80}
-                      height={80}
+                      width={60}
+                      height={60}
                       className="rounded-full mx-auto"
                       style={{ objectFit: 'cover' }}
                     />
