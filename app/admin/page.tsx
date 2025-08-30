@@ -33,6 +33,7 @@ import ProductForm from './components/ProductForm';
 import AdminAuth from './components/AdminAuth';
 import AdminSettings from './components/AdminSettings';
 import OrderDetailsModal from '../components/OrderDetailsModal';
+import ProductComparison from './components/ProductComparison';
 import { getProducts, deleteProduct, getOrderStats, getRecentOrders, getTopSellingProducts, TopSellingProduct } from '@/lib/firebaseApi';
 import { Product, Customer, Order } from '@/lib/types';
 import { auth } from '@/lib/firebase';
@@ -84,6 +85,7 @@ const AdminDashboard = () => {
   const [adminSessions, setAdminSessions] = useState<any[]>([]);
   const [isSessionsLoading, setIsSessionsLoading] = useState(false);
   const [sessionsError, setSessionsError] = useState('');
+  const [isProductComparisonOpen, setIsProductComparisonOpen] = useState(false);
 
   // Payment Debug Modal Component
   const PaymentDebugModal = ({ order, isOpen, onClose }: { order: Order | null, isOpen: boolean, onClose: () => void }) => {
@@ -724,6 +726,13 @@ const AdminDashboard = () => {
           <p className="text-sm text-gray-500 mt-1">Manage your product inventory</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <button
+            onClick={() => setIsProductComparisonOpen(true)}
+            className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 border border-green-200 rounded-xl hover:bg-green-100 transition-all duration-200"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            <span>Compare with Excel</span>
+          </button>
           <button
             onClick={handleAddProduct}
             className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-all duration-200"
@@ -1793,6 +1802,13 @@ const AdminDashboard = () => {
           setIsOrderDetailsModalOpen(false);
           setSelectedOrderForDetails(null);
         }}
+      />
+
+      {/* Product Comparison Modal */}
+      <ProductComparison
+        products={products}
+        isOpen={isProductComparisonOpen}
+        onClose={() => setIsProductComparisonOpen(false)}
       />
     </div>
   );
