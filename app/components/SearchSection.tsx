@@ -20,25 +20,25 @@ export default function SearchSection() {
   const beverageCategories = [
     {
       name: 'Wine',
-      image: '/wineimage.jpg',
+      image: '/wine.png',
       gradient: 'from-red-500 to-red-300',
       href: '/wine'
     },
     {
       name: 'Gin',
-      image: '/GinImage.png',
+      image: '/gin.png',
       gradient: 'from-orange-500 to-orange-300',
       href: '/gin'
     },
     {
       name: 'Whisky',
-      image: '/whiskyimage.avif',
+      image: '/whisky.png',
       gradient: 'from-amber-600 to-yellow-400',
       href: '/bourbon'
     },
     {
       name: 'Vodka',
-      image: '/vodkaimage.png',
+      image: '/vodka.png',
       gradient: 'from-lime-500 to-yellow-300',
       href: '/vodka'
     },
@@ -50,25 +50,25 @@ export default function SearchSection() {
     },
     {
       name: 'Brandy',
-      image: '/brandyimage.jpeg',
+      image: '/brandy.png',
       gradient: 'from-yellow-400 to-gray-300',
       href: '/cognac'
     },
     {
       name: 'Tequila',
-      image: '/tequillaimage.jpg',
+      image: '/tequila.png',
       gradient: 'from-yellow-500 to-orange-300',
       href: '/tequila'
     },
     {
       name: 'Rum',
-      image: '/rumimage.jpeg',
+      image: '/rum.png',
       gradient: 'from-yellow-400 to-gray-300',
       href: '/rum'
     },
     {
       name: 'Liqueur',
-      image: '/creamimage.jpg',
+      image: '/cream.png',
       gradient: 'from-purple-500 to-pink-400',
       href: '/cream-liquers'
     },
