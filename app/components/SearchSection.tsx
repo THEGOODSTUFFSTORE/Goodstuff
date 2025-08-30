@@ -20,61 +20,61 @@ export default function SearchSection() {
   const beverageCategories = [
     {
       name: 'Wine',
-      image: '/wine.webp',
+      image: '/wineimage.jpg',
       gradient: 'from-red-500 to-red-300',
       href: '/wine'
     },
     {
       name: 'Gin',
-      image: '/gin.webp',
+      image: '/Ginimage.jpg',
       gradient: 'from-orange-500 to-orange-300',
       href: '/gin'
     },
     {
       name: 'Whisky',
-      image: '/whisky.webp',
+      image: '/whiskyimage.avif',
       gradient: 'from-amber-600 to-yellow-400',
       href: '/bourbon'
     },
     {
       name: 'Vodka',
-      image: '/vodka.webp',
+      image: '/vodkaimage.png',
       gradient: 'from-lime-500 to-yellow-300',
       href: '/vodka'
     },
     {
       name: 'Beer',
-      image: '/beer.webp',
+      image: '/beerimage.webp',
       gradient: 'from-green-500 to-green-300',
       href: '/beer'
     },
     {
       name: 'Brandy',
-      image: '/brandy.webp',
+      image: '/brandyimage.jpeg',
       gradient: 'from-yellow-400 to-gray-300',
       href: '/cognac'
     },
     {
       name: 'Tequila',
-      image: '/tequila.webp',
+      image: '/tequilaimage.jpg',
       gradient: 'from-yellow-500 to-orange-300',
       href: '/tequila'
     },
     {
       name: 'Rum',
-      image: '/rum.webp',
+      image: '/rumimage.jpeg',
       gradient: 'from-yellow-400 to-gray-300',
       href: '/rum'
     },
     {
       name: 'Liqueur',
-      image: '/liqueur.webp',
+      image: '/creamimage.png',
       gradient: 'from-purple-500 to-pink-400',
       href: '/cream-liquers'
     },
     {
       name: 'Market',
-      image: '/market.webp',
+      image: '/marketimage.webp',
       gradient: 'from-blue-500 to-green-500',
       href: '/market'
     }
