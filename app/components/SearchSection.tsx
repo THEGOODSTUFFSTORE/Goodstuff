@@ -26,7 +26,7 @@ export default function SearchSection() {
     },
     {
       name: 'Gin',
-      image: '/gin.png',
+      image: '/GinImage.png',
       gradient: 'from-orange-500 to-orange-300',
       href: '/gin'
     },
@@ -56,7 +56,7 @@ export default function SearchSection() {
     },
     {
       name: 'Tequila',
-      image: '/tequila.png',
+      image: '/tequilla.png',
       gradient: 'from-yellow-500 to-orange-300',
       href: '/tequila'
     },
