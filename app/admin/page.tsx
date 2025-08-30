@@ -403,12 +403,14 @@ const AdminDashboard = () => {
       try {
         // Check session validity
         const response = await fetch('/api/auth/session/validate');
+        
         if (!response.ok) {
           setIsAuthenticated(false);
           return;
         }
         
         const data = await response.json();
+        
         if (!data.isAdmin) {
           setIsAuthenticated(false);
           return;

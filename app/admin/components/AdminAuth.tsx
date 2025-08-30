@@ -48,15 +48,11 @@ const AdminAuth = () => {
         body: JSON.stringify({ idToken }),
       });
 
-      console.log('🌐 Session API response status:', sessionResponse.status);
       const sessionData = await sessionResponse.json();
-      console.log('📦 Session response data:', sessionData);
 
       if (!sessionResponse.ok) {
         throw new Error(sessionData.error || 'Failed to create session');
       }
-
-      console.log('🎉 Session created successfully, isAdmin:', sessionData.isAdmin);
       
       // Additional validation
       const validateResponse = await fetch('/api/auth/session/validate');
