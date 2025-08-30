@@ -253,13 +253,13 @@ export default function SearchSection() {
                 onClick={() => handleCategoryClick(category.href)}
                 className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
-                <div className={`bg-gradient-to-br ${category.gradient} rounded-2xl p-6 text-center shadow-md group-hover:shadow-xl transition-shadow duration-300`}>
+                <div className={`bg-gradient-to-br ${category.gradient} rounded-2xl p-6 text-center shadow-md group-hover:shadow-xl transition-shadow duration-300 h-32 flex flex-col justify-center items-center`}>
                   <div className="mb-3 group-hover:scale-110 transition-transform duration-300">
                     <Image
                       src={category.image}
                       alt={category.name}
-                      width={60}
-                      height={60}
+                      width={80}
+                      height={80}
                       className="rounded-full mx-auto"
                       style={{ objectFit: 'cover' }}
                     />
