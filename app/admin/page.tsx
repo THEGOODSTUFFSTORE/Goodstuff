@@ -27,7 +27,8 @@ import {
   LayoutList,
   LayoutGrid,
   Loader2,
-  Activity
+  Activity,
+  FileSpreadsheet
 } from 'lucide-react';
 import ProductForm from './components/ProductForm';
 import AdminAuth from './components/AdminAuth';
