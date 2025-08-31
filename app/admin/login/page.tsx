@@ -13,6 +13,7 @@ const AdminLogin = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState({ email: false, password: false });
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Auto-focus email input on mount
   useEffect(() => {
@@ -62,8 +63,16 @@ const AdminLogin = () => {
 
       console.log('🎉 Session created successfully, isAdmin:', sessionData.isAdmin);
       
-      // Force a hard refresh to the admin page to ensure proper authentication state
-      window.location.href = '/admin';
+      // Clear any errors and show success state
+      setError('');
+      setIsSuccess(true);
+      
+      // Add a small delay to show success state, then redirect
+      setTimeout(() => {
+        console.log('🚀 Redirecting to admin dashboard...');
+        // Force a hard refresh to the admin page to ensure proper authentication state
+        window.location.href = '/admin';
+      }, 1500);
     } catch (error: any) {
       console.error('❌ Login error details:', {
         message: error.message,
@@ -257,6 +266,16 @@ const AdminLogin = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Success Message */}
+              {isSuccess && (
+                <div className="bg-green-500/20 border border-green-500/30 rounded-xl p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <p className="text-green-300 text-sm">Login successful! Redirecting to admin dashboard...</p>
+                  </div>
+                </div>
+              )}
 
               {/* Error Message */}
               {error && (

@@ -403,27 +403,47 @@ const AdminDashboard = () => {
       try {
         console.log('🔍 Checking authentication status...');
         
-        // Check session validity
-        const response = await fetch('/api/auth/session/validate');
-        console.log('🌐 Session validation response status:', response.status);
-        
-        if (!response.ok) {
-          console.log('❌ Session validation failed:', response.status);
+        // First check if user is authenticated with Firebase
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          console.log('❌ No Firebase user found');
           setIsAuthenticated(false);
-          return;
-        }
-        
-        const data = await response.json();
-        console.log('📦 Session validation data:', data);
-        
-        if (!data.isAdmin) {
-          console.log('❌ User is not admin');
-          setIsAuthenticated(false);
+          setIsLoading(false);
           return;
         }
 
-        console.log('✅ Authentication successful, setting isAuthenticated to true');
-        setIsAuthenticated(true);
+        console.log('🔥 Firebase user found:', currentUser.uid);
+        
+        // Get user's ID token to check claims
+        const idToken = await currentUser.getIdToken();
+        const tokenResult = await currentUser.getIdTokenResult();
+        
+        console.log('🎫 Token claims:', tokenResult.claims);
+        console.log('🛡️ Admin claim:', tokenResult.claims.admin);
+        console.log('👑 Superadmin claim:', tokenResult.claims.superadmin);
+        
+        // Check if user has admin privileges
+        if (tokenResult.claims.admin || tokenResult.claims.superadmin) {
+          console.log('✅ User has admin privileges, setting isAuthenticated to true');
+          setIsAuthenticated(true);
+        } else {
+          console.log('❌ User does not have admin privileges');
+          setIsAuthenticated(false);
+        }
+        
+        // Also try session validation as backup
+        try {
+          const response = await fetch('/api/auth/session/validate');
+          console.log('🌐 Session validation response status:', response.status);
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('📦 Session validation data:', data);
+          }
+        } catch (sessionError) {
+          console.log('⚠️ Session validation failed (non-critical):', sessionError);
+        }
+        
       } catch (error) {
         console.error('❌ Auth check error:', error);
         setIsAuthenticated(false);
@@ -434,8 +454,10 @@ const AdminDashboard = () => {
 
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
+        console.log('👤 Firebase auth state changed - user logged in:', user.uid);
         checkAuth();
       } else {
+        console.log('👤 Firebase auth state changed - user logged out');
         setIsAuthenticated(false);
         setIsLoading(false);
       }
@@ -1669,8 +1691,41 @@ const AdminDashboard = () => {
     }
   };
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-700">Checking authentication...</h2>
+          <p className="text-gray-500">Please wait while we verify your credentials</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login form if not authenticated
   if (!isAuthenticated) {
-    return <AdminAuth />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full space-y-6">
+          <AdminAuth />
+          
+          {/* Debug Information */}
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Debug Info:</h3>
+            <div className="text-xs text-gray-600 space-y-1">
+              <p>Loading: {isLoading.toString()}</p>
+              <p>Authenticated: {isAuthenticated.toString()}</p>
+              <p>Firebase User: {auth.currentUser ? 'Yes' : 'No'}</p>
+              {auth.currentUser && (
+                <p>User ID: {auth.currentUser.uid}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

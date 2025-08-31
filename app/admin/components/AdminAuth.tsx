@@ -10,6 +10,7 @@ const AdminAuth = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,8 +63,16 @@ const AdminAuth = () => {
         console.log('🔍 Validation data:', validateData);
       }
       
-      // Force a hard refresh to the admin page to ensure proper authentication state
-      window.location.href = '/admin';
+      // Clear any errors and show success state
+      setError('');
+      setIsSuccess(true);
+      
+      // Add a small delay to show success state, then redirect
+      setTimeout(() => {
+        console.log('🚀 Redirecting to admin dashboard...');
+        // Force a hard refresh to the admin page to ensure proper authentication state
+        window.location.href = '/admin';
+      }, 1500);
     } catch (error: any) {
       console.error('❌ Login error details:', {
         message: error.message,
@@ -145,6 +154,12 @@ const AdminAuth = () => {
               />
             </div>
           </div>
+
+          {isSuccess && (
+            <div className="text-green-600 text-sm text-center">
+              Login successful! Redirecting to admin dashboard...
+            </div>
+          )}
 
           {error && (
             <div className="text-red-600 text-sm text-center">
