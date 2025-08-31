@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       path: '/'
     });
 
-    // Track admin login sessions
+    // Track admin login sessions (only for admin users, not regular users)
     try {
       if (customClaims.admin || customClaims.superadmin) {
         const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
@@ -69,9 +69,10 @@ export async function POST(request: NextRequest) {
             createdAt: new Date().toISOString(),
             ip,
             userAgent: ua,
-            type: 'login'
+            type: 'login',
+            role: customClaims.superadmin ? 'superadmin' : 'admin'
           });
-          console.log('Admin session logged:', { uid: user.uid, email: user.email, ip, type: 'login' });
+          console.log('Admin session logged:', { uid: user.uid, email: user.email, ip, type: 'login', role: customClaims.superadmin ? 'superadmin' : 'admin' });
         }
       }
     } catch (e) {

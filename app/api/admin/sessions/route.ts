@@ -19,11 +19,12 @@ export async function GET(request: NextRequest) {
     const decoded = await adminAuth.verifySessionCookie(session);
     const user = await adminAuth.getUser(decoded.uid);
     const isAdmin = (user.customClaims as any)?.admin === true;
-    console.log('User claims:', user.customClaims, 'isAdmin:', isAdmin);
+    const isSuperAdmin = (user.customClaims as any)?.superadmin === true;
+    console.log('User claims:', user.customClaims, 'isAdmin:', isAdmin, 'isSuperAdmin:', isSuperAdmin);
     
-    if (!isAdmin) {
-      console.log('User is not admin');
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!isSuperAdmin) {
+      console.log('User is not super admin - sessions access restricted');
+      return NextResponse.json({ error: 'Forbidden - Super admin access required' }, { status: 403 });
     }
 
     console.log('Fetching admin sessions from collection...');

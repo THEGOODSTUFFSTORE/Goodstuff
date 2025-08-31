@@ -88,6 +88,7 @@ const AdminDashboard = () => {
   const [sessionsError, setSessionsError] = useState('');
   const [isProductComparisonOpen, setIsProductComparisonOpen] = useState(false);
   const [userFirstName, setUserFirstName] = useState<string>('');
+  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
 
   // Payment Debug Modal Component
   const PaymentDebugModal = ({ order, isOpen, onClose }: { order: Order | null, isOpen: boolean, onClose: () => void }) => {
@@ -277,7 +278,8 @@ const AdminDashboard = () => {
     { id: 'products', name: 'Products', icon: Package },
     { id: 'orders', name: 'Orders', icon: ShoppingCart },
     { id: 'customers', name: 'Customers', icon: Users },
-    { id: 'sessions', name: 'Sessions', icon: Activity },
+    // Sessions tab only visible to super admins
+    ...(isSuperAdmin ? [{ id: 'sessions', name: 'Sessions', icon: Activity }] : []),
     { id: 'settings', name: 'Settings', icon: Settings },
   ];
 
@@ -434,6 +436,10 @@ const AdminDashboard = () => {
                            'Admin';
           setUserFirstName(firstName);
           console.log('👋 User first name set to:', firstName);
+          
+          // Set super admin status
+          setIsSuperAdmin(!!tokenResult.claims.superadmin);
+          console.log('👑 Super admin status:', !!tokenResult.claims.superadmin);
         } else {
           console.log('❌ User does not have admin privileges');
           setIsAuthenticated(false);
@@ -469,6 +475,7 @@ const AdminDashboard = () => {
         setIsAuthenticated(false);
         setIsLoading(false);
         setUserFirstName(''); // Clear first name when user logs out
+        setIsSuperAdmin(false); // Clear super admin status when user logs out
       }
     });
 
@@ -480,6 +487,7 @@ const AdminDashboard = () => {
       await signOut(auth);
       setIsAuthenticated(false);
       setUserFirstName(''); // Clear first name on logout
+      setIsSuperAdmin(false); // Clear super admin status on logout
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -1710,6 +1718,22 @@ const AdminDashboard = () => {
       case 'customers':
         return renderCustomers();
       case 'sessions':
+        // Only super admins can access sessions
+        if (!isSuperAdmin) {
+          return (
+            <div className="p-8 text-center">
+              <div className="max-w-md mx-auto">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <svg className="h-12 w-12 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <h3 className="text-lg font-medium text-red-800 mb-2">Access Restricted</h3>
+                  <p className="text-red-600">Only super administrators can view login sessions.</p>
+                </div>
+              </div>
+            </div>
+          );
+        }
         return renderSessions();
       case 'settings':
         return renderSettings();
