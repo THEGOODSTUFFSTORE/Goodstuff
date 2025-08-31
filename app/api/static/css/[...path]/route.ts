@@ -4,10 +4,11 @@ import { join } from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const filePath = join(process.cwd(), '.next', 'static', 'css', ...params.path);
+    const resolvedParams = await params;
+    const filePath = join(process.cwd(), '.next', 'static', 'css', ...resolvedParams.path);
     const cssContent = await readFile(filePath, 'utf-8');
     
     return new NextResponse(cssContent, {
