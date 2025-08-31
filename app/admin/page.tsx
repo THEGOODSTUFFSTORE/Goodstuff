@@ -87,6 +87,7 @@ const AdminDashboard = () => {
   const [isSessionsLoading, setIsSessionsLoading] = useState(false);
   const [sessionsError, setSessionsError] = useState('');
   const [isProductComparisonOpen, setIsProductComparisonOpen] = useState(false);
+  const [userFirstName, setUserFirstName] = useState<string>('');
 
   // Payment Debug Modal Component
   const PaymentDebugModal = ({ order, isOpen, onClose }: { order: Order | null, isOpen: boolean, onClose: () => void }) => {
@@ -426,6 +427,13 @@ const AdminDashboard = () => {
         if (tokenResult.claims.admin || tokenResult.claims.superadmin) {
           console.log('✅ User has admin privileges, setting isAuthenticated to true');
           setIsAuthenticated(true);
+          
+          // Set user's first name for greeting
+          const firstName = currentUser.displayName?.split(' ')[0] || 
+                           currentUser.email?.split('@')[0] || 
+                           'Admin';
+          setUserFirstName(firstName);
+          console.log('👋 User first name set to:', firstName);
         } else {
           console.log('❌ User does not have admin privileges');
           setIsAuthenticated(false);
@@ -460,6 +468,7 @@ const AdminDashboard = () => {
         console.log('👤 Firebase auth state changed - user logged out');
         setIsAuthenticated(false);
         setIsLoading(false);
+        setUserFirstName(''); // Clear first name when user logs out
       }
     });
 
@@ -470,6 +479,7 @@ const AdminDashboard = () => {
     try {
       await signOut(auth);
       setIsAuthenticated(false);
+      setUserFirstName(''); // Clear first name on logout
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -617,6 +627,23 @@ const AdminDashboard = () => {
 
   const renderDashboard = () => (
     <div className="space-y-6">
+      {/* Welcome Greeting */}
+      <div className="bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg p-6 border border-gray-800">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 bg-red-600 rounded-full">
+            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">
+              Hello, {userFirstName}! 👋
+            </h1>
+            <p className="text-gray-300 mt-1">Welcome back to your admin dashboard</p>
+          </div>
+        </div>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
         <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 transition-all duration-200 hover:shadow-md">
