@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // Debug logging
+  console.log(`🔍 Middleware: ${request.nextUrl.pathname}`);
+  
   // Handle CSS files with proper MIME type
   if (request.nextUrl.pathname.includes('/_next/static/css/')) {
     const response = NextResponse.next();
@@ -19,7 +22,8 @@ export async function middleware(request: NextRequest) {
   // Return to login if there's no session
   if (!session) {
     if (request.nextUrl.pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL('/admin', request.url));
+      // Don't redirect to /admin if already on /admin - let the page handle auth
+      return NextResponse.next();
     }
     if (request.nextUrl.pathname.startsWith('/dashboard')) {
       return NextResponse.redirect(new URL('/login', request.url));
@@ -45,7 +49,8 @@ export async function middleware(request: NextRequest) {
     // Check admin routes - require admin privileges
     if (request.nextUrl.pathname.startsWith('/admin')) {
       if (!isAdmin) {
-        return NextResponse.redirect(new URL('/admin', request.url));
+        // Don't redirect to /admin if already on /admin - let the page handle auth
+        return NextResponse.next();
       }
     }
 
@@ -55,7 +60,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch (error) {
     if (request.nextUrl.pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL('/admin', request.url));
+      // Don't redirect to /admin if already on /admin - let the page handle auth
+      return NextResponse.next();
     }
     if (request.nextUrl.pathname.startsWith('/dashboard')) {
       return NextResponse.redirect(new URL('/login', request.url));
