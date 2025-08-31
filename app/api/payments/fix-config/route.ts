@@ -3,7 +3,7 @@ import { pesapalApi } from '@/lib/pesapal';
 
 export async function POST(request: NextRequest) {
   // Get the base URL (declare outside try block for error handling)
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://goodstuff-five.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://thegoodstuffdrinks.delivery';
   const ipnUrl = `${baseUrl}/api/payments/pesapal/ipn`;
 
   try {

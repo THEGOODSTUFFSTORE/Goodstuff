@@ -9,9 +9,9 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Skip middleware for login pages
+  // Redirect /admin/login to /admin (since we're using AdminAuth component)
   if (request.nextUrl.pathname === '/admin/login') {
-    return NextResponse.next();
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   const session = request.cookies.get('session');
@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
   // Return to login if there's no session
   if (!session) {
     if (request.nextUrl.pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+      return NextResponse.redirect(new URL('/admin', request.url));
     }
     if (request.nextUrl.pathname.startsWith('/dashboard')) {
       return NextResponse.redirect(new URL('/login', request.url));
@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     // Check admin routes - require admin privileges
     if (request.nextUrl.pathname.startsWith('/admin')) {
       if (!isAdmin) {
-        return NextResponse.redirect(new URL('/admin/login', request.url));
+        return NextResponse.redirect(new URL('/admin', request.url));
       }
     }
 
@@ -55,7 +55,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch (error) {
     if (request.nextUrl.pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+      return NextResponse.redirect(new URL('/admin', request.url));
     }
     if (request.nextUrl.pathname.startsWith('/dashboard')) {
       return NextResponse.redirect(new URL('/login', request.url));
