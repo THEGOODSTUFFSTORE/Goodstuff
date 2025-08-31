@@ -40,6 +40,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  other: {
+    'X-Content-Type-Options': 'nosniff',
+  },
   openGraph: {
     title: 'The Goodstuff - Premium Wines & Spirits',
     description: 'Discover premium wines, spirits, and more at The Goodstuff. We offer a curated selection of fine wines, craft spirits, and exclusive market items.',
