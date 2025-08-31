@@ -61,7 +61,7 @@ export default async function GiftsPage() {
   const giftProducts = await getProductsByCategory('gifts');
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Hero Section */}
@@ -97,7 +97,20 @@ export default async function GiftsPage() {
         </div>
       </div>
 
-      {/* Gift Subcategories */}
+      {/* Background Image Section */}
+      <div 
+        className="min-h-screen bg-fixed relative"
+        style={{
+          backgroundImage: 'url(/pic.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Semi-transparent overlay for better text legibility */}
+        <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
+        <div className="min-h-screen relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            {/* Gift Subcategories */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Explore Gift Categories</h2>
@@ -189,6 +202,8 @@ export default async function GiftsPage() {
             <p className="text-gray-600 text-sm">
               Send gifts directly to recipients with our reliable delivery service.
             </p>
+          </div>
+        </div>
           </div>
         </div>
       </div>

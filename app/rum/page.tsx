@@ -14,7 +14,7 @@ export default async function RumPage() {
   const rumProducts = await getProductsByCategory('rum');
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Hero Section */}
@@ -38,7 +38,7 @@ export default async function RumPage() {
       {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <nav className="text-sm">
+          <nav className="text-xs">
             <ol className="list-none p-0 inline-flex">
               <li className="flex items-center">
                 <Link href="/" className="text-gray-500 hover:text-black transition-colors">Home</Link>
@@ -50,8 +50,20 @@ export default async function RumPage() {
         </div>
       </div>
 
-      {/* Products Grid */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* Background Image Section */}
+      <div 
+        className="min-h-screen bg-fixed relative"
+        style={{
+          backgroundImage: 'url(/rumimage.jpeg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Semi-transparent overlay for better text legibility */}
+        <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
+        <div className="min-h-screen relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            {/* Products Grid */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Premium Rum Selection</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -103,6 +115,8 @@ export default async function RumPage() {
             <p className="text-gray-600 text-sm">
               Explore the rich history and tradition of rum production in the Caribbean.
             </p>
+          </div>
+        </div>
           </div>
         </div>
       </div>

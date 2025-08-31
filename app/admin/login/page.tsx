@@ -62,8 +62,8 @@ const AdminLogin = () => {
 
       console.log('🎉 Session created successfully, isAdmin:', sessionData.isAdmin);
       
-      // Redirect to admin page after successful login
-      router.push('/admin');
+      // Force a hard refresh to the admin page to ensure proper authentication state
+      window.location.href = '/admin';
     } catch (error: any) {
       console.error('❌ Login error details:', {
         message: error.message,

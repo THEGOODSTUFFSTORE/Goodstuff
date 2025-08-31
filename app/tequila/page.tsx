@@ -13,7 +13,7 @@ export default async function TequilaPage() {
   const tequilaProducts = await getProductsByCategory('tequila');
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Hero Section */}
@@ -49,8 +49,20 @@ export default async function TequilaPage() {
         </div>
       </div>
 
-      {/* Products Grid */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* Background Image Section */}
+      <div 
+        className="min-h-screen bg-fixed relative"
+        style={{
+          backgroundImage: 'url(/tequillaimage.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Semi-transparent overlay for better text legibility */}
+        <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
+        <div className="min-h-screen relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            {/* Products Grid */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Premium Tequila Selection</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -102,6 +114,8 @@ export default async function TequilaPage() {
             <p className="text-gray-600 text-sm">
               Experience authentic Mexican tequila serving traditions and customs.
             </p>
+          </div>
+        </div>
           </div>
         </div>
       </div>

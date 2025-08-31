@@ -401,24 +401,31 @@ const AdminDashboard = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('🔍 Checking authentication status...');
+        
         // Check session validity
         const response = await fetch('/api/auth/session/validate');
+        console.log('🌐 Session validation response status:', response.status);
         
         if (!response.ok) {
+          console.log('❌ Session validation failed:', response.status);
           setIsAuthenticated(false);
           return;
         }
         
         const data = await response.json();
+        console.log('📦 Session validation data:', data);
         
         if (!data.isAdmin) {
+          console.log('❌ User is not admin');
           setIsAuthenticated(false);
           return;
         }
 
+        console.log('✅ Authentication successful, setting isAuthenticated to true');
         setIsAuthenticated(true);
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('❌ Auth check error:', error);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
