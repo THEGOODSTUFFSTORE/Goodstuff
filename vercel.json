@@ -1,0 +1,28 @@
+{
+  "headers": [
+    {
+      "source": "/_next/static/css/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/css"
+        }
+      ]
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/_next/static/css/(.*)",
+      "destination": "/_next/static/css/$1"
+    }
+  ]
+}

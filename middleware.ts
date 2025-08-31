@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // Handle CSS files with proper MIME type
+  if (request.nextUrl.pathname.includes('/_next/static/css/')) {
+    const response = NextResponse.next();
+    response.headers.set('Content-Type', 'text/css');
+    return response;
+  }
+
   // Skip middleware for login pages
   if (request.nextUrl.pathname === '/admin/login') {
     return NextResponse.next();
@@ -61,5 +68,6 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/dashboard/:path*',
+    '/_next/static/css/:path*',
   ],
 }; 
