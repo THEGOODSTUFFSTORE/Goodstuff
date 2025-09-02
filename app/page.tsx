@@ -71,7 +71,7 @@ function page() {
       <div 
         className="min-h-screen bg-hero-mobile bg-fixed relative"
         style={{
-          backgroundImage: 'url(/hero.jpg)',
+          backgroundImage: 'url(/home.jpeg)',
         }}
       >
         {/* Semi-transparent overlay for better text legibility */}
