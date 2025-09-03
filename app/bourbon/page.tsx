@@ -52,7 +52,7 @@ export default async function BourbonPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/whiskyimage.avif)',
+          backgroundImage: 'url(/tequilla.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

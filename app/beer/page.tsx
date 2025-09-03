@@ -52,7 +52,7 @@ export default async function BeerPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/beerimage.webp)',
+          backgroundImage: 'url(/beerimage.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

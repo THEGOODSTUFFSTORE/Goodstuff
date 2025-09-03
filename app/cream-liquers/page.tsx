@@ -52,7 +52,7 @@ export default async function CreamLiqueursPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/creamimage.jpg)',
+          backgroundImage: 'url(/liquer.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

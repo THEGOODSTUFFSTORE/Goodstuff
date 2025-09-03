@@ -53,7 +53,7 @@ export default async function TequilaPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/tequillaimage.jpg)',
+          backgroundImage: 'url(/tequilla.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

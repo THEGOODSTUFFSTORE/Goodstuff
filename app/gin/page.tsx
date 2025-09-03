@@ -52,7 +52,7 @@ export default async function GinPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/GinImage.png)',
+          backgroundImage: 'url(/Ginimage.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
