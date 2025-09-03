@@ -52,7 +52,7 @@ export default async function VodkaPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/vodkaimage.png)',
+          backgroundImage: 'url(/vodka.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
