@@ -54,7 +54,7 @@ export default async function RumPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/rumimage.jpeg)',
+          backgroundImage: 'url(/beerimage.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

@@ -54,7 +54,7 @@ export default async function CognacPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/brandyimage.jpeg)',
+          backgroundImage: 'url(/beerimage.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

@@ -101,7 +101,7 @@ export default async function MarketPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/marketimage.webp)',
+          backgroundImage: 'url(/tequilla.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

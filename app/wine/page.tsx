@@ -105,7 +105,7 @@ export default async function WinePage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/wineimage.jpg)',
+          backgroundImage: 'url(/wine.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
