@@ -118,9 +118,6 @@ export default function Footer() {
             <p className="text-gray-500 text-sm">
               © {new Date().getFullYear()} The Goodstuff. All rights reserved.
             </p>
-            <p className="text-gray-500 text-sm">
-              Made with ❤️ by <a href="https://www.richardagaya.com" target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700 transition-colors font-medium">Richard Agaya</a>
-            </p>
           </div>
         </div>
       </div>
