@@ -5,6 +5,8 @@ import { getProducts, getProductById, getProductsBySection, getProductsByCategor
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    // Bypass product cache via querystring cache-buster (optional)
+    const _ = searchParams.get('_');
     const productId = searchParams.get('id');
     const type = searchParams.get('type'); // trending, popular, new_arrivals, wine, non-wine
     const category = searchParams.get('category');

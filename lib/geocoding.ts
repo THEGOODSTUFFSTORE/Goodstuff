@@ -108,7 +108,15 @@ export const DEFAULT_DELIVERY_TIERS: DeliveryTier[] = [
 ];
 
 
+// Free delivery radius in KM (configurable via env, defaults to 10km)
+const FREE_DELIVERY_RADIUS_KM = parseFloat(process.env.NEXT_PUBLIC_FREE_DELIVERY_RADIUS_KM || '10');
+
 export function calculateDeliveryFee(distance: number, tiers: DeliveryTier[] = DEFAULT_DELIVERY_TIERS): number {
+  // Free delivery within configured radius
+  if (distance <= FREE_DELIVERY_RADIUS_KM) {
+    return 0;
+  }
+  
   // For distances 0-3km: 100 KES
   if (distance <= 3) {
     return 100;
@@ -134,6 +142,10 @@ export function formatDistance(distance: number): string {
 // Format delivery fee calculation for display
 export function formatDeliveryFeeCalculation(distance: number): string {
   const fee = calculateDeliveryFee(distance);
+  
+  if (distance <= FREE_DELIVERY_RADIUS_KM) {
+    return `Free delivery within ${FREE_DELIVERY_RADIUS_KM}km`;
+  }
   
   if (distance <= 3) {
     return `0-3km: Ksh 100`;

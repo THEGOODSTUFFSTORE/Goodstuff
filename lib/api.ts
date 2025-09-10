@@ -37,13 +37,6 @@ const getProductImageUrl = (contentfulImage: any): string => {
 // Optimized fetch all products with caching and pagination
 export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocumentSnapshot): Promise<Product[]> {
   try {
-    const cacheKey = `products_${pageSize}_${lastDoc?.id || 'first'}`;
-    const cached = getFromCache<Product[]>(cacheKey);
-    if (cached) {
-      console.log('Returning cached products');
-      return cached;
-    }
-
     const productsRef = collection(db, 'products');
     let q = query(
       productsRef, 
@@ -68,9 +61,6 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
       ...doc.data()
     } as Product)).filter((p: any) => (p.status || 'active') === 'active');
 
-    // Cache the results
-    setCache(cacheKey, products);
-    
     return products;
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -81,13 +71,6 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
 // Optimized fetch products by category with caching
 export async function getProductsByCategory(category: string, pageSize: number = 1000): Promise<Product[]> {
   try {
-    const cacheKey = `products_category_${category}_${pageSize}`;
-    const cached = getFromCache<Product[]>(cacheKey);
-    if (cached) {
-      console.log(`Returning cached products for category: ${category}`);
-      return cached;
-    }
-
     const productsRef = collection(db, 'products');
     const q = query(
       productsRef, 
@@ -102,9 +85,6 @@ export async function getProductsByCategory(category: string, pageSize: number =
       ...doc.data()
     } as Product)).filter((p: any) => (p.status || 'active') === 'active');
 
-    // Cache the results
-    setCache(cacheKey, products);
-
     return products;
   } catch (error) {
     console.error(`Error fetching products for category ${category}:`, error);
@@ -118,13 +98,6 @@ export async function getProductById(id: string): Promise<Product | null> {
     if (!id) {
       console.error('Invalid product ID provided:', id);
       return null;
-    }
-
-    const cacheKey = `product_${id}`;
-    const cached = getFromCache<Product>(cacheKey);
-    if (cached) {
-      console.log(`Returning cached product: ${id}`);
-      return cached;
     }
 
     console.log('Fetching product with ID:', id);
@@ -142,9 +115,6 @@ export async function getProductById(id: string): Promise<Product | null> {
         return null;
       }
 
-      // Cache the result
-      setCache(cacheKey, product);
-      
       return product;
     }
     console.error('Product document does not exist for ID:', id);
