@@ -40,6 +40,8 @@ import { Product, Customer, Order } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { LucideIcon } from 'lucide-react';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface AdminStats {
   totalProducts: number;
@@ -89,6 +91,36 @@ const AdminDashboard = () => {
   const [isProductComparisonOpen, setIsProductComparisonOpen] = useState(false);
   const [userFirstName, setUserFirstName] = useState<string>('');
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
+
+  // Convert Firestore document to Order type (for realtime listener)
+  const mapDocToOrder = (doc: any): Order => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      orderNumber: data.orderNumber || data.id,
+      userId: data.userId,
+      userEmail: data.userEmail,
+      items: data.items || [],
+      totalItems: data.totalItems || 0,
+      totalAmount: data.totalAmount || 0,
+      status: data.status,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+      shippingAddress: data.shippingAddress,
+      paymentMethod: data.paymentMethod,
+      paymentStatus: data.paymentStatus,
+      trackingNumber: data.trackingNumber,
+      pesapalOrderTrackingId: data.pesapalOrderTrackingId,
+      pesapalPaymentStatus: data.pesapalPaymentStatus,
+      adminNote: data.adminNote,
+      lastSyncAt: data.lastSyncAt,
+      callbackProcessedAt: data.callbackProcessedAt,
+      linkedToUser: data.linkedToUser,
+      linkedAt: data.linkedAt,
+      inventoryReduced: data.inventoryReduced,
+      inventoryReducedAt: data.inventoryReducedAt,
+    } as Order;
+  };
 
   // Payment Debug Modal Component
   const PaymentDebugModal = ({ order, isOpen, onClose }: { order: Order | null, isOpen: boolean, onClose: () => void }) => {
@@ -345,28 +377,52 @@ const AdminDashboard = () => {
     }
   }, [activeTab]);
 
-  // Fetch orders
+  // Fetch orders (one-off) and subscribe to realtime updates for the Orders tab
   const loadOrders = async () => {
     setIsOrdersLoading(true);
     try {
+      // Initial load via API (keeps server auth checks)
       const response = await fetch('/api/orders');
-      if (!response.ok) {
-        throw new Error('Failed to fetch orders');
+      if (response.ok) {
+        const fetchedOrders = await response.json();
+        setOrders(fetchedOrders);
+        console.log('Orders loaded successfully:', fetchedOrders.length);
       }
-      const fetchedOrders = await response.json();
-      setOrders(fetchedOrders);
-      console.log('Orders loaded successfully:', fetchedOrders.length);
     } catch (error) {
-      console.error('Error loading orders:', error);
+      console.error('Error loading orders (initial):', error);
     } finally {
       setIsOrdersLoading(false);
+    }
+
+    // Realtime listener using Firestore client SDK for instant updates
+    try {
+      const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const liveOrders = snapshot.docs.map(mapDocToOrder);
+        setOrders(liveOrders);
+      }, (err) => {
+        console.error('Realtime orders listener error:', err);
+      });
+
+      // Return unsubscribe so caller can clean up if needed
+      return unsubscribe;
+    } catch (err) {
+      console.error('Failed to start realtime orders listener:', err);
+      return undefined;
     }
   };
 
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
     if (activeTab === 'orders') {
-      loadOrders();
+      // loadOrders returns unsubscribe for realtime updates
+      Promise.resolve(loadOrders()).then((u) => { unsubscribe = u; });
     }
+    return () => {
+      if (unsubscribe) {
+        try { unsubscribe(); } catch {}
+      }
+    };
   }, [activeTab]);
 
   // Fetch admin sessions
