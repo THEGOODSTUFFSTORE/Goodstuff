@@ -592,28 +592,42 @@ export const sendPaymentConfirmationEmail = async (order: Order): Promise<boolea
 // Utility function to send multiple emails
 export const sendOrderNotifications = async (order: Order, type: 'created' | 'paid' | 'shipped' | 'delivered', driverNumber?: string): Promise<void> => {
   try {
+    console.log(`Attempting to send ${type} notifications for order ${order.orderNumber || order.id} to ${order.userEmail}`);
+    
     if (DISABLE_ORDER_EMAILS) {
       console.log(`Emails disabled by DISABLE_ORDER_EMAILS. Skipping ${type} email notifications for order ${order.orderNumber || order.id}`);
       return;
     }
+
+    if (!order.userEmail) {
+      console.error(`No user email found for order ${order.orderNumber || order.id}`);
+      return;
+    }
+
     switch (type) {
       case 'created':
+        console.log('Sending order confirmation emails...');
         await Promise.all([
           sendOrderConfirmationEmail(order),
           sendAdminNewOrderEmail(order)
         ]);
         break;
       case 'paid':
+        console.log('Sending payment confirmation email...');
         await sendPaymentConfirmationEmail(order);
         break;
       case 'shipped':
+        console.log('Sending shipping notification email...');
         await sendOrderShippedEmail(order, driverNumber);
         break;
       case 'delivered':
+        console.log('Sending delivery notification email...');
         await sendOrderDeliveredEmail(order);
         break;
     }
+    console.log(`${type} notifications sent successfully for order ${order.orderNumber || order.id}`);
   } catch (error) {
-    console.error(`Error sending ${type} notifications:`, error);
+    console.error(`Error sending ${type} notifications for order ${order.orderNumber || order.id}:`, error);
+    throw error; // Re-throw to help with debugging
   }
 }; 

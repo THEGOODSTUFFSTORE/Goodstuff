@@ -107,13 +107,13 @@ export default async function MarketPage() {
         }}
       >
         {/* Semi-transparent overlay for better text legibility */}
-        <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
         <div className="min-h-screen relative z-10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
             {/* Market Subcategories */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Explore variety of our Products</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-4xl font-bold text-white mb-4">Explore variety of our Products</h2>
+          <p className="text-xl text-white/90 max-w-2xl mx-auto">
           Discover a curated selection of  premium cigars, nicotine pouches, vapes, lighters, cigars, and soft drinks.
           </p>
         </div>

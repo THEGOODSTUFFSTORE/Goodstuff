@@ -346,27 +346,33 @@ const AdminDashboard = () => {
   }, [activeTab]);
 
   // Fetch orders
-  useEffect(() => {
-    const loadOrders = async () => {
-      setIsOrdersLoading(true);
-      try {
-        const response = await fetch('/api/orders');
-        if (!response.ok) {
-          throw new Error('Failed to fetch orders');
-        }
-        const fetchedOrders = await response.json();
-        setOrders(fetchedOrders);
-      } catch (error) {
-        console.error('Error loading orders:', error);
-      } finally {
-        setIsOrdersLoading(false);
+  const loadOrders = async () => {
+    setIsOrdersLoading(true);
+    try {
+      const response = await fetch('/api/orders');
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
       }
-    };
+      const fetchedOrders = await response.json();
+      setOrders(fetchedOrders);
+      console.log('Orders loaded successfully:', fetchedOrders.length);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+    } finally {
+      setIsOrdersLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (activeTab === 'orders') {
       loadOrders();
     }
   }, [activeTab]);
+
+  // Load orders on component mount
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   // Fetch admin sessions
   useEffect(() => {
@@ -554,6 +560,13 @@ const AdminDashboard = () => {
   };
 
   const handleUpdateOrderStatus = async (orderId: string, status: string, trackingNumber?: string) => {
+    // Store original status for potential revert
+    const originalOrder = orders.find(order => order.id === orderId);
+    if (!originalOrder) {
+      console.error('Order not found for status update');
+      return;
+    }
+
     try {
       // OPTIMISTIC UPDATE: Update UI immediately
       setOrders(prevOrders => 
@@ -569,6 +582,8 @@ const AdminDashboard = () => {
         )
       );
 
+      console.log('Sending status update request:', { orderId, status, trackingNumber });
+
       // API call in background (non-blocking)
       const response = await fetch(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
@@ -578,12 +593,20 @@ const AdminDashboard = () => {
         body: JSON.stringify({ status, trackingNumber }),
       });
 
+      const responseData = await response.json();
+      console.log('API response:', responseData);
+
       if (!response.ok) {
-        throw new Error('Failed to update order status');
+        throw new Error(`Failed to update order status: ${responseData.error || 'Unknown error'}`);
       }
 
-      // Success - no need to refresh, UI is already updated
-      console.log('Order status updated successfully');
+      // Success - refresh orders to ensure UI is in sync with database
+      console.log('Order status updated successfully:', responseData);
+      
+      // Refresh orders to ensure UI is in sync with database
+      setTimeout(() => {
+        loadOrders();
+      }, 1000); // Small delay to allow database to update
 
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -592,12 +615,12 @@ const AdminDashboard = () => {
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
-            ? { ...order, status: order.status } // Revert to original status
+            ? { ...originalOrder } // Revert to original order data
             : order
         )
       );
       
-      alert('Error updating order status. Please try again.');
+      alert(`Error updating order status: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 
