@@ -3,13 +3,17 @@ import { Order, OrderItem } from './types';
 import { formatShippingAddress } from './utils';
 
 // Email configuration
+const EMAIL_USER = process.env.EMAIL_USER;
 const emailConfig = {
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
+    user: EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD, // Gmail App Password
   },
-};
+  pool: true,
+  maxConnections: 3,
+  maxMessages: 100,
+} as const;
 
 // Allow disabling all order emails via env
 const DISABLE_ORDER_EMAILS = (process.env.DISABLE_ORDER_EMAILS || '').toLowerCase() === 'true';
@@ -26,7 +30,8 @@ export interface EmailTemplate {
 
 // Admin email configuration
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'tgsliquorstore@gmail.com';
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@thegoodstuff.com';
+// Use the authenticated Gmail as the default From to avoid delivery delays
+const FROM_EMAIL = EMAIL_USER || process.env.FROM_EMAIL || 'tgsliquorstore@gmail.com';
 const COMPANY_NAME = 'The Goodstuff';
 const COMPANY_WEBSITE = process.env.NEXT_PUBLIC_APP_URL || 'https://thegoodstuffdrinks.delivery';
 
@@ -553,7 +558,8 @@ export const sendEmail = async (to: string, template: EmailTemplate): Promise<bo
       subject: template.subject,
       text: template.text,
       html: template.html,
-    };
+      replyTo: ADMIN_EMAIL,
+    } as const;
 
     await transporter.sendMail(mailOptions);
     console.log(`Email sent successfully to ${to}`);

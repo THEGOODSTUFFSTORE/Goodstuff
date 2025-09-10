@@ -58,12 +58,40 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Update the order status in Firebase using Admin SDK
+    // Update the order status in Firebase using Admin SDK, but never downgrade status
+    type StatusKey = 'pending' | 'processing' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
+    const statusRank: Record<StatusKey, number> = {
+      pending: 1,
+      processing: 2,
+      shipped: 3,
+      delivered: 4,
+      completed: 5,
+      cancelled: 99 // treat cancelled as terminal; never override
+    };
+    const normalizeStatus = (s?: string): StatusKey => {
+      switch (s) {
+        case 'pending':
+        case 'processing':
+        case 'shipped':
+        case 'delivered':
+        case 'completed':
+        case 'cancelled':
+          return s;
+        default:
+          return 'pending';
+      }
+    };
+    const mapStatusToRank = (s?: string) => statusRank[normalizeStatus(s)];
+
+    const proposedStatus = (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'processing' : 'pending';
+    const currentStatus: any = (orderData as any)?.status;
+    const finalStatus = mapStatusToRank(proposedStatus) > mapStatusToRank(currentStatus) ? proposedStatus : currentStatus;
+
     const updateData: any = {
       pesapalPaymentStatus: paymentStatus,
       paymentStatus: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'paid' : 
                     (paymentStatus.payment_status_description === 'Failed' || paymentStatus.payment_status === 'FAILED') ? 'failed' : 'pending',
-      status: (paymentStatus.payment_status_description === 'Completed' || paymentStatus.payment_status === 'COMPLETED') ? 'processing' : 'pending',
+      status: finalStatus,
       updatedAt: new Date().toISOString(),
       callbackProcessedAt: new Date().toISOString()
     };
