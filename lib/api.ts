@@ -66,7 +66,7 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
     const products = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    } as Product));
+    } as Product)).filter((p: any) => (p.status || 'active') === 'active');
 
     // Cache the results
     setCache(cacheKey, products);
@@ -100,7 +100,7 @@ export async function getProductsByCategory(category: string, pageSize: number =
     const products = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    } as Product));
+    } as Product)).filter((p: any) => (p.status || 'active') === 'active');
 
     // Cache the results
     setCache(cacheKey, products);
@@ -138,6 +138,9 @@ export async function getProductById(id: string): Promise<Product | null> {
         id: docSnap.id,
         ...productData
       } as Product;
+      if ((product as any).status && (product as any).status !== 'active') {
+        return null;
+      }
 
       // Cache the result
       setCache(cacheKey, product);
