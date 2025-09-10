@@ -55,7 +55,7 @@ export async function PATCH(
       );
     }
 
-    const orderData = { id: orderDoc.id, ...orderDoc.data() };
+    const orderData = { id: orderDoc.id, ...orderDoc.data() } as any;
     console.log('Order data retrieved for status update:', { orderId, currentStatus: orderData.status, newStatus: status, userEmail: orderData.userEmail });
 
     // Update the order status
