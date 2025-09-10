@@ -26,14 +26,6 @@ const subcategoryInfo: { [key: string]: any } = {
     description: 'Elegant pink wines perfect for any occasion'
   },
   
-  'sauvignon-blanc': {
-    name: 'Sauvignon Blanc',
-    description: 'Crisp white wine with citrus and herbal notes'
-  },
-  merlot: {
-    name: 'Merlot',
-    description: 'Smooth and medium-bodied red wine'
-  },
   champagne: {
     name: 'Champagne',
     description: 'Premium sparkling wine from the Champagne region'
@@ -85,8 +77,6 @@ export default async function WineSubcategoryPage({ params }: WineSubcategoryPag
     if (searchSubcategory === 'champagne' && productSubcategory.includes('champagne')) return true;
     
     // Match for specific varietals
-    if (searchSubcategory === 'sauvignon-blanc' && productSubcategory.includes('sauvignon blanc')) return true;
-    if (searchSubcategory === 'merlot' && productSubcategory.includes('merlot')) return true;
     
     return false;
   });

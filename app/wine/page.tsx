@@ -11,14 +11,14 @@ const wineSubcategories = [
     name: 'Red',
     description: 'Bold and rich red wines from around the world',
     image: '/Red-wine.jpg',
-    types: ['Merlot', 'Pinot Noir', 'Shiraz']
+    types: ['Pinot Noir', 'Shiraz']
   },
   {
     id: 'white',
     name: 'White', 
     description: 'Crisp and refreshing white wines',
     image: '/white-wine2.webp',
-    types: ['Sauvignon Blanc', 'Chardonnay', 'Pinot Grigio', 'Riesling']
+    types: ['Chardonnay', 'Pinot Grigio', 'Riesling']
   },
   {
     id: 'rose',
@@ -28,20 +28,6 @@ const wineSubcategories = [
     types: ['Provence Rosé', 'Spanish Rosado', 'Italian Rosato', 'Grenache Rosé']
   },
   
-  {
-    id: 'sauvignon-blanc',
-    name: 'Sauvignon Blanc',
-    description: 'Crisp white wine with citrus and herbal notes',
-    image: '/blanc.jpg',
-    types: ['New Zealand Sauvignon', 'Loire Valley Sauvignon', 'California Sauvignon', 'Chilean Sauvignon']
-  },
-  {
-    id: 'merlot',
-    name: 'Merlot',
-    description: 'Smooth and medium-bodied red wine',
-    image: '/merlot.jpg',
-    types: ['French Merlot', 'California Merlot', 'Chilean Merlot', 'Italian Merlot']
-  },
   {
     id: 'champagne',
     name: 'Champagne',

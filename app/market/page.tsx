@@ -73,7 +73,7 @@ export default async function MarketPage() {
               The Goodstuff 
             </h1>
             <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
-            Discover exclusive market finds, gourmet treats, and unique lifestyle essentials—handpicked just for you!
+            Discover exclusive market finds, nicotine pouches, vapes, lighters, cigars, and soft drinks.
             </p>
             <div className="mt-8 text-lg text-black/80">
               {marketProducts.length} products available
@@ -114,7 +114,7 @@ export default async function MarketPage() {
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Explore variety of our Products</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Discover a curated selection of gourmet foods, premium cigars, specialty ingredients, and unique market items. Explore our diverse market subcategories to find the perfect addition to your collection or pantry.
+          Discover a curated selection of  premium cigars, nicotine pouches, vapes, lighters, cigars, and soft drinks.
           </p>
         </div>
 
@@ -169,28 +169,8 @@ export default async function MarketPage() {
         </div>
 
         {/* Market Services */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-gray-900 mb-3">Fresh Guarantee</h4>
-            <p className="text-gray-600 text-sm">
-              All fresh products are sourced daily and delivered at peak freshness.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-gray-900 mb-3">Local Sourcing</h4>
-            <p className="text-gray-600 text-sm">
-              Supporting local farmers and artisans with premium quality products.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-gray-900 mb-3">Chef Approved</h4>
-            <p className="text-gray-600 text-sm">
-              Curated selection approved by professional chefs and culinary experts.
-            </p>
-          </div>
         </div>
-          </div>
-        </div>
+      </div>
       </div>
 
       <Footer />
