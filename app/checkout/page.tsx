@@ -23,6 +23,10 @@ export default function CheckoutPage() {
     distance: number;
   } | null>(null);
 
+  // Free delivery for orders over Ksh 5,000
+  const qualifiesForFreeDelivery = totalAmount >= 5000;
+  const effectiveDeliveryFee = qualifiesForFreeDelivery ? 0 : deliveryFee;
+
   useEffect(() => {
     // Redirect to basket if cart is empty
     if (items.length === 0) {
@@ -67,9 +71,9 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify({
           items: orderItems,
-          totalAmount: totalAmount + deliveryFee,
+          totalAmount: totalAmount + effectiveDeliveryFee,
           shippingAddress: fullShippingAddress,
-          deliveryFee,
+          deliveryFee: effectiveDeliveryFee,
           userId: auth.currentUser?.uid || null,
           userEmail: auth.currentUser?.email || shippingAddress.email
         })
@@ -167,12 +171,15 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex justify-between mt-2">
                       <span className="text-gray-600">Delivery Fee</span>
-                      <span className="font-semibold">Ksh {deliveryFee.toLocaleString()}</span>
+                      <span className="font-semibold">{effectiveDeliveryFee === 0 ? 'Free' : `Ksh ${effectiveDeliveryFee.toLocaleString()}`}</span>
                     </div>
+                    {qualifiesForFreeDelivery && (
+                      <p className="text-sm text-green-600 mt-1">Free delivery applied for orders over Ksh 5,000</p>
+                    )}
                     <div className="border-t border-gray-200 pt-4 mt-4">
                       <div className="flex justify-between text-lg font-bold">
                         <span>Total</span>
-                        <span className="text-red-600">Ksh {(totalAmount + deliveryFee).toLocaleString()}</span>
+                        <span className="text-red-600">Ksh {(totalAmount + effectiveDeliveryFee).toLocaleString()}</span>
                       </div>
                     </div>
                   </div>

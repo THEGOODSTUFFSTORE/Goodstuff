@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     // Get the request body
     const body = await request.json();
-    const { items, totalAmount, shippingAddress, userId, userEmail } = body;
+    const { items, totalAmount, shippingAddress, userId, userEmail, deliveryFee: clientDeliveryFee } = body;
 
     if (!items || !totalAmount || !shippingAddress) {
       return NextResponse.json(
@@ -16,6 +16,14 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Server-side recalculation and enforcement
+    const subtotal = Array.isArray(items)
+      ? items.reduce((acc: number, item: any) => acc + (item.priceAtOrder * item.quantity), 0)
+      : 0;
+    const qualifiesForFreeDelivery = subtotal >= 5000;
+    const effectiveDeliveryFee = qualifiesForFreeDelivery ? 0 : (clientDeliveryFee || 0);
+    const enforcedTotalAmount = subtotal + effectiveDeliveryFee;
 
     // Create a unique tracking ID
     const trackingId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
@@ -37,7 +45,7 @@ export async function POST(request: NextRequest) {
       userEmail: currentUserEmail,
       items,
       totalItems: items.reduce((acc: number, item: any) => acc + item.quantity, 0),
-      totalAmount,
+      totalAmount: enforcedTotalAmount,
       status: 'pending',
       shippingAddress,
       paymentMethod: 'pesapal',
@@ -105,7 +113,7 @@ export async function POST(request: NextRequest) {
     }
 
     const paymentRequest: PesapalPaymentRequest = {
-      amount: totalAmount,
+      amount: enforcedTotalAmount,
       currency: 'KES',
       description: `Order ${order.id}`,
       callback_url: `${baseUrl}/api/payments/pesapal/callback`,
