@@ -99,7 +99,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
       { id: 'red', name: 'Red' },
       { id: 'white', name: 'White' },
       { id: 'rose', name: 'Rosé' },
-      { id: 'cabernet-sauvignon', name: 'Cabernet Sauvignon' },
       { id: 'sauvignon-blanc', name: 'Sauvignon Blanc' },
       { id: 'merlot', name: 'Merlot' },
       { id: 'champagne', name: 'Champagne' }

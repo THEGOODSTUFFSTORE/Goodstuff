@@ -25,10 +25,7 @@ const subcategoryInfo: { [key: string]: any } = {
     name: 'Rosé Wine',
     description: 'Elegant pink wines perfect for any occasion'
   },
-  'cabernet-sauvignon': {
-    name: 'Cabernet Sauvignon',
-    description: 'Full-bodied red wine with rich dark fruit flavors'
-  },
+  
   'sauvignon-blanc': {
     name: 'Sauvignon Blanc',
     description: 'Crisp white wine with citrus and herbal notes'
@@ -88,7 +85,6 @@ export default async function WineSubcategoryPage({ params }: WineSubcategoryPag
     if (searchSubcategory === 'champagne' && productSubcategory.includes('champagne')) return true;
     
     // Match for specific varietals
-    if (searchSubcategory === 'cabernet-sauvignon' && productSubcategory.includes('cabernet')) return true;
     if (searchSubcategory === 'sauvignon-blanc' && productSubcategory.includes('sauvignon blanc')) return true;
     if (searchSubcategory === 'merlot' && productSubcategory.includes('merlot')) return true;
     

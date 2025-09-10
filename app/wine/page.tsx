@@ -11,7 +11,7 @@ const wineSubcategories = [
     name: 'Red',
     description: 'Bold and rich red wines from around the world',
     image: '/Red-wine.jpg',
-    types: ['Cabernet Sauvignon', 'Merlot', 'Pinot Noir', 'Shiraz']
+    types: ['Merlot', 'Pinot Noir', 'Shiraz']
   },
   {
     id: 'white',
@@ -27,13 +27,7 @@ const wineSubcategories = [
     image: '/rose-wine.jpg',
     types: ['Provence Rosé', 'Spanish Rosado', 'Italian Rosato', 'Grenache Rosé']
   },
-  {
-    id: 'cabernet-sauvignon',
-    name: 'Cabernet Sauvignon',
-    description: 'Full-bodied red wine with rich dark fruit flavors',
-    image: '/savio.jpg',
-    types: ['French Cabernet', 'California Cabernet', 'Chilean Cabernet', 'Australian Cabernet']
-  },
+  
   {
     id: 'sauvignon-blanc',
     name: 'Sauvignon Blanc',

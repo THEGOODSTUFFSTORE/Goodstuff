@@ -11,7 +11,7 @@ const ExcelTemplate: React.FC = () => {
         name: 'Sample Wine Name',
         category: 'wine',
         subcategory: 'red',
-        type: 'cabernet',
+        type: 'merlot',
         price: 25.99,
         stockQuantity: 50,
         brand: 'Sample Brand',
