@@ -4,6 +4,7 @@ import { FaWineGlassAlt, FaArrowLeft } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { getProductsByCategory } from '@/lib/api';
+import AddToBasketButton from '@/app/components/AddToBasketButton';
 
 interface WineTypePageProps {
   params: Promise<{
@@ -109,9 +110,7 @@ export default async function WineTypePage({ params }: WineTypePageProps) {
                     </span>
                   </div>
                   <div className="mt-4">
-                    <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                      Add to Cart
-                    </button>
+                    <AddToBasketButton product={product} />
                   </div>
                 </div>
               </div>

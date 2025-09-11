@@ -52,7 +52,7 @@ export default function ProductCard({
         </div>
       </Link>
       <div className="px-6 pb-6">
-        <AddToBasketButton productId={product.id} />
+        <AddToBasketButton product={product} />
       </div>
     </div>
   );

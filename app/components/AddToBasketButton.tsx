@@ -1,18 +1,21 @@
 'use client';
 
 import React from 'react';
+import { useCartStore } from '@/lib/store';
+import { Product } from '@/lib/types';
 
 interface AddToBasketButtonProps {
-  productId: string;
+  product: Product;
   className?: string;
 }
 
-export default function AddToBasketButton({ productId, className }: AddToBasketButtonProps) {
+export default function AddToBasketButton({ product, className }: AddToBasketButtonProps) {
+  const { addItem } = useCartStore();
+
   const handleAddToBasket = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Add to cart functionality will be handled by the cart store
-    console.log('Adding product to basket:', productId);
+    addItem(product, 1);
   };
 
   // Standardized button styling - this will be consistent across all product cards
@@ -26,4 +29,4 @@ export default function AddToBasketButton({ productId, className }: AddToBasketB
       Add to basket
     </button>
   );
-} 
+}

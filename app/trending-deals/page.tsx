@@ -6,6 +6,7 @@ import { getProductsBySection } from '@/lib/api';
 import { Product } from '@/lib/types';
 import { capitalizeProductName } from '@/lib/utils';
 import ProductCard from '@/app/components/ProductCard';
+import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export default async function TrendingDealsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar />
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-white to-gray-100 text-black">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
