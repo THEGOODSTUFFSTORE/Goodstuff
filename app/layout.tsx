@@ -141,6 +141,21 @@ export default function RootLayout({
           <WhatsAppFloat />
         </StoreProvider>
         
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-65BEX1ZEVP"
+          strategy="afterInteractive"
+        />
+        <Script id="ga-gtag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-65BEX1ZEVP');
+          `}
+        </Script>
+
         {/* Service Worker Registration */}
         {process.env.NODE_ENV === 'production' && (
           <Script id="sw-registration" strategy="afterInteractive">
