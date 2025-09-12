@@ -44,10 +44,17 @@ jobs:
           rm -rf functions/.next
           cp -R .next functions/.next
 
+      - name: Verify service account secret present
+        run: |
+          if [ -z "${FIREBASE_SERVICE_ACCOUNT}" ]; then
+            echo "FIREBASE_SERVICE_ACCOUNT is empty. Ensure the repo secret is set and available to this workflow (secrets are not passed from forks)."
+            exit 1
+          fi
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          credentials_json: ${{ env.FIREBASE_SERVICE_ACCOUNT }}
           export_environment_variables: true
 
       - name: Install Firebase CLI
