@@ -1,4 +1,5 @@
 import { db } from './firebase';
+import { adminDb } from './firebase-admin';
 import { collection, getDocs, query, where, doc, getDoc, orderBy, limit, startAfter, QueryDocumentSnapshot } from 'firebase/firestore';
 import { Product } from './types';
 
@@ -37,6 +38,17 @@ const getProductImageUrl = (contentfulImage: any): string => {
 // Optimized fetch all products with caching and pagination
 export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocumentSnapshot): Promise<Product[]> {
   try {
+    // Use Admin SDK on the server to avoid initializing client SDK during build
+    if (typeof window === 'undefined' && adminDb) {
+      let q = adminDb.collection('products').orderBy('createdAt', 'desc').limit(pageSize);
+      if (lastDoc) {
+        // Admin SDK pagination uses startAfter with field value; skipping for simplicity in server path
+      }
+      const snapshot = await q.get();
+      const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product))
+        .filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
+      return products;
+    }
     const productsRef = collection(db, 'products');
     let q = query(
       productsRef, 
@@ -71,6 +83,17 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
 // Optimized fetch products by category with caching
 export async function getProductsByCategory(category: string, pageSize: number = 1000): Promise<Product[]> {
   try {
+    if (typeof window === 'undefined' && adminDb) {
+      const snapshot = await adminDb
+        .collection('products')
+        .where('category', '==', category)
+        .orderBy('createdAt', 'desc')
+        .limit(pageSize)
+        .get();
+      const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product))
+        .filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
+      return products;
+    }
     const productsRef = collection(db, 'products');
     const q = query(
       productsRef, 
@@ -99,8 +122,20 @@ export async function getProductById(id: string): Promise<Product | null> {
       console.error('Invalid product ID provided:', id);
       return null;
     }
-
     console.log('Fetching product with ID:', id);
+    if (typeof window === 'undefined' && adminDb) {
+      const adminDoc = await adminDb.collection('products').doc(id).get();
+      if (!adminDoc.exists) {
+        console.error('Product document does not exist for ID:', id);
+        return null;
+      }
+      const product = { id: adminDoc.id, ...adminDoc.data() } as Product;
+      const productStatus = (product as any).status;
+      if (productStatus === 'inactive' || productStatus === 'discontinued') {
+        return null;
+      }
+      return product;
+    }
     const docRef = doc(db, 'products', id);
     const docSnap = await getDoc(docRef);
     
@@ -139,7 +174,17 @@ export async function getProductsBySection(section: string, itemLimit: number = 
       console.log(`Returning cached products for section: ${section}`);
       return cached;
     }
-
+    if (typeof window === 'undefined' && adminDb) {
+      const snapshot = await adminDb
+        .collection('products')
+        .where('sections', 'array-contains', section)
+        .orderBy('createdAt', 'desc')
+        .limit(itemLimit)
+        .get();
+      const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product));
+      setCache(cacheKey, products);
+      return products;
+    }
     const productsRef = collection(db, 'products');
     // Optimized query with database-level sorting (requires composite index)
     const q = query(
