@@ -75,7 +75,7 @@ jobs:
           FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
         run: |
-          firebase deploy --only hosting,functions --project ${{ env.FIREBASE_PROJECT_ID }} --non-interactive
+          firebase deploy --only hosting,functions --project ${{ env.FIREBASE_PROJECT_ID }} --non-interactive --force
 
       - name: Deploy Hosting and Functions (CI token)
         if: steps.choose-auth.outputs.method == 'firebase_token'
@@ -85,4 +85,4 @@ jobs:
           FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
         run: |
-          firebase deploy --only hosting,functions --project ${{ env.FIREBASE_PROJECT_ID }} --non-interactive
+          firebase deploy --only hosting,functions --project ${{ env.FIREBASE_PROJECT_ID }} --non-interactive --force
