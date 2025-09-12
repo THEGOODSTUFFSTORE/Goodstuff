@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import type { Configuration as WebpackConfig } from "webpack";
+import path from "path";
 
 // Bundle analyzer setup
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
@@ -125,6 +126,18 @@ const nextConfig: NextConfig = {
         },
       };
     }
+
+    // Force a single copy of React/ReactDOM during build to avoid invalid hook dispatcher
+    config.resolve = {
+      ...(config.resolve || {}),
+      alias: {
+        ...(config.resolve?.alias || {}),
+        react: path.resolve(__dirname, 'node_modules/react'),
+        'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
+        'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+        'react-dom/server': path.resolve(__dirname, 'node_modules/react-dom/server'),
+      },
+    };
 
     // Bundle optimization
     if (!dev && !isServer) {
