@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaHeart, FaFacebookF, FaTwitter, FaWhatsapp, FaLink, FaCheckCircle, FaStar, FaShoppingCart, FaTruck, FaShieldAlt, FaUndoAlt, FaInstagram } from 'react-icons/fa';
 import { MdOutlineDeliveryDining, MdLocalShipping, MdSecurity } from "react-icons/md";
 import { BiHeart } from 'react-icons/bi';
@@ -16,11 +16,16 @@ interface ProductDetailsProps {
 export default function ProductDetails({ product }: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
   const isOutOfStock = (product.status === 'out_of_stock') || (product.stockQuantity <= 0);
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const handleAddToCart = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || !isClient) return;
     setIsLoading(true);
     try {
       addItem(product, quantity);
@@ -177,19 +182,21 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 <div className="flex space-x-3">
                   <button 
                     onClick={handleAddToCart}
-                    disabled={isLoading || isOutOfStock}
+                    disabled={isLoading || isOutOfStock || !isClient}
                     className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl text-base transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2"
                   >
                     <FaShoppingCart />
-                    <span>{isOutOfStock ? 'Out of Stock' : (isLoading ? 'Adding...' : 'Add to Cart')}</span>
+                    <span>
+                      {!isClient ? 'Loading...' : (isOutOfStock ? 'Out of Stock' : (isLoading ? 'Adding...' : 'Add to Cart'))}
+                    </span>
                   </button>
                   <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center">
                     <BiHeart className="w-5 h-5" />
                   </button>
                 </div>
                 
-                <button disabled={isOutOfStock} className="w-full border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                  {isOutOfStock ? 'Out of Stock' : 'Buy Now'}
+                <button disabled={isOutOfStock || !isClient} className="w-full border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {!isClient ? 'Loading...' : (isOutOfStock ? 'Out of Stock' : 'Buy Now')}
                 </button>
               </div>
 

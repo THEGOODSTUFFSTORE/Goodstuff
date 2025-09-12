@@ -10,11 +10,16 @@ import React from 'react';
 const ProductsList = React.memo(() => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isClient, setIsClient] = useState(false);
   const { addItem: addToCart } = useCartStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 

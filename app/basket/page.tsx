@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/lib/store';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -8,8 +8,27 @@ import { toast } from 'react-toastify';
 import Footer from '@/app/components/Footer';
 
 export default function BasketPage() {
+  const [isClient, setIsClient] = useState(false);
   const { items, totalItems, totalAmount, removeItem, updateQuantity } = useCartStore();
   const router = useRouter();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Show loading state during SSR
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Loading basket...</h1>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

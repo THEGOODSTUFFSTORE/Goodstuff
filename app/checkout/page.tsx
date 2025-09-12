@@ -11,10 +11,15 @@ import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 
 export default function CheckoutPage() {
+  const [isClient, setIsClient] = useState(false);
   const { items, totalItems, totalAmount, clearCart } = useCartStore();
   const router = useRouter();
   const { auth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [deliveryLocation, setDeliveryLocation] = useState<{
