@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nextjsFunc = void 0;
+exports.nextjsFuncV2 = void 0;
 const https_1 = require("firebase-functions/v2/https");
 const options_1 = require("firebase-functions/v2/options");
 const next = require("next");
@@ -17,7 +17,7 @@ const app = next({
 const handle = app.getRequestHandler();
 // Prepare Next.js once and reuse across invocations
 const prepared = app.prepare();
-exports.nextjsFunc = (0, https_1.onRequest)(async (req, res) => {
+exports.nextjsFuncV2 = (0, https_1.onRequest)(async (req, res) => {
     console.log("File: " + req.originalUrl);
     await prepared;
     handle(req, res);
