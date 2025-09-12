@@ -8,6 +8,7 @@ import { ShoppingBag, User, ChevronDown } from 'lucide-react';
 type DropdownCategory = 'categories' | 'spirits' | 'market' | 'product-sections';
 
 const Navbar = () => {
+  const [isClient, setIsClient] = useState(false);
   const { totalItems } = useCartStore();
   const { user, isAuthenticated } = useUserStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,6 +20,10 @@ const Navbar = () => {
     market: false,
     'product-sections': false
   });
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Handle scroll effect
   useEffect(() => {
@@ -224,9 +229,9 @@ const Navbar = () => {
             <div className="flex items-center space-x-1 sm:space-x-3">
               {/* Account link */}
               <Link 
-                href={isAuthenticated ? "/dashboard" : "/login"} 
+                href={isClient && isAuthenticated ? "/dashboard" : "/login"} 
                 className="p-1.5 sm:p-2 rounded-xl transition-all duration-300 group relative text-gray-700 hover:text-red-500 hover:bg-gray-50"
-                title={isAuthenticated ? "Dashboard" : "Login"}
+                title={isClient && isAuthenticated ? "Dashboard" : "Login"}
               >
                 <User className="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" />
               </Link>
@@ -239,7 +244,7 @@ const Navbar = () => {
               >
                 <div className="relative">
                   <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" />
-                  {totalItems > 0 && (
+                  {isClient && totalItems > 0 && (
                     <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center animate-pulse">
                       {totalItems}
                     </span>
@@ -324,7 +329,7 @@ const Navbar = () => {
               </Link>
               
               {/* Authentication Links */}
-              {!isAuthenticated && (
+              {isClient && !isAuthenticated && (
                 <>
                   <Link
                     href="/login"
@@ -342,7 +347,25 @@ const Navbar = () => {
                   </Link>
                 </>
               )}
-              {isAuthenticated && (
+              {!isClient && (
+                <>
+                  <Link
+                    href="/login"
+                    className="block px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-red-500 hover:bg-gray-50 min-h-[40px] flex items-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="block px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-red-500 hover:bg-gray-50 min-h-[40px] flex items-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Create Account
+                  </Link>
+                </>
+              )}
+              {isClient && isAuthenticated && (
                 <Link
                   href="/dashboard"
                   className="block px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-red-500 hover:bg-gray-50 min-h-[40px] flex items-center"
