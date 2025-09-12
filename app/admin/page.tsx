@@ -39,6 +39,7 @@ import { getProducts, deleteProduct, getOrderStats, getRecentOrders, getTopSelli
 import { Product, Customer, Order } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
 import { LucideIcon } from 'lucide-react';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -523,7 +524,7 @@ const AdminDashboard = () => {
       }
     };
 
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged((user: FirebaseUser | null) => {
       if (user) {
         console.log('👤 Firebase auth state changed - user logged in:', user.uid);
         checkAuth();
