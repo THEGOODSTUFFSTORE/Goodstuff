@@ -1,4 +1,3 @@
-import { db } from './firebase';
 import { adminDb } from './firebase-admin';
 import { collection, getDocs, query, where, doc, getDoc, orderBy, limit, startAfter, QueryDocumentSnapshot } from 'firebase/firestore';
 import { Product } from './types';
@@ -49,6 +48,7 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
         .filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
       return products;
     }
+    const { db } = await import('./firebase');
     const productsRef = collection(db, 'products');
     let q = query(
       productsRef, 
@@ -94,6 +94,7 @@ export async function getProductsByCategory(category: string, pageSize: number =
         .filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
       return products;
     }
+    const { db } = await import('./firebase');
     const productsRef = collection(db, 'products');
     const q = query(
       productsRef, 
@@ -136,6 +137,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       }
       return product;
     }
+    const { db } = await import('./firebase');
     const docRef = doc(db, 'products', id);
     const docSnap = await getDoc(docRef);
     
@@ -185,6 +187,7 @@ export async function getProductsBySection(section: string, itemLimit: number = 
       setCache(cacheKey, products);
       return products;
     }
+    const { db } = await import('./firebase');
     const productsRef = collection(db, 'products');
     // Optimized query with database-level sorting (requires composite index)
     const q = query(

@@ -37,14 +37,11 @@ function getServiceAccountConfig() {
   );
 }
 
-// Only treat Next.js build phase explicitly as build-time
-const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
-
 // Consider already-initialized apps (e.g., hot reload or other modules)
 let adminInitialized = admin.apps.length > 0;
 
-// Initialize Firebase Admin only if not in build time and if we have the required config
-if (!isBuildTime && !adminInitialized) {
+// Initialize Firebase Admin if not initialized yet (allow during build)
+if (!adminInitialized) {
   try {
     const serviceAccount = getServiceAccountConfig();
     
