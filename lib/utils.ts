@@ -23,7 +23,8 @@ export function normalizeForSearch(input: string | undefined | null): string {
   return input
     .toString()
     .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
+    // Remove combining diacritical marks (widely supported)
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim()
