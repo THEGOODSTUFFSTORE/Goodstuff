@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: Production   # 👈 Required so environment secrets are available
+    environment: Production   # ensures environment secrets are available
 
     permissions:
       contents: read
@@ -70,6 +70,10 @@ jobs:
 
       - name: Deploy Hosting and Functions (service account)
         if: steps.choose-auth.outputs.method == 'service_account'
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
         run: |
           firebase deploy --only hosting,functions --project ${{ env.FIREBASE_PROJECT_ID }} --non-interactive
 
@@ -77,5 +81,8 @@ jobs:
         if: steps.choose-auth.outputs.method == 'firebase_token'
         env:
           FIREBASE_TOKEN: ${{ env.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
         run: |
           firebase deploy --only hosting,functions --project ${{ env.FIREBASE_PROJECT_ID }} --non-interactive
