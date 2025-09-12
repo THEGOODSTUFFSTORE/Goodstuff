@@ -1,5 +1,14 @@
-import * as functions from "firebase-functions";
+import { onRequest } from "firebase-functions/v2/https";
+import { setGlobalOptions } from "firebase-functions/v2/options";
+import type { Request, Response } from "express";
+
 const next = require("next");
+
+setGlobalOptions({
+  region: "us-central1",
+  memory: "1GiB",
+  timeoutSeconds: 60,
+});
 
 const isDev = false;
 const app = next({
@@ -9,14 +18,11 @@ const app = next({
 
 const handle = app.getRequestHandler();
 
-export const nextjsFunc = functions
-  .region("us-central1")
-  .runWith({
-    memory: "1GB",
-    timeoutSeconds: 60,
-  })
-  .https.onRequest(async (req, res) => {
-    console.log("File: " + req.originalUrl); // log the page.js file that is being requested
-    await app.prepare();
-    handle(req, res);
-  }); 
+// Prepare Next.js once and reuse across invocations
+const prepared = app.prepare();
+
+export const nextjsFunc = onRequest(async (req: Request, res: Response) => {
+  console.log("File: " + (req as any).originalUrl);
+  await prepared;
+  handle(req, res);
+});
