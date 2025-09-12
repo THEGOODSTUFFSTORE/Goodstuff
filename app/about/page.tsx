@@ -48,7 +48,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-grow py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Our Story Section */}
