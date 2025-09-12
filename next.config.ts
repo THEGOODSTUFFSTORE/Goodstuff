@@ -133,9 +133,7 @@ const nextConfig: NextConfig = {
       alias: {
         ...(config.resolve?.alias || {}),
         react: path.resolve(__dirname, 'node_modules/react'),
-        'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
         'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
-        'react-dom/server': path.resolve(__dirname, 'node_modules/react-dom/server'),
       },
     };
 
