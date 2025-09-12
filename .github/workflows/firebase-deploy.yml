@@ -18,6 +18,7 @@ jobs:
       FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
       FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
       FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
     steps:
       - name: Checkout
@@ -44,15 +45,23 @@ jobs:
           rm -rf functions/.next
           cp -R .next functions/.next
 
-      - name: Verify service account secret present
+      - name: Choose auth method
+        id: choose-auth
         run: |
-          if [ -z "${FIREBASE_SERVICE_ACCOUNT}" ]; then
-            echo "FIREBASE_SERVICE_ACCOUNT is empty. Ensure the repo secret is set and available to this workflow (secrets are not passed from forks)."
+          if [ -n "${FIREBASE_SERVICE_ACCOUNT}" ]; then
+            echo "method=service_account" >> $GITHUB_OUTPUT
+            echo "Using service account authentication"
+          elif [ -n "${FIREBASE_TOKEN}" ]; then
+            echo "method=firebase_token" >> $GITHUB_OUTPUT
+            echo "Using Firebase CI token authentication"
+          else
+            echo "No auth credentials available. Set FIREBASE_SERVICE_ACCOUNT or FIREBASE_TOKEN secrets."
             exit 1
           fi
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
+        if: steps.choose-auth.outputs.method == 'service_account'
         with:
           credentials_json: ${{ env.FIREBASE_SERVICE_ACCOUNT }}
           export_environment_variables: true
@@ -60,6 +69,14 @@ jobs:
       - name: Install Firebase CLI
         run: npm i -g firebase-tools
 
-      - name: Deploy Hosting and Functions
+      - name: Deploy Hosting and Functions (service account)
+        if: steps.choose-auth.outputs.method == 'service_account'
+        run: |
+          firebase deploy --only hosting,functions --project thegoodstuffdelivery --non-interactive
+
+      - name: Deploy Hosting and Functions (CI token)
+        if: steps.choose-auth.outputs.method == 'firebase_token'
+        env:
+          FIREBASE_TOKEN: ${{ env.FIREBASE_TOKEN }}
         run: |
           firebase deploy --only hosting,functions --project thegoodstuffdelivery --non-interactive
