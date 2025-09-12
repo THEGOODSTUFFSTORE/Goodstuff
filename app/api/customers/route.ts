@@ -1,23 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth, isAdminReady } from '@/lib/firebase-admin';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { adminAuth, adminDb, isAdminReady } from '@/lib/firebase-admin';
 import { Order } from '@/lib/types';
 
 // Helper function to get orders for a user
 async function getUserOrders(userId: string) {
   try {
-    const ordersRef = collection(db, 'orders');
-    const q = query(
-      ordersRef,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Order[];
+    if (!adminDb) {
+      return [];
+    }
+    const snapshot = await adminDb
+      .collection('orders')
+      .where('userId', '==', userId)
+      .orderBy('createdAt', 'desc')
+      .get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Order[];
   } catch (error) {
     console.error('Error fetching user orders:', error);
     return [];
