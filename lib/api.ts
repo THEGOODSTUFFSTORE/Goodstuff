@@ -59,7 +59,7 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
     const products = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    } as Product)).filter((p: any) => (p.status || 'active') === 'active');
+    } as Product)).filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
 
     return products;
   } catch (error) {
@@ -83,7 +83,7 @@ export async function getProductsByCategory(category: string, pageSize: number =
     const products = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    } as Product)).filter((p: any) => (p.status || 'active') === 'active');
+    } as Product)).filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
 
     return products;
   } catch (error) {
@@ -111,7 +111,8 @@ export async function getProductById(id: string): Promise<Product | null> {
         id: docSnap.id,
         ...productData
       } as Product;
-      if ((product as any).status && (product as any).status !== 'active') {
+      const productStatus = (product as any).status;
+      if (productStatus === 'inactive' || productStatus === 'discontinued') {
         return null;
       }
 

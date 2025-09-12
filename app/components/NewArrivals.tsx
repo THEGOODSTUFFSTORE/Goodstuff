@@ -4,13 +4,12 @@ import Image from 'next/image';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
-import { useCartStore } from '@/lib/store';
+import AddToBasketButton from './AddToBasketButton';
 import { capitalizeProductName } from '@/lib/utils';
 import React from 'react';
 
 const NewArrivals = React.memo(() => {
   const router = useRouter();
-  const { addItem: addToCart } = useCartStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,11 +35,6 @@ const NewArrivals = React.memo(() => {
     router.push(`/products/${productId}`);
   };
 
-  const handleAddToCart = (product: Product, e: React.MouseEvent) => {
-    e.stopPropagation();
-    addToCart(product, 1);
-  };
-
   // Memoize the product list to prevent unnecessary re-renders
   const productList = useMemo(() => {
     return products.map((product) => (
@@ -55,6 +49,11 @@ const NewArrivals = React.memo(() => {
 
         
         <div className="relative h-48 w-full flex items-center justify-center bg-gray-50 overflow-hidden">
+          {((product.status === 'out_of_stock') || (product.stockQuantity <= 0)) && (
+            <div className="absolute top-3 left-3 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold z-20">
+              Out of stock
+            </div>
+          )}
           <div className="absolute inset-0 bg-gray-100/30 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
           <Image
             src={product.productImage || '/wine.webp'}
@@ -85,12 +84,12 @@ const NewArrivals = React.memo(() => {
               {product.price.toLocaleString()}/=
             </span>
           </div>
-                      <button 
-              className="mt-4 w-full bg-green-600 text-white py-2 rounded-xl font-semibold hover:bg-green-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-              onClick={(e) => handleAddToCart(product, e)}
-            >
-            Add to basket
-          </button>
+          <div className="mt-4">
+            <AddToBasketButton 
+              product={product}
+              className="w-full bg-green-600 text-white py-2 rounded-xl font-semibold hover:bg-green-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
+            />
+          </div>
         </div>
       </div>
     ));

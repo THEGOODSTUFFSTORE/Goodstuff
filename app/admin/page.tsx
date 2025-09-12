@@ -691,8 +691,6 @@ const AdminDashboard = () => {
     let matchesStatus = true;
     if (statusFilter === 'active') {
       matchesStatus = product.status === 'active';
-    } else if (statusFilter === 'inactive') {
-      matchesStatus = product.status === 'inactive';
     } else if (statusFilter === 'out_of_stock') {
       matchesStatus = product.status === 'out_of_stock';
     } else if (statusFilter === 'discontinued') {
@@ -936,7 +934,6 @@ const AdminDashboard = () => {
           >
             <option value="all">All Statuses</option>
             <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
             <option value="out_of_stock">Out of Stock</option>
             <option value="discontinued">Discontinued</option>
           </select>
@@ -1052,13 +1049,11 @@ const AdminDashboard = () => {
                           <div className="flex items-center space-x-1">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               product.status === 'active' ? 'bg-blue-100 text-blue-800' :
-                              product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
                               product.status === 'out_of_stock' ? 'bg-red-100 text-red-800' :
                               product.status === 'discontinued' ? 'bg-gray-100 text-gray-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
                               {product.status === 'active' ? 'Active' :
-                               product.status === 'inactive' ? 'Inactive' :
                                product.status === 'out_of_stock' ? 'Out of Stock' :
                                product.status === 'discontinued' ? 'Discontinued' :
                                'Unknown'}
@@ -1178,13 +1173,11 @@ const AdminDashboard = () => {
                     <div className="flex items-center space-x-1">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         product.status === 'active' ? 'bg-blue-100 text-blue-800' :
-                        product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
                         product.status === 'out_of_stock' ? 'bg-red-100 text-red-800' :
                         product.status === 'discontinued' ? 'bg-gray-100 text-gray-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
                         {product.status === 'active' ? 'Active' :
-                         product.status === 'inactive' ? 'Inactive' :
                          product.status === 'out_of_stock' ? 'Out of Stock' :
                          product.status === 'discontinued' ? 'Discontinued' :
                          'Unknown'}

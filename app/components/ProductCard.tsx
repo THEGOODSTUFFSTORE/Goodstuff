@@ -20,6 +20,7 @@ export default function ProductCard({
   categoryLabel = "Premium",
   categoryColor = "bg-[#A76545]"
 }: ProductCardProps) {
+  const isOutOfStock = (product.status === 'out_of_stock') || (product.stockQuantity <= 0);
   return (
     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
       <Link href={`/products/${product.id}`} className="block">
@@ -34,6 +35,11 @@ export default function ProductCard({
               e.target.src = '/wine.webp';
             }}
           />
+          {isOutOfStock && (
+            <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+              Out of stock
+            </div>
+          )}
           {showCategory && (
             <div className={`absolute top-4 right-4 ${categoryColor} text-white px-3 py-1 rounded-full text-xs font-semibold`}>
               {categoryLabel}

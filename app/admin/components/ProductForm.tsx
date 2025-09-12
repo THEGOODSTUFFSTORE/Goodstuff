@@ -387,14 +387,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
               className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-black text-base"
             >
               <option value="active">Active (Visible to customers)</option>
-              <option value="inactive">Inactive (Hidden from customers)</option>
-              <option value="out_of_stock">Out of Stock (Hidden from customers)</option>
+              <option value="out_of_stock">Out of Stock (Visible but not purchasable)</option>
               <option value="discontinued">Discontinued</option>
             </select>
             <p className="mt-1 text-sm text-gray-600">
               {formData.status === 'active' && 'Product will be visible to customers'}
-              {formData.status === 'inactive' && 'Product will be hidden from customers'}
-              {formData.status === 'out_of_stock' && 'Product will be hidden until restocked'}
+              {formData.status === 'out_of_stock' && 'Product will be shown but cannot be added to cart'}
               {formData.status === 'discontinued' && 'Product will be permanently hidden'}
             </p>
           </div>

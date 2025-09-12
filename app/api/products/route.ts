@@ -24,8 +24,8 @@ export async function GET(request: NextRequest) {
         );
       }
       
-      // Hide products that are not active
-      if ((product as any).status && (product as any).status !== 'active') {
+      // Hide products that are inactive or discontinued
+      if ((product as any).status === 'inactive' || (product as any).status === 'discontinued') {
         return NextResponse.json(
           { error: 'Product not available' },
           { status: 404 }
@@ -36,29 +36,29 @@ export async function GET(request: NextRequest) {
 
     // Handle section-based queries efficiently
     if (type === 'trending') {
-      const products = (await getProductsBySection('trending_deals', 6)).filter((p: any) => p.status === 'active');
+      const products = (await getProductsBySection('trending_deals', 6)).filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued');
       console.log(`Fetched ${products.length} trending products`);
       return NextResponse.json(products);
     } else if (type === 'popular') {
-      const products = (await getProductsBySection('popular', 6)).filter((p: any) => p.status === 'active');
+      const products = (await getProductsBySection('popular', 6)).filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued');
       console.log(`Fetched ${products.length} popular products`);
       return NextResponse.json(products);
     } else if (type === 'new_arrivals') {
-      const products = (await getProductsBySection('new_arrivals', 6)).filter((p: any) => p.status === 'active');
+      const products = (await getProductsBySection('new_arrivals', 6)).filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued');
       console.log(`Fetched ${products.length} new arrival products`);
       return NextResponse.json(products);
     }
 
     // Handle category-based queries
     if (category && category !== 'all') {
-      const products = (await getProductsByCategory(category, pageSize)).filter((p: any) => p.status === 'active');
+      const products = (await getProductsByCategory(category, pageSize)).filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued');
       console.log(`Fetched ${products.length} products for category: ${category}`);
       return NextResponse.json(products);
     }
     
     // For wine/non-wine filtering, we still need to fetch and filter
     if (type === 'wine' || type === 'non-wine') {
-      const products = (await getProducts(pageSize)).filter((p: any) => p.status === 'active');
+      const products = (await getProducts(pageSize)).filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued');
       let filteredProducts;
       
       if (type === 'wine') {
@@ -77,11 +77,11 @@ export async function GET(request: NextRequest) {
         console.log(`Filtered ${filteredProducts.length} non-wine products`);
       }
       
-      return NextResponse.json(filteredProducts.filter((p: any) => p.status === 'active'));
+      return NextResponse.json(filteredProducts.filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued'));
     }
     
     // Default: fetch all products with pagination
-    const products = (await getProducts(pageSize)).filter((p: any) => p.status === 'active');
+    const products = (await getProducts(pageSize)).filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued');
     console.log(`Fetched ${products.length} products from database`);
     
     return NextResponse.json(products);

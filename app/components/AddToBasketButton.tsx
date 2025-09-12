@@ -19,14 +19,18 @@ export default function AddToBasketButton({ product, className }: AddToBasketBut
   };
 
   // Standardized button styling - this will be consistent across all product cards
-  const defaultClassName = "w-full bg-[#000000] text-white py-3 px-4 rounded-xl font-semibold hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-[#000000] focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl";
+  const defaultClassName = "w-full bg-[#000000] text-white py-3 px-4 rounded-xl font-semibold hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-[#000000] focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed";
+  const isOutOfStock = (product.status === 'out_of_stock') || (product.stockQuantity <= 0);
 
   return (
     <button 
       className={className || defaultClassName}
       onClick={handleAddToBasket}
+      disabled={isOutOfStock}
+      aria-disabled={isOutOfStock}
+      title={isOutOfStock ? 'Out of stock' : 'Add to basket'}
     >
-      Add to basket
+      {isOutOfStock ? 'Out of stock' : 'Add to basket'}
     </button>
   );
 }
