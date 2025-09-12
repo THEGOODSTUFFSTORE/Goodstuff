@@ -22,11 +22,17 @@
     "rewrites": [
       {
         "source": "/api/**",
-        "function": "nextjsFunc"
+        "function": {
+          "functionId": "nextjsFuncV2",
+          "region": "us-central1"
+        }
       },
       {
         "source": "**",
-        "function": "nextjsFunc"
+        "function": {
+          "functionId": "nextjsFuncV2",
+          "region": "us-central1"
+        }
       }
     ]
   }

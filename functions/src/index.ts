@@ -21,7 +21,7 @@ const handle = app.getRequestHandler();
 // Prepare Next.js once and reuse across invocations
 const prepared = app.prepare();
 
-export const nextjsFunc = onRequest(async (req: Request, res: Response) => {
+export const nextjsFuncV2 = onRequest(async (req: Request, res: Response) => {
   console.log("File: " + (req as any).originalUrl);
   await prepared;
   handle(req, res);
