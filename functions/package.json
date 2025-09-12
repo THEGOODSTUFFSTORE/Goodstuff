@@ -3,7 +3,7 @@
   "description": "Cloud Functions for Firebase",
   "scripts": {
     "build": "tsc",
-    "build:next": "npm --prefix .. run build && rm -rf functions/.next && cp -R .next functions/.next",
+    "build:next": "npm --prefix .. run build && rm -rf .next && cp -R ../.next .next",
     "start": "npm run build && firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
