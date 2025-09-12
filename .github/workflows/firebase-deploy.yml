@@ -44,13 +44,15 @@ jobs:
           rm -rf functions/.next
           cp -R .next functions/.next
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          export_environment_variables: true
+
       - name: Install Firebase CLI
         run: npm i -g firebase-tools
 
-      - name: Deploy Hosting and Functions (Service Account)
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Deploy Hosting and Functions
         run: |
-          echo "$FIREBASE_SERVICE_ACCOUNT" > $HOME/sa.json
-          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/sa.json"
           firebase deploy --only hosting,functions --project thegoodstuffdelivery --non-interactive
