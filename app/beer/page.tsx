@@ -27,7 +27,7 @@ export default async function BeerPage() {
               Explore craft beers and premium brews from around the world
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {beerProducts.length} beers available • Free delivery for products above Ksh. 5000
+              {beerProducts.length} beers available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

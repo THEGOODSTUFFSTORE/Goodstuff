@@ -111,7 +111,7 @@ export async function GET(req: NextRequest) {
           orders: {
             minimumOrderAmount: 0,
             shippingFee: 0,
-            freeShippingThreshold: 5000,
+            freeShippingThreshold: 3000,
             allowPartialFulfillment: true,
             autoConfirmOrders: false,
             orderPrefix: 'GS',

@@ -68,7 +68,7 @@ export default async function MixersPage() {
               Premium mixers and cocktail ingredients for perfect drinks
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {mixerProducts.length} mixers available • Free delivery for products above Ksh. 5000
+              {mixerProducts.length} mixers available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

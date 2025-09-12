@@ -29,7 +29,7 @@ export default async function CiderPage() {
               Refreshing ciders from traditional to contemporary styles
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {ciderProducts.length} ciders available • Free delivery for products above Ksh. 5000
+              {ciderProducts.length} ciders available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

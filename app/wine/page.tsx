@@ -60,7 +60,7 @@ export default async function WinePage() {
               Discover our curated selection of premium wines from renowned vineyards around the world
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {wineProducts.length} wines available • Free delivery  for orders above Ksh. 5000
+              {wineProducts.length} wines available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

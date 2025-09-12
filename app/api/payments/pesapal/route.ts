@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     // Get the request body
     const body = await request.json();
-    const { items, totalAmount, shippingAddress, userId, userEmail, deliveryFee: clientDeliveryFee } = body;
+    const { items, totalAmount, shippingAddress, userId, userEmail, deliveryFee: clientDeliveryFee, deliveryMethod } = body;
 
     if (!items || !totalAmount || !shippingAddress) {
       return NextResponse.json(
@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
     const subtotal = Array.isArray(items)
       ? items.reduce((acc: number, item: any) => acc + (item.priceAtOrder * item.quantity), 0)
       : 0;
-    const qualifiesForFreeDelivery = subtotal >= 5000;
-    const effectiveDeliveryFee = qualifiesForFreeDelivery ? 0 : (clientDeliveryFee || 0);
+    const qualifiesForFreeDelivery = subtotal >= 3000;
+    const effectiveDeliveryFee = deliveryMethod === 'pickup' ? 0 : (qualifiesForFreeDelivery ? 0 : (clientDeliveryFee || 0));
     const enforcedTotalAmount = subtotal + effectiveDeliveryFee;
 
     // Create a unique tracking ID

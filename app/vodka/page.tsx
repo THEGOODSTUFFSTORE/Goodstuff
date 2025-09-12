@@ -27,7 +27,7 @@ export default async function VodkaPage() {
               Premium vodkas from traditional to contemporary craft distilleries
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {vodkaProducts.length} vodkas available • Free delivery for products above Ksh. 5000
+              {vodkaProducts.length} vodkas available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

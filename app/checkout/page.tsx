@@ -16,6 +16,7 @@ export default function CheckoutPage() {
   const { auth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [deliveryFee, setDeliveryFee] = useState(0);
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [deliveryLocation, setDeliveryLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -23,9 +24,9 @@ export default function CheckoutPage() {
     distance: number;
   } | null>(null);
 
-  // Free delivery for orders over Ksh 5,000
-  const qualifiesForFreeDelivery = totalAmount >= 5000;
-  const effectiveDeliveryFee = qualifiesForFreeDelivery ? 0 : deliveryFee;
+  // Free delivery for orders over Ksh 3,000; Pickup is always free
+  const qualifiesForFreeDelivery = totalAmount >= 3000;
+  const effectiveDeliveryFee = deliveryMethod === 'pickup' ? 0 : (qualifiesForFreeDelivery ? 0 : deliveryFee);
 
   useEffect(() => {
     // Redirect to basket if cart is empty
@@ -38,7 +39,7 @@ export default function CheckoutPage() {
     try {
       setIsLoading(true);
 
-      if (!deliveryLocation) {
+      if (deliveryMethod === 'delivery' && !deliveryLocation) {
         toast.error('Please select a delivery location');
         return;
       }
@@ -54,13 +55,21 @@ export default function CheckoutPage() {
         subcategory: item.product.subcategory
       }));
 
-      // Combine shipping address with delivery location
-      const fullShippingAddress = {
+      // Combine shipping address with delivery location or pickup
+      const fullShippingAddress = deliveryMethod === 'pickup' ? {
         ...shippingAddress,
-        latitude: deliveryLocation.latitude,
-        longitude: deliveryLocation.longitude,
-        deliveryAddress: deliveryLocation.address,
-        distance: deliveryLocation.distance
+        deliveryAddress: 'Self Pickup at Store',
+        latitude: null,
+        longitude: null,
+        distance: 0,
+        pickup: true
+      } : {
+        ...shippingAddress,
+        latitude: deliveryLocation!.latitude,
+        longitude: deliveryLocation!.longitude,
+        deliveryAddress: deliveryLocation!.address,
+        distance: deliveryLocation!.distance,
+        pickup: false
       };
 
       // Send payment request to our API
@@ -74,6 +83,7 @@ export default function CheckoutPage() {
           totalAmount: totalAmount + effectiveDeliveryFee,
           shippingAddress: fullShippingAddress,
           deliveryFee: effectiveDeliveryFee,
+          deliveryMethod,
           userId: auth.currentUser?.uid || null,
           userEmail: auth.currentUser?.email || shippingAddress.email
         })
@@ -124,14 +134,42 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Shipping and Delivery Section */}
             <div className="space-y-6">
-              {/* Delivery Location Selection */}
+              {/* Delivery Method */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Delivery Location</h2>
-                <SimpleLocationPicker
-                  onDeliveryFeeChange={setDeliveryFee}
-                  onLocationChange={setDeliveryLocation}
-                />
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Delivery Method</h2>
+                <div className="space-y-3">
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="radio"
+                      name="deliveryMethod"
+                      value="delivery"
+                      checked={deliveryMethod === 'delivery'}
+                      onChange={() => setDeliveryMethod('delivery')}
+                    />
+                    <span className="text-gray-800">Deliver to my address</span>
+                  </label>
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="radio"
+                      name="deliveryMethod"
+                      value="pickup"
+                      checked={deliveryMethod === 'pickup'}
+                      onChange={() => setDeliveryMethod('pickup')}
+                    />
+                    <span className="text-gray-800">Self Pickup at the store (Free)</span>
+                  </label>
+                </div>
               </div>
+              {/* Delivery Location Selection */}
+              {deliveryMethod === 'delivery' && (
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-6">Delivery Location</h2>
+                  <SimpleLocationPicker
+                    onDeliveryFeeChange={setDeliveryFee}
+                    onLocationChange={setDeliveryLocation}
+                  />
+                </div>
+              )}
 
               {/* Shipping Information */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -174,7 +212,7 @@ export default function CheckoutPage() {
                       <span className="font-semibold">{effectiveDeliveryFee === 0 ? 'Free' : `Ksh ${effectiveDeliveryFee.toLocaleString()}`}</span>
                     </div>
                     {qualifiesForFreeDelivery && (
-                      <p className="text-sm text-green-600 mt-1">Free delivery applied for orders over Ksh 5,000</p>
+                      <p className="text-sm text-green-600 mt-1">Free delivery applied for orders over Ksh 3,000</p>
                     )}
                     <div className="border-t border-gray-200 pt-4 mt-4">
                       <div className="flex justify-between text-lg font-bold">

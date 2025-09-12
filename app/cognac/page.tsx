@@ -29,7 +29,7 @@ export default async function CognacPage() {
               Premium French cognacs with centuries of tradition
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {cognacProducts.length} cognacs available • Free delivery for products above Ksh. 5000
+              {cognacProducts.length} cognacs available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

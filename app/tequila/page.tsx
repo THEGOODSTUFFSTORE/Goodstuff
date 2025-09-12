@@ -28,7 +28,7 @@ export default async function TequilaPage() {
               Premium tequilas from the heart of Mexico's agave region
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {tequilaProducts.length} tequilas available • Free delivery for products above Ksh. 5000
+              {tequilaProducts.length} tequilas available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

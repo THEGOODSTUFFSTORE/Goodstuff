@@ -27,7 +27,7 @@ export default async function BourbonPage() {
               Experience the finest Kentucky and American whiskies
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {bourbonProducts.length} whiskies available • Free delivery for products above Ksh. 5000
+              {bourbonProducts.length} whiskies available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

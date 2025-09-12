@@ -29,7 +29,7 @@ export default async function RumPage() {
               Premium rums from the Caribbean and beyond
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {rumProducts.length} rums available • Free delivery for products above Ksh. 5000
+              {rumProducts.length} rums available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

@@ -27,7 +27,7 @@ export default async function GinPage() {
               Discover premium gins with unique botanical profiles
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {ginProducts.length} gins available • Free delivery for products above Ksh. 5000
+              {ginProducts.length} gins available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>

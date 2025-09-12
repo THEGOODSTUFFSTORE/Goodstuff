@@ -27,7 +27,7 @@ export default async function CreamLiqueursPage() {
               Smooth and indulgent cream liqueurs for dessert and cocktails
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {creamLiqueurProducts.length} cream liqueurs available • Free delivery for products above Ksh. 5000
+              {creamLiqueurProducts.length} cream liqueurs available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>
