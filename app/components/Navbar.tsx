@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCartStore, useUserStore } from '@/lib/store';
 import { ShoppingBag, User, ChevronDown } from 'lucide-react';
 
@@ -9,6 +10,9 @@ type DropdownCategory = 'categories' | 'spirits' | 'market' | 'product-sections'
 
 const Navbar = () => {
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [navSearch, setNavSearch] = useState('');
   const { totalItems } = useCartStore();
   const { user, isAuthenticated } = useUserStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -24,6 +28,12 @@ const Navbar = () => {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (!searchParams) return;
+    const q = searchParams.get('search') || '';
+    setNavSearch(q);
+  }, [searchParams]);
 
   // Handle scroll effect
   useEffect(() => {
@@ -220,6 +230,23 @@ const Navbar = () => {
 
             {/* Quick Access Links - Only on large screens */}
             <div className="hidden xl:flex items-center space-x-4 text-sm font-medium">
+              <div className="relative">
+                <input
+                  type="search"
+                  value={navSearch}
+                  onChange={(e) => setNavSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const query = navSearch.trim();
+                      const url = query ? `/products?search=${encodeURIComponent(query)}` : '/products';
+                      router.push(url);
+                    }
+                  }}
+                  placeholder="Search products..."
+                  className="w-64 px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  aria-label="Search products"
+                />
+              </div>
               <Link href="/products" className="text-gray-600 hover:text-red-500 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
                 All Products
               </Link>

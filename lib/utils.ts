@@ -14,6 +14,133 @@ export function capitalizeProductName(name: string): string {
     .join(' ');
 }
 
+// --- Search helpers ---
+/**
+ * Normalize text for search: lowercase, remove diacritics, collapse whitespace
+ */
+export function normalizeForSearch(input: string | undefined | null): string {
+  if (!input) return '';
+  return input
+    .toString()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+/**
+ * Tokenize normalized text into words
+ */
+export function tokenize(text: string): string[] {
+  if (!text) return [];
+  return text.split(' ').filter(Boolean);
+}
+
+type SearchableProduct = {
+  name?: string;
+  brand?: string;
+  category?: string;
+  subcategory?: string;
+  description?: string;
+};
+
+function buildProductSearchIndex(product: SearchableProduct) {
+  const name = normalizeForSearch(product.name);
+  const brand = normalizeForSearch(product.brand);
+  const category = normalizeForSearch(product.category);
+  const subcategory = normalizeForSearch(product.subcategory);
+  const description = normalizeForSearch(product.description);
+
+  return {
+    name,
+    brand,
+    category,
+    subcategory,
+    description,
+    nameTokens: tokenize(name),
+    brandTokens: tokenize(brand),
+    categoryTokens: tokenize(category),
+    subcategoryTokens: tokenize(subcategory)
+  };
+}
+
+/**
+ * Score how well a product matches a query. Higher is better. Return -Infinity for no match.
+ * Rules:
+ * - For 1-char queries: only word-prefix matches count (avoid noisy substring matches)
+ * - For 2-3 chars: prefer word-prefix; allow substring with lower score
+ * - For 4+ chars: allow substring across fields
+ */
+export function scoreProductForQuery(product: SearchableProduct, rawQuery: string): number {
+  const query = normalizeForSearch(rawQuery);
+  if (!query) return -Infinity;
+
+  const index = buildProductSearchIndex(product);
+  const tokens = tokenize(query);
+  if (tokens.length === 0) return -Infinity;
+
+  const isShort = query.length === 1;
+  const isMedium = query.length >= 2 && query.length <= 3;
+
+  let score = 0;
+  let matched = false;
+
+  const addScore = (amount: number) => {
+    score += amount;
+    matched = true;
+  };
+
+  const fields = [
+    { key: 'name', value: index.name, tokens: index.nameTokens, weightPrefix: 100, weightSub: 40 },
+    { key: 'brand', value: index.brand, tokens: index.brandTokens, weightPrefix: 70, weightSub: 30 },
+    { key: 'category', value: index.category, tokens: index.categoryTokens, weightPrefix: 60, weightSub: 25 },
+    { key: 'subcategory', value: index.subcategory, tokens: index.subcategoryTokens, weightPrefix: 55, weightSub: 20 },
+    { key: 'description', value: index.description, tokens: [], weightPrefix: 10, weightSub: 10 }
+  ];
+
+  // Evaluate token-by-token to ensure all tokens influence scoring
+  for (const token of tokens) {
+    let tokenMatched = false;
+
+    for (const field of fields) {
+      // Word-prefix match
+      const hasPrefixMatch = field.tokens.some(t => t.startsWith(token));
+      if (hasPrefixMatch) {
+        const exactWord = field.tokens.includes(token);
+        addScore(field.weightPrefix + (exactWord ? 10 : 0));
+        tokenMatched = true;
+        continue;
+      }
+
+      // Substring match
+      if (!isShort && field.value && field.value.includes(token)) {
+        addScore(field.weightSub);
+        tokenMatched = true;
+      }
+    }
+
+    // If any token fails to match on short queries, consider it a non-match
+    if (!tokenMatched && (isShort || isMedium)) {
+      return -Infinity;
+    }
+  }
+
+  return matched ? score : -Infinity;
+}
+
+/**
+ * Filter and rank products by query.
+ */
+export function searchProducts<T extends SearchableProduct>(products: T[], rawQuery: string): T[] {
+  const scored = products
+    .map(p => ({ p, s: scoreProductForQuery(p, rawQuery) }))
+    .filter(item => item.s !== -Infinity)
+    .sort((a, b) => b.s - a.s);
+  return scored.map(item => item.p);
+}
+
 /**
  * Format shipping address to display human-readable information
  * Filters out plus codes, coordinates, and technical details

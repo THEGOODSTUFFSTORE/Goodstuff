@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Product } from '@/lib/types';
+import { searchProducts, normalizeForSearch } from '@/lib/utils';
 import { useCartStore } from '@/lib/store';
 import ProductCard from '@/app/components/ProductCard';
 import React from 'react';
@@ -64,16 +65,11 @@ const ProductsList = React.memo(() => {
         setSelectedCategory(categoryParam);
       }
       
-      // Apply search filtering if needed
+      // Apply search filtering with ranking if needed
       let filtered = loadMore ? [...products, ...data] : data;
       if (searchParam) {
-        filtered = filtered.filter((product: Product) =>
-          product.name.toLowerCase().includes(searchParam.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchParam.toLowerCase()) ||
-          product.subcategory?.toLowerCase().includes(searchParam.toLowerCase()) ||
-          (product.brand && product.brand.toLowerCase().includes(searchParam.toLowerCase())) ||
-          (product.description && product.description.toLowerCase().includes(searchParam.toLowerCase()))
-        );
+        const q = normalizeForSearch(searchParam);
+        filtered = q ? searchProducts(filtered, q) : filtered;
       }
       
       setFilteredProducts(filtered);

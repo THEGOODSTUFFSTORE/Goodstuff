@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { Product } from '@/lib/types';
-import { capitalizeProductName } from '@/lib/utils';
+import { capitalizeProductName, searchProducts, normalizeForSearch } from '@/lib/utils';
 
 export default function SearchSection() {
   const router = useRouter();
@@ -94,18 +94,10 @@ export default function SearchSection() {
       try {
         const response = await fetch('/api/products');
         if (response.ok) {
-          const products = await response.json();
-          
-          // Filter products based on search query
-          const filteredProducts = products.filter((product: Product) =>
-            product.name.toLowerCase().includes(query.toLowerCase()) ||
-            product.category.toLowerCase().includes(query.toLowerCase()) ||
-            product.subcategory?.toLowerCase().includes(query.toLowerCase()) ||
-            (product.brand && product.brand.toLowerCase().includes(query.toLowerCase())) ||
-            (product.description && product.description.toLowerCase().includes(query.toLowerCase()))
-          );
-
-          setSearchResults(filteredProducts.slice(0, 8)); // Limit to 8 results
+          const products: Product[] = await response.json();
+          const q = normalizeForSearch(query);
+          const filteredProducts = q ? searchProducts(products, q) : [];
+          setSearchResults(filteredProducts.slice(0, 8));
           setShowResults(true);
         }
       } catch (error) {
