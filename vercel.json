@@ -41,5 +41,15 @@
       "source": "/_next/static/css/(.*)",
       "destination": "/_next/static/css/$1"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "www.thegoodstuffdrinks.delivery" }
+      ],
+      "destination": "https://thegoodstuffdrinks.delivery/$1",
+      "permanent": true
+    }
   ]
 }
