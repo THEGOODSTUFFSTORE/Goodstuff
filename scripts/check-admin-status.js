@@ -8,7 +8,6 @@ if (!admin.apps.length) {
     credential: admin.credential.cert(serviceAccount)
   });
 }
-
 async function checkAdminStatus(email) {
   try {
     console.log('🔍 Checking admin status for:', email);
