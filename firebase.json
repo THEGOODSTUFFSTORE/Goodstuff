@@ -10,7 +10,7 @@
       "npm --prefix \"$RESOURCE_DIR\" run build",
       "npm --prefix \"$RESOURCE_DIR\" run build:next"
     ],
-    "runtime": "nodejs18"
+    "runtime": "nodejs20"
   },
   "hosting": {
     "public": "public",
