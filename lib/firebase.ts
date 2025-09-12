@@ -12,16 +12,14 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only in the browser to avoid build-time initialization
+let app: ReturnType<typeof initializeApp> | undefined;
+if (typeof window !== 'undefined') {
+  app = initializeApp(firebaseConfig);
+}
 
-// Initialize Firestore
-export const db = getFirestore(app);
+export const db = app ? getFirestore(app) : (undefined as any);
+export const storage = app ? getStorage(app) : (undefined as any);
+export const auth = app ? getAuth(app) : (undefined as any);
 
-// Initialize Storage
-export const storage = getStorage(app);
-
-// Initialize Auth
-export const auth = getAuth(app);
-
-export default app; 
+export default app as any;
