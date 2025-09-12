@@ -22,7 +22,7 @@ const CustomerDashboard = () => {
   const [linkingOrders, setLinkingOrders] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user: User | null) => {
       if (user) {
         setUser(user);
         console.log('Dashboard: User ID for fetching orders:', user.uid);
