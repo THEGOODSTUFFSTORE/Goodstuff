@@ -49,10 +49,10 @@ const getProductImageUrl = (contentfulImage: any): string => {
 export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocumentSnapshot): Promise<Product[]> {
   try {
     // Use Admin SDK on the server to avoid initializing client SDK during build
-    if (isFirebaseAdminAvailable()) {
+    if (isFirebaseAdminAvailable() && adminDb) {
       let q = adminDb.collection('products').orderBy('createdAt', 'desc').limit(pageSize);
       if (lastDoc) {
-        // Admin SDK pagination uses startAfter with field value; skipping for simplicity in server path
+        // Admin SDK pagination uses startAfter with field value; skipping for simplicity in server path                                                                                                         
       }
       const snapshot = await q.get();
       const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product))
@@ -96,7 +96,7 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
 // Optimized fetch products by category with caching
 export async function getProductsByCategory(category: string, pageSize: number = 1000): Promise<Product[]> {
   try {
-    if (isFirebaseAdminAvailable()) {
+    if (isFirebaseAdminAvailable() && adminDb) {
       const snapshot = await adminDb
         .collection('products')
         .where('category', '==', category)
@@ -139,7 +139,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       return null;
     }
     console.log('Fetching product with ID:', id);
-    if (isFirebaseAdminAvailable()) {
+    if (isFirebaseAdminAvailable() && adminDb) {
       const adminDoc = await adminDb.collection('products').doc(id).get();
       if (!adminDoc.exists) {
         console.error('Product document does not exist for ID:', id);
@@ -191,7 +191,7 @@ export async function getProductsBySection(section: string, itemLimit: number = 
       console.log(`Returning cached products for section: ${section}`);
       return cached;
     }
-    if (isFirebaseAdminAvailable()) {
+    if (isFirebaseAdminAvailable() && adminDb) {
       const snapshot = await adminDb
         .collection('products')
         .where('sections', 'array-contains', section)
