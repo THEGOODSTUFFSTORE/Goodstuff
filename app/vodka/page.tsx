@@ -3,20 +3,9 @@ import Link from 'next/link';
 import { FaWineBottle } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import ProductCard from '@/app/components/ProductCard';
-import { getProductsByCategory } from '@/lib/api';
-import { Product } from '@/lib/types';
+import CategoryClient from '@/app/components/CategoryClient';
 
-export default async function VodkaPage() {
-  // Get all vodka products with error handling
-  let vodkaProducts: any[] = [];
-  try {
-    vodkaProducts = await getProductsByCategory('vodka');
-  } catch (error) {
-    console.error('Error fetching vodka products:', error);
-    // Fallback to empty array to prevent page crash
-    vodkaProducts = [];
-  }
+export default function VodkaPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -34,7 +23,7 @@ export default async function VodkaPage() {
               Premium vodkas from traditional to contemporary craft distilleries
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {vodkaProducts.length} vodkas available • Free delivery for orders above Ksh. 3000
+              Premium vodkas available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>
@@ -66,64 +55,27 @@ export default async function VodkaPage() {
       >
         {/* Semi-transparent overlay for better text legibility */}
         <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
-        <div className="min-h-screen relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            {/* Products Grid */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Premium Vodka Selection</h2>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto drop-shadow-md">
-            From classic Russian to modern craft vodkas, find your perfect spirit
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {vodkaProducts.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              categoryColor="bg-black"
-            />
-          ))}
-        </div>
-
-        {/* Quick Access to All Vodkas */}
-        <div className="mt-16 text-center">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Browse All Vodkas</h3>
-            <p className="text-gray-600 mb-6">
-              Can't find what you're looking for? Browse our complete vodka collection
-            </p>
-            <Link href="/products?category=vodka">
-              <button className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
-                View All {vodkaProducts.length} Vodkas
-              </button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Vodka Education */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-black mb-3">Cocktail Recipes</h4>
-            <p className="text-gray-600 text-sm">
-              Discover classic and modern vodka cocktail recipes for every occasion.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-black mb-3">Vodka Types</h4>
-            <p className="text-gray-600 text-sm">
-              Learn about different vodka styles from grain to potato-based varieties.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-black mb-3">Serving Guide</h4>
-            <p className="text-gray-600 text-sm">
-              Master the art of serving vodka at the perfect temperature and presentation.
-            </p>
-          </div>
-        </div>
-          </div>
-        </div>
+        <CategoryClient
+          category="vodka"
+          categoryName="Vodka"
+          categoryColor="bg-black"
+          backgroundImage="/vodka.jpeg"
+          description="From classic Russian to modern craft vodkas, find your perfect spirit"
+          educationSections={[
+            {
+              title: "Cocktail Recipes",
+              description: "Discover classic and modern vodka cocktail recipes for every occasion."
+            },
+            {
+              title: "Vodka Types",
+              description: "Learn about different vodka styles from grain to potato-based varieties."
+            },
+            {
+              title: "Serving Guide",
+              description: "Master the art of serving vodka at the perfect temperature and presentation."
+            }
+          ]}
+        />
       </div>
 
       <Footer />
