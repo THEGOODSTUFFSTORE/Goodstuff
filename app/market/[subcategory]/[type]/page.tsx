@@ -1,19 +1,13 @@
-import React from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FaStore, FaArrowLeft } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import { getProductsByCategory } from '@/lib/api';
-
-// Define the market subcategories and their types for type checking
-const marketTypes = {
-  'merchandise': ['t-shirts', 'caps', 'accessories', 'collectibles'],
-  'nicotine-pouches': ['mint', 'citrus', 'berry', 'original'],
-  'vapes': ['disposable', 'pod-systems', 'e-liquids', 'accessories'],
-  'lighters': ['torch-lighters', 'classic-lighters', 'premium-brands', 'accessories'],
-  'cigars': ['premium-cigars', 'cigarillos', 'humidors', 'cutters'],
-  'soft-drinks': ['sodas', 'juices', 'energy-drinks', 'water']
-} as const;
+import AddToBasketButton from '@/app/components/AddToBasketButton';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Product } from '@/lib/types';
 
 interface MarketTypePageProps {
   params: Promise<{
@@ -22,54 +16,92 @@ interface MarketTypePageProps {
   }>;
 }
 
-export default async function MarketTypePage({ params }: MarketTypePageProps) {
-  const { subcategory, type } = await params;
-  
-  // Fetch only market products from Contentful
-  const marketProducts = await getProductsByCategory('market');
-  
-  // Filter products by subcategory and type
-  const typeProducts = marketProducts.filter(product => {
-    // Normalize the product subcategory and type for comparison
-    const normalizedProductSubcategory = product.subcategory?.toLowerCase().replace(/\s+/g, '-');
-    const normalizedProductType = product.type?.toLowerCase().replace(/\s+/g, '-');
-    
-    // Check if the product matches both subcategory and type
-    return normalizedProductSubcategory === subcategory && 
-           normalizedProductType === type;
-  });
+export default function MarketTypePage({ params }: MarketTypePageProps) {
+  const [marketProducts, setMarketProducts] = useState<Product[]>([]);
+  const [typeProducts, setTypeProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [resolvedParams, setResolvedParams] = useState<{ subcategory: string; type: string } | null>(null);
 
-  // Get the display name for the type
-  const marketTypeName = type.split('-').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1)
-  ).join(' ');
+  useEffect(() => {
+    const resolveParams = async () => {
+      const resolved = await params;
+      setResolvedParams(resolved);
+    };
+    resolveParams();
+  }, [params]);
 
-  // Get the display name for the subcategory
-  const subcategoryDisplayName = subcategory.split('-').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1)
-  ).join(' ');
+  useEffect(() => {
+    if (!resolvedParams) return;
+
+    const fetchMarketProducts = async () => {
+      setIsLoading(true);
+      try {
+        const productsRef = collection(db, 'products');
+        const q = query(
+          productsRef,
+          where('category', '==', 'market'),
+          orderBy('createdAt', 'desc')
+        );
+        const querySnapshot = await getDocs(q);
+        const fetchedProducts = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as Product));
+        
+        setMarketProducts(fetchedProducts);
+        
+        // Filter products by exact subcategory and type matching
+        const filteredProducts = fetchedProducts.filter(product => {
+          const normalizedSubcategory = product.subcategory?.toLowerCase().replace(/\s+/g, '-');
+          const normalizedType = resolvedParams.type.toLowerCase();
+          
+          return normalizedSubcategory === normalizedType ||
+                 product.subcategory?.toLowerCase().includes(resolvedParams.type.replace(/-/g, ' '));
+        });
+        
+        setTypeProducts(filteredProducts);
+      } catch (error) {
+        console.error('Error fetching market products:', error);
+        setMarketProducts([]);
+        setTypeProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMarketProducts();
+  }, [resolvedParams]);
+
+  if (!resolvedParams) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  const { subcategory, type } = resolvedParams;
+  const displayType = type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-white to-gray-100 text-black py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center mb-6">
-            <Link href={`/market/${subcategory}`} className="flex items-center text-black/80 hover:text-black transition-colors mr-4">
-              <FaArrowLeft className="w-5 h-5 mr-2" />
-              Back to {subcategory}
-            </Link>
-          </div>
-          <div className="flex items-center">
-            <div className="mr-6">
-              <FaStore className="w-12 h-12" />
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 py-16 sm:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex justify-center mb-6">
+              <FaStore className="h-16 w-16 text-blue-600" />
             </div>
-            <div>
-              <h1 className="text-4xl sm:text-5xl font-bold mb-4">{marketTypeName}</h1>
-              <p className="text-xl text-black/90">{subcategoryDisplayName} - {marketTypeName}</p>
-              <div className="mt-4 text-lg text-black/80">{typeProducts.length} products available</div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-black mb-6">
+              {displayType} Products
+            </h1>
+            <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
+              Discover our curated selection of {displayType.toLowerCase()} products
+            </p>
+            <div className="mt-8 text-lg text-black/80">
+              {isLoading ? 'Loading...' : `${typeProducts.length} products available`} • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>
@@ -90,81 +122,81 @@ export default async function MarketTypePage({ params }: MarketTypePageProps) {
               </li>
               <li className="flex items-center">
                 <Link href={`/market/${subcategory}`} className="text-gray-500 hover:text-black transition-colors">
-                  {subcategoryDisplayName}
+                  {subcategory.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </Link>
                 <span className="mx-2 text-gray-400">/</span>
               </li>
-              <li className="text-gray-700 font-medium">{marketTypeName}</li>
+              <li className="text-gray-700 font-medium">{displayType}</li>
             </ol>
           </nav>
         </div>
       </div>
 
-      {/* Products Grid */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">{marketTypeName} Collection</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {subcategoryDisplayName} - {marketTypeName}
-          </p>
+      {/* Back Button */}
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Link
+            href={`/market/${subcategory}`}
+            className="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors"
+          >
+            <FaArrowLeft className="h-4 w-4 mr-2" />
+            Back to {subcategory.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          </Link>
         </div>
+      </div>
 
-        {typeProducts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {typeProducts.map((product) => (
-              <Link key={product.id} href={`/products/${product.id}`}>
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
-                  <div className="relative bg-gray-50 p-6 h-64 flex items-center justify-center">
-                    <img 
-                      src={product.productImage} 
-                      alt={product.name}
-                      className="max-w-full max-h-full object-contain hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 capitalize">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mb-3">{product.description}</p>
-                    <div className="text-xl font-bold text-green-600 lowercase">
-                      {product.price.toLocaleString()}/=
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No products found</h3>
-            <p className="text-gray-600 mb-8">
-              We don't have any {marketTypeName.toLowerCase()} in stock right now, but we're constantly adding new products to our collection.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href={`/market/${subcategory}`}>
-                <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                  Browse Other {subcategoryDisplayName} Products
-                </button>
+      {/* Products Section */}
+      <div className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {isLoading ? (
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading products...</p>
+            </div>
+          ) : typeProducts.length === 0 ? (
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">No {displayType} products found</h2>
+              <p className="text-gray-600 mb-6">We're working on adding more {displayType.toLowerCase()} products to our collection.</p>
+              <Link
+                href="/market"
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Browse All Products
               </Link>
             </div>
-          </div>
-        )}
+          ) : (
+            <>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">{displayType} Product Collection</h2>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  Discover our carefully selected {displayType.toLowerCase()} products
+                </p>
+              </div>
 
-        {/* Quick Access to All Market Products */}
-        <div className="mt-16 text-center">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Browse All Market Products</h3>
-            <p className="text-gray-600 mb-6">
-              Can't find what you're looking for? Browse our complete market collection
-            </p>
-            <Link href="/market">
-              <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                View All Market Products
-              </button>
-            </Link>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {typeProducts.map((product) => (
+                  <div key={product.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+                    <div className="aspect-square bg-gray-100 overflow-hidden">
+                      <img
+                        src={product.productImage || '/wine.webp'}
+                        alt={product.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
+                      <p className="text-blue-600 font-bold text-lg mb-3">Ksh {product.price.toLocaleString()}</p>
+                      <AddToBasketButton product={product} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       <Footer />
     </div>
   );
-} 
+}
