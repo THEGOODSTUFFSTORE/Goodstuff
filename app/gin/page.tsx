@@ -3,20 +3,9 @@ import Link from 'next/link';
 import { FaGlassWhiskey } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import ProductCard from '@/app/components/ProductCard';
-import { getProductsByCategory } from '@/lib/api';
-import { Product } from '@/lib/types';
+import CategoryClient from '@/app/components/CategoryClient';
 
-export default async function GinPage() {
-  // Get all gin products with error handling
-  let ginProducts: any[] = [];
-  try {
-    ginProducts = await getProductsByCategory('gin');
-  } catch (error) {
-    console.error('Error fetching gin products:', error);
-    // Fallback to empty array to prevent page crash
-    ginProducts = [];
-  }
+export default function GinPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -34,7 +23,7 @@ export default async function GinPage() {
               Discover premium gins with unique botanical profiles
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {ginProducts.length} gins available • Free delivery for orders above Ksh. 3000
+              Premium gins available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>
@@ -66,64 +55,27 @@ export default async function GinPage() {
       >
         {/* Semi-transparent overlay for better text legibility */}
         <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
-        <div className="min-h-screen relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            {/* Products Grid */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Premium Gin Selection</h2>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto drop-shadow-md">
-            From London Dry to Contemporary styles, explore our curated gin collection
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {ginProducts.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              categoryColor="bg-black"
-            />
-          ))}
-        </div>
-
-        {/* Quick Access to All Gins */}
-        <div className="mt-16 text-center">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Browse All Gins</h3>
-            <p className="text-gray-600 mb-6">
-              Can't find what you're looking for? Browse our complete gin collection
-            </p>
-            <Link href="/products?category=gin">
-              <button className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
-                View All {ginProducts.length} Gins
-              </button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Gin Education */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-black mb-3">Perfect G&T</h4>
-            <p className="text-gray-600 text-sm">
-              Learn the art of crafting the perfect gin and tonic with our expert guide.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-black mb-3">Botanicals Guide</h4>
-            <p className="text-gray-600 text-sm">
-              Discover the key botanicals that give each gin its unique character and flavor.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h4 className="text-xl font-bold text-black mb-3">Cocktail Ideas</h4>
-            <p className="text-gray-600 text-sm">
-              Explore creative gin cocktail recipes beyond the classic G&T.
-            </p>
-          </div>
-        </div>
-          </div>
-        </div>
+        <CategoryClient
+          category="gin"
+          categoryName="Gin"
+          categoryColor="bg-black"
+          backgroundImage="/Ginimage.jpeg"
+          description="From London Dry to Contemporary styles, explore our curated gin collection"
+          educationSections={[
+            {
+              title: "Perfect G&T",
+              description: "Learn the art of crafting the perfect gin and tonic with our expert guide."
+            },
+            {
+              title: "Botanicals Guide",
+              description: "Discover the key botanicals that give each gin its unique character and flavor."
+            },
+            {
+              title: "Cocktail Ideas",
+              description: "Explore creative gin cocktail recipes beyond the classic G&T."
+            }
+          ]}
+        />
       </div>
 
       <Footer />
