@@ -5,17 +5,23 @@ import { useCartStore } from '@/lib/store';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { toast } from 'react-toastify';
 import { capitalizeProductName } from '@/lib/utils';
+import { Product } from '@/lib/types';
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import ShippingAddressForm from '@/app/components/ShippingAddressForm';
 import SimpleLocationPicker from '@/app/components/SimpleLocationPicker';
 import Footer from '@/app/components/Footer';
 import Link from 'next/link';
+import { ArrowLeft, ShoppingBag } from 'lucide-react';
 
 export default function CheckoutClient() {
   const [isClient, setIsClient] = useState(false);
-  const { items, totalItems, totalAmount, clearCart } = useCartStore();
+  const { items, totalItems, totalAmount, clearCart, addItem } = useCartStore();
   const router = useRouter();
   const { auth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -37,6 +43,65 @@ export default function CheckoutClient() {
       router.push('/basket');
     }
   }, [items.length, router]);
+
+  // Fetch suggested products
+  const fetchSuggestedProducts = async () => {
+    setIsLoadingSuggestions(true);
+    try {
+      const productsRef = collection(db, 'products');
+      
+      // Get products from popular and trending sections
+      const [popularQuery, trendingQuery] = await Promise.all([
+        getDocs(query(
+          productsRef,
+          where('sections', 'array-contains', 'popular'),
+          orderBy('createdAt', 'desc'),
+          limit(3)
+        )),
+        getDocs(query(
+          productsRef,
+          where('sections', 'array-contains', 'trending_deals'),
+          orderBy('createdAt', 'desc'),
+          limit(3)
+        ))
+      ]);
+      
+      const popularProducts = popularQuery.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Product));
+      
+      const trendingProducts = trendingQuery.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Product));
+      
+      // Combine and filter out products already in cart
+      const cartProductIds = items.map(item => item.product.id);
+      const allSuggestions = [...popularProducts, ...trendingProducts]
+        .filter(product => !cartProductIds.includes(product.id))
+        .slice(0, 6); // Limit to 6 suggestions
+      
+      setSuggestedProducts(allSuggestions);
+    } catch (error) {
+      console.error('Error fetching suggested products:', error);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  useEffect(() => {
+    if (items.length > 0) {
+      fetchSuggestedProducts();
+    }
+  }, [items.length]);
+
+  const handleAddSuggestedProduct = (product: Product) => {
+    addItem(product, 1);
+    toast.success(`${capitalizeProductName(product.name)} added to cart!`);
+    // Refresh suggestions to remove the added product
+    fetchSuggestedProducts();
+  };
 
   const handleCheckout = async (shippingAddress: any) => {
     try {
@@ -113,6 +178,17 @@ export default function CheckoutClient() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Link 
+              href="/basket"
+              className="inline-flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors duration-200"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="font-medium">Back to Cart</span>
+            </Link>
+          </div>
+          
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
           
           {!auth.currentUser && (
@@ -214,6 +290,61 @@ export default function CheckoutClient() {
                   </div>
                 </div>
               </div>
+
+              {/* Product Suggestions */}
+              {suggestedProducts.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                    <ShoppingBag className="h-5 w-5 mr-2 text-red-600" />
+                    You might also like
+                  </h2>
+                  
+                  {isLoadingSuggestions ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {suggestedProducts.map((product) => (
+                        <div key={product.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex-shrink-0">
+                              <img
+                                src={product.productImage || '/wine.webp'}
+                                alt={product.name}
+                                className="h-12 w-12 rounded-lg object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-sm font-medium text-gray-900 truncate">
+                                {capitalizeProductName(product.name)}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                Ksh {product.price.toLocaleString()}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => handleAddSuggestedProduct(product)}
+                              className="flex-shrink-0 bg-red-600 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-red-700 transition-colors duration-200"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <div className="mt-4 text-center">
+                    <Link 
+                      href="/products"
+                      className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    >
+                      Browse all products →
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
