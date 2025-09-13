@@ -91,6 +91,15 @@ const AdminDashboard = () => {
   const [sessionsError, setSessionsError] = useState('');
   
   const [userFirstName, setUserFirstName] = useState<string>('');
+
+  // Category mapping function to handle legacy categories
+  const mapCategoryForDisplay = (category: string): string => {
+    const categoryMap: { [key: string]: string } = {
+      'bourbon': 'whisky',
+      'burbon': 'whisky', // Handle typo
+    };
+    return categoryMap[category.toLowerCase()] || category;
+  };
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
 
   // Convert Firestore document to Order type (for realtime listener)
@@ -676,6 +685,7 @@ const AdminDashboard = () => {
     const matchesSearch = 
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      mapCategoryForDisplay(product.category).toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
     // Stock filter
@@ -1021,7 +1031,7 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col gap-1">
                           <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                            {product.category}
+                            {mapCategoryForDisplay(product.category)}
                           </span>
                           {product.subcategory && (
                             <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -1145,7 +1155,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1">
                     <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {product.category}
+                      {mapCategoryForDisplay(product.category)}
                     </span>
                     {product.subcategory && (
                       <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
