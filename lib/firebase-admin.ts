@@ -29,12 +29,8 @@ function getServiceAccountConfig() {
     console.warn('Firebase service account file not found or unreadable');
   }
   
-  // If neither works, throw error
-  throw new Error(
-    'Firebase service account configuration not found. ' +
-    'Please set FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, and FIREBASE_PROJECT_ID environment variables, ' +
-    'or ensure firebase-service-account.json exists in the root directory.'
-  );
+  // If neither works, return null to allow default credentials in managed environments (e.g., Cloud Functions)
+  return null;
 }
 
 // Consider already-initialized apps (e.g., hot reload or other modules)
@@ -44,13 +40,20 @@ let adminInitialized = admin.apps.length > 0;
 if (!adminInitialized) {
   try {
     const serviceAccount = getServiceAccountConfig();
-    
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
+
+    if (serviceAccount) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+      console.log('Firebase Admin initialized with service account credentials');
+    } else {
+      // Use Application Default Credentials (works in Firebase Cloud Functions / GCP)
+      admin.initializeApp();
+      console.log('Firebase Admin initialized with application default credentials');
+    }
+
     adminInitialized = true;
-    console.log('Firebase Admin initialized successfully');
-    
+
     // Verify the service account has necessary permissions (non-blocking)
     const db = admin.firestore();
     db.collection('orders').limit(1).get()
