@@ -49,8 +49,15 @@ const mixerSubcategories = [
 ];
 
 export default async function MixersPage() {
-  // Get all mixer products
-  const mixerProducts = await getProductsByCategory('mixers');
+  // Get all mixer products with error handling
+  let mixerProducts: any[] = [];
+  try {
+    mixerProducts = await getProductsByCategory('mixers');
+  } catch (error) {
+    console.error('Error fetching mixer products:', error);
+    // Fallback to empty array to prevent page crash
+    mixerProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -10,8 +10,15 @@ import { Product } from '@/lib/types';
 import { FaGlassWhiskey } from 'react-icons/fa';
 
 export default async function CognacPage() {
-  // Get all cognac products
-  const cognacProducts = await getProductsByCategory('cognac');
+  // Get all cognac products with error handling
+  let cognacProducts: any[] = [];
+  try {
+    cognacProducts = await getProductsByCategory('cognac');
+  } catch (error) {
+    console.error('Error fetching cognac products:', error);
+    // Fallback to empty array to prevent page crash
+    cognacProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -8,8 +8,15 @@ import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
 
 export default async function CreamLiqueursPage() {
-  // Get all cream liqueur products
-  const creamLiqueurProducts = await getProductsByCategory('cream-liquers');
+  // Get all cream liqueur products with error handling
+  let creamLiqueurProducts: any[] = [];
+  try {
+    creamLiqueurProducts = await getProductsByCategory('cream-liquers');
+  } catch (error) {
+    console.error('Error fetching cream liqueur products:', error);
+    // Fallback to empty array to prevent page crash
+    creamLiqueurProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

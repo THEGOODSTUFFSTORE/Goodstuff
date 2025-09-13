@@ -84,7 +84,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose, product, onS
     { value: 'spirit', label: 'Spirits' },
     { value: 'beer', label: 'Beer' },
     { value: 'gin', label: 'Gin' },
-    { value: 'bourbon', label: 'Whisky' },
+    { value: 'whisky', label: 'Whisky' },
     { value: 'vodka', label: 'Vodka' },
     { value: 'rum', label: 'Rum' },
     { value: 'tequila', label: 'Tequila' },

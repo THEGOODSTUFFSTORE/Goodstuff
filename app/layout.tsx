@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: '%s | The Goodstuff'
   },
   description: 'Discover premium wines, spirits, and more at The Goodstuff. We offer a curated selection of fine wines, craft spirits, and exclusive market items.',
-  keywords: ['wine', 'spirits', 'beer', 'gin', 'bourbon', 'vodka', 'cream liqueurs', 'market', 'premium drinks', 'Kenya'],
+  keywords: ['wine', 'spirits', 'beer', 'gin', 'whisky', 'vodka', 'cream liqueurs', 'market', 'premium drinks', 'Kenya'],
   authors: [{ name: 'The Goodstuff Team' }],
   creator: 'The Goodstuff',
   publisher: 'The Goodstuff',

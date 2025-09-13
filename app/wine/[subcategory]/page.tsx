@@ -56,9 +56,11 @@ const subcategoryInfo: { [key: string]: any } = {
 export default async function WineSubcategoryPage({ params }: WineSubcategoryPageProps) {
   const { subcategory } = await params;
   
-  // Get all wine products and filter by subcategory
-  const allProducts = await getProducts();
-  const subcategoryProducts = allProducts.filter(product => {
+  // Get all wine products and filter by subcategory with error handling
+  let subcategoryProducts: any[] = [];
+  try {
+    const allProducts = await getProducts();
+    subcategoryProducts = allProducts.filter(product => {
     if (product.category.toLowerCase() !== 'wine') return false;
     
     const productSubcategory = product.subcategory?.toLowerCase() || '';
@@ -80,6 +82,11 @@ export default async function WineSubcategoryPage({ params }: WineSubcategoryPag
     
     return false;
   });
+  } catch (error) {
+    console.error('Error fetching wine subcategory products:', error);
+    // Fallback to empty array to prevent page crash
+    subcategoryProducts = [];
+  }
 
   const subcategoryData = subcategoryInfo[subcategory] || {
     name: subcategory.charAt(0).toUpperCase() + subcategory.slice(1),

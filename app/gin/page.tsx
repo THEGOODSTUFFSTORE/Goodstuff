@@ -8,8 +8,15 @@ import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
 
 export default async function GinPage() {
-  // Get all gin products
-  const ginProducts = await getProductsByCategory('gin');
+  // Get all gin products with error handling
+  let ginProducts: any[] = [];
+  try {
+    ginProducts = await getProductsByCategory('gin');
+  } catch (error) {
+    console.error('Error fetching gin products:', error);
+    // Fallback to empty array to prevent page crash
+    ginProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

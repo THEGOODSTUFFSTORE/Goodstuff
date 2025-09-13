@@ -10,8 +10,15 @@ import { Product } from '@/lib/types';
 import { FaGlassWhiskey } from 'react-icons/fa';
 
 export default async function RumPage() {
-  // Get all rum products
-  const rumProducts = await getProductsByCategory('rum');
+  // Get all rum products with error handling
+  let rumProducts: any[] = [];
+  try {
+    rumProducts = await getProductsByCategory('rum');
+  } catch (error) {
+    console.error('Error fetching rum products:', error);
+    // Fallback to empty array to prevent page crash
+    rumProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

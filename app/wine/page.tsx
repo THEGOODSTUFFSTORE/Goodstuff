@@ -38,11 +38,18 @@ const wineSubcategories = [
 ];
 
 export default async function WinePage() {
-  // Get all wine products
-  const allProducts = await getProducts();
-  const wineProducts = allProducts.filter(product => 
-    product.category.toLowerCase() === 'wine'
-  );
+  // Get all wine products with error handling
+  let wineProducts: any[] = [];
+  try {
+    const allProducts = await getProducts();
+    wineProducts = allProducts.filter(product => 
+      product.category.toLowerCase() === 'wine'
+    );
+  } catch (error) {
+    console.error('Error fetching wine products:', error);
+    // Fallback to empty array to prevent page crash
+    wineProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

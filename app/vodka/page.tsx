@@ -8,8 +8,15 @@ import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
 
 export default async function VodkaPage() {
-  // Get all vodka products
-  const vodkaProducts = await getProductsByCategory('vodka');
+  // Get all vodka products with error handling
+  let vodkaProducts: any[] = [];
+  try {
+    vodkaProducts = await getProductsByCategory('vodka');
+  } catch (error) {
+    console.error('Error fetching vodka products:', error);
+    // Fallback to empty array to prevent page crash
+    vodkaProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

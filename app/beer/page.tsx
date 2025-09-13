@@ -8,8 +8,15 @@ import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
 
 export default async function BeerPage() {
-  // Get all beer products
-  const beerProducts = await getProductsByCategory('beer');
+  // Get all beer products with error handling
+  let beerProducts: any[] = [];
+  try {
+    beerProducts = await getProductsByCategory('beer');
+  } catch (error) {
+    console.error('Error fetching beer products:', error);
+    // Fallback to empty array to prevent page crash
+    beerProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

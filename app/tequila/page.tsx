@@ -9,8 +9,15 @@ import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
 
 export default async function TequilaPage() {
-  // Get all tequila products
-  const tequilaProducts = await getProductsByCategory('tequila');
+  // Get all tequila products with error handling
+  let tequilaProducts: any[] = [];
+  try {
+    tequilaProducts = await getProductsByCategory('tequila');
+  } catch (error) {
+    console.error('Error fetching tequila products:', error);
+    // Fallback to empty array to prevent page crash
+    tequilaProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

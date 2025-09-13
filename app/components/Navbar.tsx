@@ -67,7 +67,7 @@ const Navbar = () => {
       key: 'spirits' as DropdownCategory,
       href: '/spirit',
       items: [
-        { name: 'Whisky', href: '/bourbon', description: 'Bourbon, Scotch & More' },
+        { name: 'Whisky', href: '/whisky', description: 'Whisky, Scotch & More' },
         { name: 'Gin', href: '/gin', description: 'Premium & Craft Gin' },
         { name: 'Vodka', href: '/vodka', description: 'Premium Vodka Selection' },
         { name: 'Rum', href: '/rum', description: 'Dark, White & Spiced' },

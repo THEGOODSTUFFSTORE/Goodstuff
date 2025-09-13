@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { User } from 'firebase/auth';
-import { ShoppingBag, User as UserIcon, Settings, LogOut, Package, Clock, CheckCircle, XCircle, ChevronRight, TrendingUp } from 'lucide-react';
+import { ShoppingBag, User as UserIcon, Settings, LogOut, Package, Clock, CheckCircle, XCircle, ChevronRight, TrendingUp, Home, Store } from 'lucide-react';
 import { Order } from '@/lib/types';
 import Image from 'next/image';
+import Navbar from '@/app/components/Navbar';
 
 const CustomerDashboard = () => {
   const router = useRouter();
@@ -481,6 +482,7 @@ const CustomerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Sidebar */}
@@ -505,6 +507,26 @@ const CustomerDashboard = () => {
               </div>
               <div className="p-2">
                 <nav className="space-y-1">
+                  {/* Navigation Links */}
+                  <button
+                    onClick={() => router.push('/')}
+                    className="flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:bg-gray-50 hover:text-red-500"
+                  >
+                    <Home className="mr-3 h-5 w-5" />
+                    <span>Home</span>
+                  </button>
+                  <button
+                    onClick={() => router.push('/products')}
+                    className="flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:bg-gray-50 hover:text-red-500"
+                  >
+                    <Store className="mr-3 h-5 w-5" />
+                    <span>Browse Products</span>
+                  </button>
+                  
+                  {/* Divider */}
+                  <div className="border-t border-gray-200 my-2"></div>
+                  
+                  {/* Dashboard Tabs */}
                   <button
                     onClick={() => setActiveTab('orders')}
                     className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors ${

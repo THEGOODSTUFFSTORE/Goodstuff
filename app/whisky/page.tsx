@@ -7,9 +7,16 @@ import ProductCard from '@/app/components/ProductCard';
 import { getProductsByCategory } from '@/lib/api';
 import { Product } from '@/lib/types';
 
-export default async function BourbonPage() {
-  // Get all bourbon products
-  const bourbonProducts = await getProductsByCategory('bourbon');
+export default async function WhiskyPage() {
+  // Get all whisky products with error handling
+  let whiskyProducts: any[] = [];
+  try {
+    whiskyProducts = await getProductsByCategory('whisky');
+  } catch (error) {
+    console.error('Error fetching whisky products:', error);
+    // Fallback to empty array to prevent page crash
+    whiskyProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -24,10 +31,10 @@ export default async function BourbonPage() {
               Whisky Collection
             </h1>
             <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
-              Experience the finest Kentucky and American whiskies
+              Experience the finest whiskies from around the world
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {bourbonProducts.length} whiskies available • Free delivery for orders above Ksh. 3000
+              {whiskyProducts.length} whiskies available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>
@@ -70,7 +77,7 @@ export default async function BourbonPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {bourbonProducts.map((product) => (
+          {whiskyProducts.map((product) => (
             <ProductCard 
               key={product.id} 
               product={product} 
@@ -86,9 +93,9 @@ export default async function BourbonPage() {
             <p className="text-gray-600 mb-6">
               Can't find what you're looking for? Browse our complete whisky collection
             </p>
-            <Link href="/products?category=bourbon">
+            <Link href="/products?category=whisky">
               <button className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
-                View All {bourbonProducts.length} Whiskies
+                View All {whiskyProducts.length} Whiskies
               </button>
             </Link>
           </div>

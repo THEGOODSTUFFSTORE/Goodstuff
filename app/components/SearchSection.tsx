@@ -34,7 +34,7 @@ export default function SearchSection() {
       name: 'Whisky',
       image: '/whisky.png',
       gradient: 'from-amber-600 to-yellow-400',
-      href: '/bourbon'
+      href: '/whisky'
     },
     {
       name: 'Vodka',

@@ -18,7 +18,7 @@ export default function CategoryGrid() {
       name: 'Whisky',
       image: '🥃',
       gradient: 'from-amber-600 to-yellow-400',
-      href: '/bourbon'
+      href: '/whisky'
     },
     {
       name: 'Vodka',

@@ -10,8 +10,15 @@ import { Product } from '@/lib/types';
 import { FaGlassWhiskey } from 'react-icons/fa';
 
 export default async function CiderPage() {
-  // Get all cider products
-  const ciderProducts = await getProductsByCategory('cider');
+  // Get all cider products with error handling
+  let ciderProducts: any[] = [];
+  try {
+    ciderProducts = await getProductsByCategory('cider');
+  } catch (error) {
+    console.error('Error fetching cider products:', error);
+    // Fallback to empty array to prevent page crash
+    ciderProducts = [];
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
