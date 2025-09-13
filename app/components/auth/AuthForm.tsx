@@ -5,6 +5,7 @@ import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useUserStore } from '@/lib/store';
 
 interface AuthFormProps {
   mode: 'login' | 'register' | 'reset';
@@ -12,6 +13,7 @@ interface AuthFormProps {
 
 const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   const router = useRouter();
+  const { setUser } = useUserStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,9 +25,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   const getRedirectUrl = () => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('redirect') || '/dashboard';
+      return urlParams.get('redirect') || '/';
     }
-    return '/dashboard';
+    return '/';
   };
 
   const handleGoogleSignIn = async () => {
@@ -52,6 +54,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
         throw new Error('Failed to create session');
       }
 
+      // Update user store
+      setUser(userCredential.user);
       router.push(getRedirectUrl());
     } catch (err: any) {
       console.error('Google auth error:', err);
@@ -89,6 +93,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           throw new Error('Failed to create session');
         }
 
+        // Update user store
+        setUser(userCredential.user);
         router.push(getRedirectUrl());
       } else if (mode === 'login') {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -106,6 +112,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
           throw new Error('Failed to create session');
         }
 
+        // Update user store
+        setUser(userCredential.user);
         router.push(getRedirectUrl());
       } else if (mode === 'reset') {
         await sendPasswordResetEmail(auth, email);

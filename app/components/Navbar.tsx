@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCartStore, useUserStore } from '@/lib/store';
-import { ShoppingBag, User, ChevronDown } from 'lucide-react';
+import { ShoppingBag, User, ChevronDown, UserCheck, LogIn } from 'lucide-react';
 
 type DropdownCategory = 'categories' | 'spirits' | 'market' | 'product-sections';
 
@@ -254,13 +254,29 @@ const Navbar = () => {
 
             {/* Right side icons */}
             <div className="flex items-center space-x-1 sm:space-x-3">
-              {/* Account link */}
+              {/* Account link with dynamic icon */}
               <Link 
                 href={isClient && isAuthenticated ? "/dashboard" : "/login"} 
-                className="p-1.5 sm:p-2 rounded-xl transition-all duration-300 group relative text-gray-700 hover:text-red-500 hover:bg-gray-50"
+                className={`p-1.5 sm:p-2 rounded-xl transition-all duration-300 group relative hover:bg-gray-50 ${
+                  isClient && isAuthenticated 
+                    ? 'text-green-600 hover:text-green-700' 
+                    : 'text-gray-700 hover:text-red-500'
+                }`}
                 title={isClient && isAuthenticated ? "Dashboard" : "Login"}
               >
-                <User className="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" />
+                <div className="relative">
+                  {isClient && isAuthenticated ? (
+                    <UserCheck className="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" />
+                  ) : (
+                    <LogIn className="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" />
+                  )}
+                  {/* Green dot indicator for logged-in users */}
+                  {isClient && isAuthenticated && (
+                    <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-green-500 text-white text-xs font-bold rounded-full h-3 w-3 sm:h-4 sm:w-4 flex items-center justify-center animate-pulse">
+                      <span className="sr-only">Online</span>
+                    </span>
+                  )}
+                </div>
               </Link>
 
               {/* Cart link with item count */}
