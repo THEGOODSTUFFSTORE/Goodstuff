@@ -1,6 +1,7 @@
 import { adminDb } from './firebase-admin';
 import { collection, getDocs, query, where, doc, getDoc, orderBy, limit, startAfter, QueryDocumentSnapshot } from 'firebase/firestore';
 import { Product } from './types';
+import { getFallbackProducts } from './fallback-data';
 
 // In-memory cache for products
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -26,6 +27,16 @@ function setCache(key: string, data: any): void {
   cache.set(key, { data, timestamp: Date.now() });
 }
 
+// Helper function to safely check if Firebase Admin is available
+function isFirebaseAdminAvailable(): boolean {
+  try {
+    return typeof window === 'undefined' && adminDb !== null && adminDb !== undefined;
+  } catch (error) {
+    console.warn('Firebase Admin availability check failed:', error);
+    return false;
+  }
+}
+
 // Helper function to transform Contentful image URL
 const getProductImageUrl = (contentfulImage: any): string => {
   if (!contentfulImage?.fields?.file?.url) {
@@ -38,7 +49,7 @@ const getProductImageUrl = (contentfulImage: any): string => {
 export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocumentSnapshot): Promise<Product[]> {
   try {
     // Use Admin SDK on the server to avoid initializing client SDK during build
-    if (typeof window === 'undefined' && adminDb) {
+    if (isFirebaseAdminAvailable()) {
       let q = adminDb.collection('products').orderBy('createdAt', 'desc').limit(pageSize);
       if (lastDoc) {
         // Admin SDK pagination uses startAfter with field value; skipping for simplicity in server path
@@ -76,6 +87,8 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
     return products;
   } catch (error) {
     console.error('Error fetching products:', error);
+    // Return empty array as fallback for all products
+    console.log('Using empty array fallback for all products');
     return [];
   }
 }
@@ -83,7 +96,7 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
 // Optimized fetch products by category with caching
 export async function getProductsByCategory(category: string, pageSize: number = 1000): Promise<Product[]> {
   try {
-    if (typeof window === 'undefined' && adminDb) {
+    if (isFirebaseAdminAvailable()) {
       const snapshot = await adminDb
         .collection('products')
         .where('category', '==', category)
@@ -112,7 +125,9 @@ export async function getProductsByCategory(category: string, pageSize: number =
     return products;
   } catch (error) {
     console.error(`Error fetching products for category ${category}:`, error);
-    return [];
+    // Return fallback data when Firebase fails
+    console.log(`Using fallback data for category: ${category}`);
+    return getFallbackProducts(category);
   }
 }
 
@@ -124,7 +139,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       return null;
     }
     console.log('Fetching product with ID:', id);
-    if (typeof window === 'undefined' && adminDb) {
+    if (isFirebaseAdminAvailable()) {
       const adminDoc = await adminDb.collection('products').doc(id).get();
       if (!adminDoc.exists) {
         console.error('Product document does not exist for ID:', id);
@@ -176,7 +191,7 @@ export async function getProductsBySection(section: string, itemLimit: number = 
       console.log(`Returning cached products for section: ${section}`);
       return cached;
     }
-    if (typeof window === 'undefined' && adminDb) {
+    if (isFirebaseAdminAvailable()) {
       const snapshot = await adminDb
         .collection('products')
         .where('sections', 'array-contains', section)

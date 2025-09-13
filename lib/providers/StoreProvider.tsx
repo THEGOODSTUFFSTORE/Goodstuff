@@ -8,9 +8,16 @@ export default function StoreProvider({
   children: React.ReactNode
 }) {
   useEffect(() => {
-    useCartStore.persist.rehydrate()
-    useUserStore.persist.rehydrate()
+    // Only rehydrate on client side
+    if (typeof window !== 'undefined') {
+      try {
+        useCartStore.persist.rehydrate()
+        useUserStore.persist.rehydrate()
+      } catch (error) {
+        console.warn('Store rehydration failed:', error)
+      }
+    }
   }, [])
 
-  return children
+  return <>{children}</>
 } 

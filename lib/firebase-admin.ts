@@ -71,6 +71,8 @@ if (!adminInitialized) {
       error: error instanceof Error ? error.message : 'Unknown error',
       code: error instanceof Error && 'code' in error ? (error as any).code : undefined
     });
+    // Don't set adminInitialized to true if initialization failed
+    adminInitialized = false;
   }
 }
 

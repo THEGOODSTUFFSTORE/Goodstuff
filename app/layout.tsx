@@ -125,7 +125,7 @@ export default function RootLayout({
         <link rel="preload" href="/logo.png" as="image" type="image/png" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased`}>
-        <StoreProvider>
+        {/* <StoreProvider> */}
           {children}
           <ToastContainer
             position="top-right"
@@ -139,9 +139,9 @@ export default function RootLayout({
             pauseOnHover
             theme="light"
           />
-          <AgeVerificationModal />
-          <WhatsAppFloat />
-        </StoreProvider>
+        <AgeVerificationModal />
+        <WhatsAppFloat />
+        {/* </StoreProvider> */}
         
         {/* Google Analytics */}
         <Script
