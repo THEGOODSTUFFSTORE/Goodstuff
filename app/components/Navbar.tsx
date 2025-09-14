@@ -120,8 +120,8 @@ const Navbar = () => {
       )}
 
       <nav className="fixed top-0 left-0 right-0 z-50 shadow-lg">
-        {/* TOP BAR (red) */}
-        <div className="bg-red-700 text-white">
+        {/* TOP BAR (brand dark grey-blue) */}
+        <div className="bg-[#2b3a4a] text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Desktop top row */}
             <div className="hidden lg:flex items-center h-16">
@@ -444,6 +444,8 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
+      {/* Spacer to offset fixed navbar height so content isn't covered */}
+      <div className="h-24 lg:h-28" aria-hidden="true" />
     </>
   );
 };
