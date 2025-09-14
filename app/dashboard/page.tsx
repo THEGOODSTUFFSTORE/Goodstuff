@@ -54,7 +54,7 @@ const CustomerDashboard = () => {
           }, 6000);
         }
       } else {
-        router.push('/login');
+        router.push('/');
       }
       setLoading(false);
     });
@@ -155,7 +155,7 @@ const CustomerDashboard = () => {
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      router.push('/login');
+      router.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
     }

@@ -86,16 +86,16 @@ const AdminSettings = () => {
             setAuthError('');
           } else {
             setAuthError('You do not have admin privileges. Please contact your administrator.');
-            router.push('/login');
+            router.push('/');
           }
         } catch (error: any) {
           console.error('Auth error:', error);
           setAuthError(error.message || 'Authentication failed. Please try logging in again.');
-          router.push('/login');
+          router.push('/');
         }
       } else {
         setAuthError('Please log in to access admin settings.');
-        router.push('/login');
+        router.push('/');
       }
       setIsLoading(false);
     });
@@ -583,7 +583,7 @@ const AdminSettings = () => {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
           <p className="text-red-700">{authError}</p>
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => router.push('/')}
             className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
             Go to Login

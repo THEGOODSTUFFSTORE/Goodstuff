@@ -73,19 +73,21 @@ export async function PATCH(
     await updateOrderServer(orderId, updateData);
     console.log('Order status updated successfully in database');
 
-    // Send appropriate email notifications (non-blocking)
+    // Send appropriate email notifications (await to ensure delivery on serverless)
     if (status === 'shipped') {
       console.log('Sending shipping notification email to:', orderData.userEmail);
-      // Fire and forget - don't wait for email to send
-      sendOrderNotifications(orderData as any, 'shipped', driverNumber).catch((error: unknown) => {
+      try {
+        await sendOrderNotifications(orderData as any, 'shipped', driverNumber);
+      } catch (error: unknown) {
         console.error('Failed to send shipping notification:', error);
-      });
+      }
     } else if (status === 'delivered' || status === 'completed') {
       console.log('Sending delivery notification email to:', orderData.userEmail);
-      // Fire and forget - don't wait for email to send
-      sendOrderNotifications(orderData as any, 'delivered').catch((error: unknown) => {
+      try {
+        await sendOrderNotifications(orderData as any, 'delivered');
+      } catch (error: unknown) {
         console.error('Failed to send delivery notification:', error);
-      });
+      }
     }
 
     return NextResponse.json({

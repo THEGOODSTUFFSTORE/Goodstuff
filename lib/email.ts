@@ -13,6 +13,10 @@ const emailConfig = {
   pool: true,
   maxConnections: 3,
   maxMessages: 100,
+  // Conservative timeouts to prevent long-hangs on Gmail
+  connectionTimeout: 10000, // 10s
+  greetingTimeout: 10000,   // 10s
+  socketTimeout: 20000,     // 20s
 } as const;
 
 // Allow disabling all order emails via env
@@ -20,6 +24,48 @@ const DISABLE_ORDER_EMAILS = (process.env.DISABLE_ORDER_EMAILS || '').toLowerCas
 
 // Create transporter
 const transporter = nodemailer.createTransport(emailConfig);
+
+// Retry + timeout helpers
+const EMAIL_SEND_MAX_ATTEMPTS = Number.parseInt(process.env.EMAIL_SEND_MAX_ATTEMPTS || '2');
+const EMAIL_SEND_BASE_BACKOFF_MS = Number.parseInt(process.env.EMAIL_SEND_BASE_BACKOFF_MS || '600');
+const EMAIL_SEND_TIMEOUT_MS = Number.parseInt(process.env.EMAIL_SEND_TIMEOUT_MS || '8000');
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function sendMailWithRetry(mailOptions: any): Promise<void> {
+  let attempt = 0;
+  // Always attempt at least once
+  const maxAttempts = Math.max(1, EMAIL_SEND_MAX_ATTEMPTS);
+  // Per-attempt timeout wrapper
+  const sendWithTimeout = async (): Promise<void> => {
+    const timeout = new Promise<never>((_, reject) => {
+      const id = setTimeout(() => {
+        clearTimeout(id);
+        reject(new Error(`Email send timed out after ${EMAIL_SEND_TIMEOUT_MS}ms`));
+      }, EMAIL_SEND_TIMEOUT_MS);
+    });
+    await Promise.race([
+      transporter.sendMail(mailOptions) as Promise<void>,
+      timeout,
+    ]);
+  };
+
+  for (;;) {
+    attempt += 1;
+    try {
+      await sendWithTimeout();
+      return; // success
+    } catch (err) {
+      const isLast = attempt >= maxAttempts;
+      console.error(`Email send attempt ${attempt}/${maxAttempts} failed:`, err);
+      if (isLast) throw err;
+      const backoffMs = EMAIL_SEND_BASE_BACKOFF_MS * attempt;
+      await delay(backoffMs);
+    }
+  }
+}
 
 // Email templates
 export interface EmailTemplate {
@@ -559,9 +605,10 @@ export const sendEmail = async (to: string, template: EmailTemplate): Promise<bo
       text: template.text,
       html: template.html,
       replyTo: ADMIN_EMAIL,
+      priority: 'high',
     } as const;
 
-    await transporter.sendMail(mailOptions);
+    await sendMailWithRetry(mailOptions);
     console.log(`Email sent successfully to ${to}`);
     return true;
   } catch (error) {
