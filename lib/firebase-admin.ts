@@ -1,4 +1,5 @@
 // This is a server-side only module
+import 'server-only';
 import * as admin from 'firebase-admin';
 
 // Function to get service account from environment variables or JSON file

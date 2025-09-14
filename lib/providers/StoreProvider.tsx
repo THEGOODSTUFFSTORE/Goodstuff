@@ -11,8 +11,10 @@ export default function StoreProvider({
     // Only rehydrate on client side
     if (typeof window !== 'undefined') {
       try {
-        useCartStore.persist.rehydrate()
-        useUserStore.persist.rehydrate()
+        const cartAny = useCartStore as any
+        const userAny = useUserStore as any
+        cartAny?.persist?.rehydrate?.()
+        userAny?.persist?.rehydrate?.()
       } catch (error) {
         console.warn('Store rehydration failed:', error)
       }
