@@ -13,12 +13,10 @@ const Navbar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [navSearch, setNavSearch] = useState('');
-  
-  // Only access stores on client side
-  const cartStore = isClient ? useCartStore() : { totalItems: 0 };
-  const userStore = isClient ? useUserStore() : { user: null, isAuthenticated: false };
-  const { totalItems } = cartStore;
-  const { user, isAuthenticated } = userStore;
+
+  const totalItems = useCartStore((state) => state.totalItems);
+  const user = useUserStore((state) => state.user);
+  const isAuthenticated = useUserStore((state) => state.isAuthenticated);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<DropdownCategory | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -105,7 +103,6 @@ const Navbar = () => {
     }
   ];
 
-  // Update the NavigationItem type to include optional items with descriptions
   type NavigationItem = {
     name: string;
     key: DropdownCategory;
@@ -115,7 +112,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Backdrop blur overlay for mobile menu */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
@@ -123,7 +119,6 @@ const Navbar = () => {
         />
       )}
 
-      {/* Main navbar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out ${
         isScrolled 
           ? 'backdrop-blur-xl shadow-xl' 
@@ -336,7 +331,7 @@ const Navbar = () => {
                           <Link
                             key={subItem.href}
                             href={subItem.href}
-                            className="block px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-red-500 hover:bg-gray-50 min-h-[40px] flex items-center"
+                            className="block w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-red-500 hover:bg-gray-50 min-h-[40px] flex items-center"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             {subItem.name}
@@ -376,7 +371,7 @@ const Navbar = () => {
               </Link>
               
               {/* Authentication Links */}
-              {isClient && !isAuthenticated && (
+              {!isClient && (
                 <>
                   <Link
                     href="/login"
@@ -394,7 +389,7 @@ const Navbar = () => {
                   </Link>
                 </>
               )}
-              {!isClient && (
+              {isClient && !isAuthenticated && (
                 <>
                   <Link
                     href="/login"

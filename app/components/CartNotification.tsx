@@ -1,20 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useCartStore } from '@/lib/store'
 import { ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
+import { useCartStore } from '@/lib/store'
 
 export default function CartNotification() {
-  const [isClient, setIsClient] = useState(false)
-  const cartStore = isClient ? useCartStore() : { totalItems: 0 }
-  const { totalItems } = cartStore
+  const totalItems = useCartStore((state) => state.totalItems)
 
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  if (!isClient || totalItems === 0) return null
+  if (totalItems === 0) return null
 
   return (
     <Link
