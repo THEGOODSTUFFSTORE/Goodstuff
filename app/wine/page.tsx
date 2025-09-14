@@ -1,9 +1,9 @@
-import React from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaWineGlassAlt, FaArrowRight } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import { getProducts } from '@/lib/api';
 
 const wineSubcategories = [
   {
@@ -15,7 +15,7 @@ const wineSubcategories = [
   },
   {
     id: 'white',
-    name: 'White', 
+    name: 'White',
     description: 'Crisp and refreshing white wines',
     image: '/white-wine2.webp',
     types: ['Chardonnay', 'Pinot Grigio', 'Riesling']
@@ -27,7 +27,7 @@ const wineSubcategories = [
     image: '/rose-wine.jpg',
     types: ['Provence Rosé', 'Spanish Rosado', 'Italian Rosato', 'Grenache Rosé']
   },
-  
+
   {
     id: 'champagne',
     name: 'Champagne',
@@ -37,24 +37,28 @@ const wineSubcategories = [
   }
 ];
 
-export default async function WinePage() {
-  // Get all wine products with error handling
-  let wineProducts: any[] = [];
-  try {
-    const allProducts = await getProducts();
-    wineProducts = allProducts.filter(product => 
-      product.category.toLowerCase() === 'wine'
-    );
-  } catch (error) {
-    console.error('Error fetching wine products:', error);
-    // Fallback to empty array to prevent page crash
-    wineProducts = [];
-  }
+export default function WinePage() {
+  const [wineCount, setWineCount] = useState(0);
+
+  useEffect(() => {
+    const loadWineCount = async () => {
+      try {
+        const res = await fetch('/api/products?type=wine', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to fetch wine');
+        const products = await res.json();
+        setWineCount(Array.isArray(products) ? products.length : 0);
+      } catch (e) {
+        console.error('Error fetching wine products:', e);
+        setWineCount(0);
+      }
+    };
+    loadWineCount();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       {/* Hero Section */}
       <div className="bg-white text-black py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,7 +71,7 @@ export default async function WinePage() {
               Discover our curated selection of premium wines from renowned vineyards around the world
             </p>
             <div className="mt-8 text-lg text-black/80">
-              {wineProducts.length} wines available • Free delivery for orders above Ksh. 3000
+              {wineCount} wines available • Free delivery for orders above Ksh. 3000
             </div>
           </div>
         </div>
@@ -89,7 +93,7 @@ export default async function WinePage() {
       </div>
 
       {/* Background Image Section */}
-      <div 
+      <div
         className="min-h-screen bg-fixed relative"
         style={{
           backgroundImage: 'url(/wine.jpeg)',
@@ -115,7 +119,7 @@ export default async function WinePage() {
               <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
                 {/* Image Header */}
                 <div className="h-48 relative overflow-hidden bg-gray-100">
-                  <img 
+                  <img
                     src={subcategory.image}
                     alt={subcategory.name}
                     className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
@@ -131,7 +135,7 @@ export default async function WinePage() {
                 {/* Content */}
                 <div className="p-6">
                   <p className="text-gray-600 mb-4">{subcategory.description}</p>
-                  
+
 
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Explore Collection</span>
@@ -152,7 +156,7 @@ export default async function WinePage() {
             </p>
             <Link href="/products?category=wine">
               <button className="bg-black hover:bg-gray-800 text-white font-semibold py-3 px-8 rounded-xl transition-colors">
-                View All {wineProducts.length} Wines
+                View All {wineCount} Wines
               </button>
             </Link>
           </div>

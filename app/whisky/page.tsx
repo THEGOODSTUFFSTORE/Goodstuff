@@ -1,5 +1,6 @@
 
-import React from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaGlassWhiskey } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
@@ -7,7 +8,19 @@ import Footer from '@/app/components/Footer';
 import CategoryClient from '@/app/components/CategoryClient';
 
 export default function WhiskyPage() {
-
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/products?category=whisky', { cache: 'no-store' });
+        const data = await res.json();
+        setCount(Array.isArray(data) ? data.length : 0);
+      } catch {
+        setCount(0);
+      }
+    };
+    load();
+  }, []);
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -23,9 +36,7 @@ export default function WhiskyPage() {
             <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
               Experience the finest whiskies from around the world
             </p>
-            <div className="mt-8 text-lg text-black/80">
-              Premium whiskies available • Free delivery for orders above Ksh. 3000
-            </div>
+            <div className="mt-8 text-lg text-black/80">{count} whiskies available • Free delivery for orders above Ksh. 3000</div>
           </div>
         </div>
       </div>
