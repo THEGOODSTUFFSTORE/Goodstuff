@@ -135,7 +135,7 @@ const Navbar = () => {
                     height={52}
                     className="h-10 w-auto"
                   />
-                  <span className="text-2xl font-bold tracking-tight">The Good Stuff</span>
+                  <span className="text-2xl font-bold tracking-tight text-yellow-500">The Good Stuff</span>
                 </Link>
               </div>
 
@@ -221,7 +221,7 @@ const Navbar = () => {
                     height={40}
                     className="h-8 w-auto"
                   />
-                  <span className="text-base font-bold">The Good Stuff</span>
+                  <span className="text-base font-bold text-yellow-500">The Good Stuff</span>
                 </Link>
 
                 {/* Icons */}
