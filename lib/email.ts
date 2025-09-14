@@ -47,7 +47,7 @@ async function sendMailWithRetry(mailOptions: any): Promise<void> {
       }, EMAIL_SEND_TIMEOUT_MS);
     });
     await Promise.race([
-      transporter.sendMail(mailOptions) as Promise<void>,
+      transporter.sendMail(mailOptions),
       timeout,
     ]);
   };
