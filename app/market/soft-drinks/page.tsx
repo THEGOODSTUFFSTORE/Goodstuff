@@ -1,19 +1,34 @@
-import React from 'react';
+'use client';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { FaArrowLeft } from 'react-icons/fa';
 import { GiSodaCan } from 'react-icons/gi';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import ProductCard from '@/app/components/ProductCard';
-import { getProducts } from '@/lib/api';
 
-export default async function SoftDrinksPage() {
-  // Get all market products and filter by soft drinks subcategory
-  const allProducts = await getProducts();
-  const softDrinksProducts = allProducts.filter(product => 
-    product.category.toLowerCase() === 'market' &&
-    product.subcategory.toLowerCase().includes('soft-drinks')
-  );
+export default function SoftDrinksPage() {
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/products?category=market', { cache: 'no-store' });
+        const data = await res.json();
+        setProducts(Array.isArray(data) ? data : []);
+      } catch {
+        setProducts([]);
+      }
+    };
+    load();
+  }, []);
+
+  const softDrinksProducts = useMemo(() => {
+    return products.filter((product: any) =>
+      product.category?.toLowerCase() === 'market' &&
+      product.subcategory?.toLowerCase().includes('soft-drinks')
+    );
+  }, [products]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
