@@ -131,7 +131,7 @@ export async function getProductsByCategory(category: string, pageSize: number =
         const products = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
-        } as Product)).filter((p: any) => (p.status || 'active') !== 'inactive' && (p: any).status !== 'discontinued');
+        } as Product)).filter((p: any) => (p.status || 'active') !== 'inactive' && p.status !== 'discontinued');
         
         allProducts = [...allProducts, ...products];
       }

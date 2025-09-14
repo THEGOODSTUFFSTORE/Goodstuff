@@ -1,16 +1,12 @@
-import React from 'react';
+"use client";
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { FaCocktail, FaArrowLeft } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import ProductCard from '@/app/components/ProductCard';
-import { getProducts } from '@/lib/api';
+import { useParams } from 'next/navigation';
 
-interface MixersSubcategoryPageProps {
-  params: Promise<{
-    subcategory: string;
-  }>;
-}
 
 const subcategoryInfo: { [key: string]: any } = {
   tonic: {
@@ -40,16 +36,33 @@ const subcategoryInfo: { [key: string]: any } = {
   }
 };
 
-export default async function MixersSubcategoryPage({ params }: MixersSubcategoryPageProps) {
-  const { subcategory } = await params;
-  
-  // Get all mixer products and filter by subcategory
-  const allProducts = await getProducts();
-  const subcategoryProducts = allProducts.filter(product => 
-    product.category.toLowerCase() === 'mixers' &&
-    (product.subcategory.toLowerCase().includes(subcategory.toLowerCase()) ||
-     product.subcategory.toLowerCase().replace(/\s+/g, '').includes(subcategory.toLowerCase()))
-  );
+export default function MixersSubcategoryPage() {
+  const { subcategory } = useParams<{ subcategory: string }>();
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/products?category=mixers', { cache: 'no-store' });
+        const data = await res.json();
+        setProducts(Array.isArray(data) ? data : []);
+      } catch {
+        setProducts([]);
+      }
+    };
+    load();
+  }, []);
+
+  const subcategoryProducts = useMemo(() => {
+    const key = (subcategory || '').toString().toLowerCase();
+    return products.filter((product: any) =>
+      product.category?.toLowerCase() === 'mixers' &&
+      (
+        product.subcategory?.toLowerCase().includes(key) ||
+        product.subcategory?.toLowerCase().replace(/\s+/g, '').includes(key)
+      )
+    );
+  }, [products, subcategory]);
 
   const subcategoryData = subcategoryInfo[subcategory] || {
     name: subcategory.charAt(0).toUpperCase() + subcategory.slice(1),

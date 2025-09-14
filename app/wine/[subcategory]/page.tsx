@@ -1,16 +1,13 @@
-import React from 'react';
+"use client";
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { FaWineGlassAlt, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import ProductCard from '@/app/components/ProductCard';
-import { getProducts } from '@/lib/api';
+import { useParams } from 'next/navigation';
 
-interface WineSubcategoryPageProps {
-  params: Promise<{
-    subcategory: string;
-  }>;
-}
+interface WineSubcategoryPageProps {}
 
 const subcategoryInfo: { [key: string]: any } = {
   red: {
@@ -53,40 +50,37 @@ const subcategoryInfo: { [key: string]: any } = {
   }
 };
 
-export default async function WineSubcategoryPage({ params }: WineSubcategoryPageProps) {
-  const { subcategory } = await params;
-  
-  // Get all wine products and filter by subcategory with error handling
-  let subcategoryProducts: any[] = [];
-  try {
-    const allProducts = await getProducts();
-    subcategoryProducts = allProducts.filter(product => {
-    if (product.category.toLowerCase() !== 'wine') return false;
-    
-    const productSubcategory = product.subcategory?.toLowerCase() || '';
-    const searchSubcategory = subcategory.toLowerCase();
-    
-    // Direct match
-    if (productSubcategory === searchSubcategory) return true;
-    
-    // Match without spaces/hyphens
-    if (productSubcategory.replace(/[\s-]/g, '') === searchSubcategory.replace(/[\s-]/g, '')) return true;
-    
-    // Match for specific wine types
-    if (searchSubcategory === 'red' && productSubcategory.includes('red')) return true;
-    if (searchSubcategory === 'white' && productSubcategory.includes('white')) return true;
-    if (searchSubcategory === 'rose' && (productSubcategory.includes('rose') || productSubcategory.includes('rosé'))) return true;
-    if (searchSubcategory === 'champagne' && productSubcategory.includes('champagne')) return true;
-    
-    // Match for specific varietals
-    
-    return false;
-  });
-  } catch (error) {
-    console.error('Error fetching wine subcategory products:', error);
-    // Fallback to empty array to prevent page crash
-    subcategoryProducts = [];
-  }
+export default function WineSubcategoryPage({}: WineSubcategoryPageProps) {
+  const { subcategory } = useParams<{ subcategory: string }>();
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/products?type=wine', { cache: 'no-store' });
+        const data = await res.json();
+        setProducts(Array.isArray(data) ? data : []);
+      } catch {
+        setProducts([]);
+      }
+    };
+    load();
+  }, []);
+
+  const subcategoryProducts = useMemo(() => {
+    const searchSubcategory = (subcategory || '').toString().toLowerCase();
+    return products.filter((product: any) => {
+      const productSubcategory = product.subcategory?.toLowerCase() || '';
+      if (product.category?.toLowerCase() !== 'wine') return false;
+      if (productSubcategory === searchSubcategory) return true;
+      if (productSubcategory.replace(/[\s-]/g, '') === searchSubcategory.replace(/[\s-]/g, '')) return true;
+      if (searchSubcategory === 'red' && productSubcategory.includes('red')) return true;
+      if (searchSubcategory === 'white' && productSubcategory.includes('white')) return true;
+      if (searchSubcategory === 'rose' && (productSubcategory.includes('rose') || productSubcategory.includes('rosé'))) return true;
+      if (searchSubcategory === 'champagne' && productSubcategory.includes('champagne')) return true;
+      return false;
+    });
+  }, [products, subcategory]);
 
   const subcategoryData = subcategoryInfo[subcategory] || {
     name: subcategory.charAt(0).toUpperCase() + subcategory.slice(1),

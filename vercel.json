@@ -36,12 +36,7 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/_next/static/css/(.*)",
-      "destination": "/_next/static/css/$1"
-    }
-  ],
+  "rewrites": [],
   "redirects": [
     {
       "source": "/(.*)",
