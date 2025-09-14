@@ -1,7 +1,5 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { Product } from '@/lib/types';
 import ProductCard from '@/app/components/ProductCard';
 import Link from 'next/link';
@@ -36,20 +34,20 @@ export default function CategoryClient({
         setIsLoading(true);
         setError(null);
         
-        const productsRef = collection(db, 'products');
-        const q = query(
-          productsRef,
-          where('category', '==', category),
-          orderBy('createdAt', 'desc')
-        );
+        // Use API endpoint instead of direct Firebase access
+        const categoriesToFetch = category === 'whisky' ? ['whisky', 'bourbon'] : [category];
+        let allProducts: Product[] = [];
         
-        const querySnapshot = await getDocs(q);
-        const fetchedProducts = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as Product));
+        for (const cat of categoriesToFetch) {
+          const response = await fetch(`/api/products?category=${cat}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch products for category ${cat}`);
+          }
+          const fetchedProducts = await response.json();
+          allProducts = [...allProducts, ...fetchedProducts];
+        }
         
-        setProducts(fetchedProducts);
+        setProducts(allProducts);
       } catch (err) {
         console.error(`Error fetching ${category} products:`, err);
         setError(`Failed to load ${categoryName} products`);

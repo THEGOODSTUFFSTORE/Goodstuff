@@ -96,33 +96,45 @@ export async function getProducts(pageSize: number = 1000, lastDoc?: QueryDocume
 // Optimized fetch products by category with caching
 export async function getProductsByCategory(category: string, pageSize: number = 1000): Promise<Product[]> {
   try {
+    // Special handling for whisky category to include bourbon products
+    const categoriesToFetch = category === 'whisky' ? ['whisky', 'bourbon'] : [category];
+    let allProducts: Product[] = [];
+    
     if (isFirebaseAdminAvailable() && adminDb) {
-      const snapshot = await adminDb
-        .collection('products')
-        .where('category', '==', category)
-        .orderBy('createdAt', 'desc')
-        .limit(pageSize)
-        .get();
-      const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product))
-        .filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
-      return products;
+      for (const cat of categoriesToFetch) {
+        const snapshot = await adminDb
+          .collection('products')
+          .where('category', '==', cat)
+          .orderBy('createdAt', 'desc')
+          .limit(pageSize)
+          .get();
+        const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product))
+          .filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
+        allProducts = [...allProducts, ...products];
+      }
+      return allProducts;
     }
+    
     const { db } = await import('./firebase');
-    const productsRef = collection(db, 'products');
-    const q = query(
-      productsRef, 
-      where('category', '==', category),
-      orderBy('createdAt', 'desc'),
-      limit(pageSize)
-    );
-    const querySnapshot = await getDocs(q);
+    for (const cat of categoriesToFetch) {
+      const productsRef = collection(db, 'products');
+      const q = query(
+        productsRef, 
+        where('category', '==', cat),
+        orderBy('createdAt', 'desc'),
+        limit(pageSize)
+      );
+      const querySnapshot = await getDocs(q);
 
-    const products = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Product)).filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
+      const products = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Product)).filter((p: any) => (p.status || 'active') !== 'inactive' && (p.status || 'active') !== 'discontinued');
+      
+      allProducts = [...allProducts, ...products];
+    }
 
-    return products;
+    return allProducts;
   } catch (error) {
     console.error(`Error fetching products for category ${category}:`, error);
     // Return fallback data when Firebase fails

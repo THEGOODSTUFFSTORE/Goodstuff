@@ -13,8 +13,12 @@ const Navbar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [navSearch, setNavSearch] = useState('');
-  const { totalItems } = useCartStore();
-  const { user, isAuthenticated } = useUserStore();
+  
+  // Only access stores on client side
+  const cartStore = isClient ? useCartStore() : { totalItems: 0 };
+  const userStore = isClient ? useUserStore() : { user: null, isAuthenticated: false };
+  const { totalItems } = cartStore;
+  const { user, isAuthenticated } = userStore;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<DropdownCategory | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);

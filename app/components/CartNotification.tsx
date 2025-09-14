@@ -7,7 +7,8 @@ import Link from 'next/link'
 
 export default function CartNotification() {
   const [isClient, setIsClient] = useState(false)
-  const { totalItems } = useCartStore()
+  const cartStore = isClient ? useCartStore() : { totalItems: 0 }
+  const { totalItems } = cartStore
 
   useEffect(() => {
     setIsClient(true)

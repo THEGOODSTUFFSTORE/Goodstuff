@@ -11,7 +11,8 @@ interface AddToBasketButtonProps {
 
 export default function AddToBasketButton({ product, className }: AddToBasketButtonProps) {
   const [isClient, setIsClient] = useState(false);
-  const { addItem } = useCartStore();
+  const cartStore = isClient ? useCartStore() : { addItem: () => {} };
+  const { addItem } = cartStore;
 
   useEffect(() => {
     setIsClient(true);

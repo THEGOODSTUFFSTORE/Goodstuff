@@ -68,15 +68,24 @@ export async function GET(request: NextRequest) {
     // Handle category-based queries
     if (category && category !== 'all') {
       if (!adminDb) return NextResponse.json([], { status: 200 });
-      const snapshot = await adminDb
-        .collection('products')
-        .where('category', '==', category)
-        .orderBy('createdAt', 'desc')
-        .limit(pageSize)
-        .get();
-      const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product)).filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued');
-      console.log(`Fetched ${products.length} products for category: ${category}`);
-      return NextResponse.json(products);
+      
+      // Special handling for whisky category to include bourbon products
+      const categoriesToFetch = category === 'whisky' ? ['whisky', 'bourbon'] : [category];
+      let allProducts: Product[] = [];
+      
+      for (const cat of categoriesToFetch) {
+        const snapshot = await adminDb
+          .collection('products')
+          .where('category', '==', cat)
+          .orderBy('createdAt', 'desc')
+          .limit(pageSize)
+          .get();
+        const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product)).filter((p: any) => p.status !== 'inactive' && p.status !== 'discontinued');
+        allProducts = [...allProducts, ...products];
+      }
+      
+      console.log(`Fetched ${allProducts.length} products for category: ${category}`);
+      return NextResponse.json(allProducts);
     }
     
     // For wine/non-wine filtering, we still need to fetch and filter
