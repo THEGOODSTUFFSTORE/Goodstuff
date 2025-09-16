@@ -51,7 +51,7 @@ export default function CreamLiquersPage() {
       <div 
         className="min-h-screen bg-fixed relative"
         style={{
-          backgroundImage: 'url(/creamimage.jpg)',
+          backgroundImage: 'url(/beerimage.jpeg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
