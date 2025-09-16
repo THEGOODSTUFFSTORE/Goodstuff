@@ -25,17 +25,23 @@ function toHttps(url?: string | null): string | null {
   return url;
 }
 
-async function getHeroImageUrl(page: string): Promise<string | null> {
+async function getHeroImageUrl(page: string, isPreview: boolean): Promise<string | null> {
   const space = process.env.CONTENTFUL_SPACE_ID;
   const env = process.env.CONTENTFUL_ENVIRONMENT_ID || 'master';
-  const token = process.env.CONTENTFUL_DELIVERY_TOKEN;
+  const deliveryToken = process.env.CONTENTFUL_DELIVERY_TOKEN;
+  const previewToken = process.env.CONTENTFUL_PREVIEW_TOKEN;
   const fallbackUrl = process.env.HERO_IMAGE_URL || null;
+
+  // Prefer preview token when preview is requested and token is available
+  const usePreview = isPreview && !!previewToken;
+  const token = usePreview ? previewToken : deliveryToken;
 
   if (!space || !token) {
     return fallbackUrl;
   }
 
-  const base = `https://cdn.contentful.com/spaces/${space}/environments/${env}`;
+  const host = usePreview ? 'preview.contentful.com' : 'cdn.contentful.com';
+  const base = `https://${host}/spaces/${space}/environments/${env}`;
 
   // Try content type hero/Hero with fields.pageKey
   const heroTypeCandidates = ['hero', 'Hero'];
@@ -105,8 +111,9 @@ async function getHeroImageUrl(page: string): Promise<string | null> {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = (searchParams.get('page') || 'home').toLowerCase();
+  const isPreview = searchParams.get('preview') === '1';
 
-  const url = await getHeroImageUrl(page);
+  const url = await getHeroImageUrl(page, isPreview);
   if (!url) {
     return NextResponse.json({ url: null }, { status: 200 });
   }
