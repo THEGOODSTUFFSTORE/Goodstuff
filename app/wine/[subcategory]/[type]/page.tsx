@@ -88,21 +88,31 @@ export default function WineTypePage({ params }: WineTypePageProps) {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-red-50 to-pink-100 py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex justify-center mb-6">
-              <FaWineGlassAlt className="h-16 w-16 text-red-600" />
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-black mb-6">
-              {displayType} Wines
-            </h1>
-            <p className="text-xl sm:text-2xl text-black/90 max-w-3xl mx-auto">
-              Discover our curated selection of {displayType.toLowerCase()} wines
-            </p>
-            <div className="mt-8 text-lg text-black/80">
-              {isLoading ? 'Loading...' : `${typeProducts.length} wines available`} • Free delivery for orders above Ksh. 3000
+      {/* Background Image Section (Hero) */}
+      <div
+        className="bg-fixed relative py-16 sm:py-24"
+        style={{
+          backgroundImage: 'url(/wine.jpeg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
+        <div className="relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex justify-center mb-6">
+                <FaWineGlassAlt className="h-16 w-16 text-white" />
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+                {displayType} Wines
+              </h1>
+              <p className="text-xl sm:text-2xl text-white/90 max-w-3xl mx-auto">
+                Discover our curated selection of {displayType.toLowerCase()} wines
+              </p>
+              <div className="mt-8 text-lg text-white/90">
+                {isLoading ? 'Loading...' : `${typeProducts.length} wines available`} • Free delivery for orders above Ksh. 3000
+              </div>
             </div>
           </div>
         </div>
