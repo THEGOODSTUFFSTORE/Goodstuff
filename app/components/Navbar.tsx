@@ -1,6 +1,5 @@
 "use client";
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCartStore, useUserStore } from '@/lib/store';
@@ -125,17 +124,12 @@ const Navbar = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Desktop top row */}
             <div className="hidden lg:flex items-center h-16">
-              {/* Logo */}
+              {/* Brand Text (no logo) */}
               <div className="flex-shrink-0">
-                <Link href="/" className="flex items-center gap-3 py-2">
-                  <Image
-                    src="/logo.png"
-                    alt="The Goodstuff Logo"
-                    width={52}
-                    height={52}
-                    className="h-10 w-auto"
-                  />
-                  <span className="text-2xl font-bold tracking-tight text-yellow-500">The Good Stuff</span>
+                <Link href="/" className="flex items-center py-2">
+                  <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#FFDF88] via-[#FFA55D] to-[#ACC572] bg-clip-text text-transparent drop-shadow-sm">
+                    The Goodstuff
+                  </span>
                 </Link>
               </div>
 
@@ -212,16 +206,11 @@ const Navbar = () => {
                   <span className="text-sm font-semibold tracking-wide">MENU</span>
                 </button>
 
-                {/* Logo */}
-                <Link href="/" className="flex items-center gap-2">
-                  <Image
-                    src="/logo.png"
-                    alt="The Goodstuff Logo"
-                    width={40}
-                    height={40}
-                    className="h-8 w-auto"
-                  />
-                  <span className="text-base font-bold text-yellow-500">The Good Stuff</span>
+                {/* Brand Text (no logo) */}
+                <Link href="/" className="flex items-center">
+                  <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-[#FFDF88] via-[#FFA55D] to-[#ACC572] bg-clip-text text-transparent">
+                    The Goodstuff
+                  </span>
                 </Link>
 
                 {/* Icons */}
