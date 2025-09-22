@@ -1,16 +1,11 @@
-'use client';
+"use client";
 import React from 'react';
 
 import Link from 'next/link';
 import { FaShieldAlt, FaGavel } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Terms & Conditions',
-  description: 'Read The Goodstuff Terms and Conditions. Learn about our policies, user agreements, and legal terms for using our platform.',
-};
+// metadata moved to app/terms/head.tsx
 
 export default function TermsPage() {
   return (

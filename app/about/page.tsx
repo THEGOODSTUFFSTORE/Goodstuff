@@ -1,16 +1,11 @@
-'use client';
+"use client";
 import React from 'react';
 import Link from 'next/link';
 import { FaArrowLeft, FaUserTie, FaAward, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
 import { GiWineBottle } from 'react-icons/gi';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'About Us',
-  description: 'Learn about The Goodstuff - your premier destination for fine wines, spirits, and beverages in Kenya. Discover our story, mission, and commitment to quality.',
-};
+// metadata moved to app/about/head.tsx
 
 export default function AboutPage() {
   return (
