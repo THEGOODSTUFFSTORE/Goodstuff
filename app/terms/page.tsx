@@ -1,4 +1,6 @@
+'use client';
 import React from 'react';
+
 import Link from 'next/link';
 import { FaShieldAlt, FaGavel } from 'react-icons/fa';
 import Navbar from '@/app/components/Navbar';
