@@ -1,5 +1,5 @@
+"use client";
 import React from 'react'
-import { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 import Hero from './components/Hero'
 import Navbar from './components/Navbar'
@@ -57,11 +57,6 @@ const PopularWines = dynamic(() => import('./components/PopularWines'), {
 const Footer = dynamic(() => import('./components/Footer'), {
   loading: () => <div className="h-64 bg-gray-100 animate-pulse" />,
 })
-
-export const metadata: Metadata = {
-  title: 'Home',
-  description: 'Home page',
-}
 
 function page() {
   return (
